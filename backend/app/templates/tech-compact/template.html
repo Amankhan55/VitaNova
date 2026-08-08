@@ -1,0 +1,42 @@
+{% import '_shared/macros.html' as m %}
+{#
+  Tech Compact design for software engineers and technical roles.
+  Compact spacing, monospaced tech tags, and a clean structured layout.
+#}
+<div class="vn-sheet">
+  <header class="vn-header">
+    <div class="vn-header-table">
+      <div class="vn-header-left">
+        <h1 class="vn-name">{{ basics.full_name }}</h1>
+        {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+      </div>
+      <div class="vn-header-right">
+        {% if basics.email %}<div><span class="vn-contact-icon">@</span>{{ basics.email }}</div>{% endif %}
+        {% if basics.phone %}<div><span class="vn-contact-icon">#</span>{{ basics.phone }}</div>{% endif %}
+        {% if basics.location %}<div><span class="vn-contact-icon">^</span>{{ basics.location }}</div>{% endif %}
+        {% for link in basics.links %}
+          {% if link.label %}<div><span class="vn-contact-icon">&gt;</span>{{ link.label }}</div>{% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </header>
+
+  {% for section in sections %}
+    <section class="vn-section vn-section--{{ section.type }}">
+      <h2 class="vn-section-title">// {{ section.title }}</h2>
+
+      {% if section.type == 'skills' %}
+        <div class="vn-skills-container">
+          {% for item in section.items %}
+            <div class="vn-skill-row">
+              <span class="vn-skill-label">{{ item.label }}:</span>
+              <span class="vn-skill-tags">{{ item.keywords | select | join(', ') }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        {{ m.section_body(section) }}
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>

@@ -1,0 +1,92 @@
+/* ==========================================================================
+   Classic ATS — single column, parser-friendly
+   No colour, no artwork, no multi-column text. Everything here is chosen so a
+   resume parser reads the document in the same order a human does.
+   ========================================================================== */
+
+:root {
+  --ats-ink: #111827;
+  --ats-body: #2A2F38;
+  --ats-rule: #C8CDD4;
+}
+
+.vn-classic-ats {
+  color: var(--ats-body);
+  font-size: calc(10pt * var(--vn-font-scale, 1));
+}
+
+/* -------------------------------------------------- header */
+
+.vn-classic-ats .vn-header {
+  text-align: center;
+  margin-bottom: calc(9px * var(--vn-density, 1));
+}
+.vn-classic-ats .vn-name {
+  font-size: calc(21pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--ats-ink);
+}
+.vn-classic-ats .vn-headline {
+  margin-top: 2px;
+  font-size: calc(11pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: var(--ats-ink);
+}
+.vn-classic-ats .vn-contact-line {
+  margin-top: 4px;
+  font-size: 0.95em;
+  line-height: 1.5;
+  color: var(--ats-body);
+}
+
+/* -------------------------------------------------- sections */
+
+.vn-classic-ats .vn-section-title {
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+  color: var(--ats-ink);
+  padding-bottom: 2px;
+  margin-bottom: 5px;
+  border-bottom: 0.6pt solid var(--ats-rule);
+}
+
+.vn-classic-ats .vn-summary { text-align: justify; }
+
+.vn-classic-ats .vn-entry-title {
+  font-weight: 700;
+  color: var(--ats-ink);
+  font-size: 1.02em;
+}
+.vn-classic-ats .vn-entry-dates,
+.vn-classic-ats .vn-entry-location {
+  font-weight: 400;
+  color: var(--ats-body);
+  font-size: 0.97em;
+}
+/* The org sits on the title line as "Role — Organization", matching how most
+   parsers expect to find employer and title adjacent. */
+.vn-classic-ats .vn-entry--experience .vn-entry-org,
+.vn-classic-ats .vn-entry--education .vn-entry-org {
+  font-weight: 700;
+  color: var(--ats-ink);
+}
+.vn-classic-ats .vn-bullets { text-align: justify; padding-left: 1.15em; }
+.vn-classic-ats .vn-tags { font-style: italic; font-size: 0.97em; }
+
+/* -------------------------------------------------- skills grid */
+
+.vn-classic-ats .vn-skill-table { display: table; width: 100%; }
+.vn-classic-ats .vn-skill-row { display: table-row; }
+.vn-classic-ats .vn-skill-label,
+.vn-classic-ats .vn-skill-values { display: table-cell; padding-bottom: 2px; vertical-align: top; }
+.vn-classic-ats .vn-skill-label {
+  width: 34mm;
+  font-weight: 700;
+  color: var(--ats-ink);
+  padding-right: 4mm;
+  white-space: nowrap;
+}

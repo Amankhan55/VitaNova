@@ -1,0 +1,114 @@
+/* Tech Compact Template Styling */
+
+.vn-tech-compact {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1e293b;
+}
+
+.vn-tech-compact .vn-header {
+  margin-bottom: calc(14px * var(--vn-density, 1));
+  padding-bottom: calc(10px * var(--vn-density, 1));
+  border-bottom: 2px solid var(--vn-accent, #0284c7);
+}
+
+.vn-tech-compact .vn-header-table {
+  display: table;
+  width: 100%;
+}
+
+.vn-tech-compact .vn-header-left {
+  display: table-cell;
+  vertical-align: bottom;
+}
+
+.vn-tech-compact .vn-header-right {
+  display: table-cell;
+  vertical-align: bottom;
+  text-align: right;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: calc(8.8pt * var(--vn-font-scale, 1));
+  color: #475569;
+  line-height: 1.4;
+}
+
+.vn-tech-compact .vn-contact-icon {
+  color: var(--vn-accent, #0284c7);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.vn-tech-compact .vn-name {
+  font-size: calc(22pt * var(--vn-font-scale, 1));
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.vn-tech-compact .vn-headline {
+  font-size: calc(11pt * var(--vn-font-scale, 1));
+  font-weight: 600;
+  color: var(--vn-accent, #0284c7);
+  margin-top: 2px;
+}
+
+.vn-tech-compact .vn-section-title {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: calc(10.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: var(--vn-accent, #0284c7);
+  margin-bottom: calc(8px * var(--vn-density, 1));
+  padding-bottom: 2px;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.vn-tech-compact .vn-entry-title {
+  font-size: calc(10.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.vn-tech-compact .vn-entry-dates {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: calc(9pt * var(--vn-font-scale, 1));
+  color: #64748b;
+}
+
+.vn-tech-compact .vn-entry-org {
+  font-size: calc(9.8pt * var(--vn-font-scale, 1));
+  font-weight: 600;
+  color: #334155;
+}
+
+.vn-tech-compact .vn-entry-location {
+  font-size: calc(9pt * var(--vn-font-scale, 1));
+  color: #64748b;
+}
+
+.vn-tech-compact .vn-bullets {
+  padding-left: 1.05em;
+  color: #1e293b;
+}
+
+.vn-tech-compact .vn-tags {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: calc(8.5pt * var(--vn-font-scale, 1));
+  color: var(--vn-accent, #0284c7);
+  margin-top: 3px;
+}
+
+.vn-tech-compact .vn-skill-row {
+  margin-bottom: 4px;
+}
+
+.vn-tech-compact .vn-skill-label {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: calc(9pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #0f172a;
+  margin-right: 6px;
+}
+
+.vn-tech-compact .vn-skill-tags {
+  font-size: calc(9.5pt * var(--vn-font-scale, 1));
+  color: #334155;
+}

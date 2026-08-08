@@ -1,0 +1,81 @@
+{% import '_shared/macros.html' as m %}
+{#
+  Centred technical layout. Section headings sit between hairlines, and skills
+  run in two columns — the columns are filled top-to-bottom down the left before
+  continuing on the right, which reads far better than alternating sides.
+#}
+<div class="vn-sheet">
+  <header class="vn-header">
+    <h1 class="vn-name">{{ basics.full_name }}</h1>
+
+    {% set contacts = [] %}
+    {% if basics.email %}{% set _ = contacts.append(basics.email) %}{% endif %}
+    {% if basics.phone %}{% set _ = contacts.append(basics.phone) %}{% endif %}
+    {% if basics.location %}{% set _ = contacts.append(basics.location) %}{% endif %}
+    {% for link in basics.links %}
+      {% if link.label %}{% set _ = contacts.append(link.label) %}{% endif %}
+    {% endfor %}
+    {% if contacts %}
+      <div class="vn-contact-line">
+        {% for entry in contacts %}<span class="vn-inline-sep">{{ entry }}</span>{% endfor %}
+      </div>
+    {% endif %}
+    {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+  </header>
+
+  {% for section in sections %}
+    <section class="vn-section vn-section--{{ section.type }}">
+      <h2 class="vn-section-title"><span>{{ section.title }}</span></h2>
+
+      {% if section.type == 'summary' %}
+        <div class="vn-summary">{{ section.content | paragraphs }}</div>
+
+      {% elif section.type == 'skills' %}
+        {% set half = (section.items | length + 1) // 2 %}
+        <div class="vn-cols vn-skill-cols">
+          <div class="vn-col vn-skill-col">
+            {% for item in section.items[:half] %}{{ m.skill_group(item) }}{% endfor %}
+          </div>
+          <div class="vn-col vn-skill-col">
+            {% for item in section.items[half:] %}{{ m.skill_group(item) }}{% endfor %}
+          </div>
+        </div>
+
+      {% elif section.type == 'experience' %}
+        {% for item in section.items %}
+          <div class="vn-entry">
+            {% set head = [item.role, item.organization, item | date_range('-')] | select | list %}
+            {% set place = item.location %}
+            <div class="vn-entry-head">
+              {% for part in head %}
+                <span class="vn-head-part {{ 'vn-head-lead' if loop.first }}">{{ part }}</span>
+                {% if not loop.last %}<span class="vn-head-sep">|</span>{% endif %}
+              {% endfor %}
+              {% if place %}<span class="vn-head-sep">|</span><span class="vn-head-part">{{ place }}</span>{% endif %}
+            </div>
+            {% if item.summary %}<div class="vn-entry-summary">{{ item.summary }}</div>{% endif %}
+            {{ m.bullets(item.bullets) }}
+            {{ m.tags(item.tech) }}
+          </div>
+        {% endfor %}
+
+      {% elif section.type == 'education' %}
+        {% for item in section.items %}
+          <div class="vn-entry">
+            {% set head = [item.degree, item.institution, item | date_range('-')] | select | list %}
+            <div class="vn-entry-head">
+              {% for part in head %}
+                <span class="vn-head-part {{ 'vn-head-lead' if loop.first }}">{{ part }}</span>
+                {% if not loop.last %}<span class="vn-head-sep">|</span>{% endif %}
+              {% endfor %}
+            </div>
+            {{ m.bullets(item.details) }}
+          </div>
+        {% endfor %}
+
+      {% else %}
+        {{ m.section_body(section) }}
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>

@@ -1,0 +1,11 @@
+{
+  "id": "executive-bar",
+  "name": "Executive Bar",
+  "description": "Authoritative corporate design with a strong vertical accent bar beside section titles and elegant structured typography.",
+  "tags": ["Executive", "Corporate", "Accent Bar", "Leadership"],
+  "accent": "#1E3A8A",
+  "accent_presets": ["#1E3A8A", "#15803D", "#7C2D12", "#4338CA", "#334155"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "15mm"
+}

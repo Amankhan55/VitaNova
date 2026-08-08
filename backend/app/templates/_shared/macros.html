@@ -1,0 +1,134 @@
+{# =============================================================================
+   VitaNova — shared template macros
+
+   The four designs differ almost entirely in CSS. These macros give them one
+   common markup vocabulary so a change to, say, how bullets nest applies
+   everywhere at once.
+   ============================================================================= #}
+
+{% macro bullets(items) %}
+  {% set filled = items | select | list %}
+  {% if filled %}
+    <ul class="vn-bullets">
+      {% for bullet in filled %}
+        <li>{{ bullet }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
+
+
+{% macro tags(items, separator=' • ') %}
+  {% set filled = items | select | list %}
+  {% if filled %}
+    <div class="vn-tags">{{ filled | join(separator) }}</div>
+  {% endif %}
+{% endmacro %}
+
+
+{#- One entry heading: primary text on the left, dates floated right. -#}
+{% macro entry_row(primary, aside='', primary_class='vn-entry-title', aside_class='vn-entry-dates') %}
+  {% if primary or aside %}
+    <div class="vn-entry-row">
+      {% if aside %}<span class="vn-entry-aside {{ aside_class }}">{{ aside }}</span>{% endif %}
+      {% if primary %}<span class="{{ primary_class }}">{{ primary }}</span>{% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+
+{#- Experience / education share a shape: title + dates, then org + location. -#}
+{% macro experience_entry(item) %}
+  <div class="vn-entry vn-entry--experience">
+    {{ entry_row(item.role, item | date_range) }}
+    {{ entry_row(item.organization, item.location, 'vn-entry-org', 'vn-entry-location') }}
+    {% if item.summary %}<div class="vn-entry-summary">{{ item.summary }}</div>{% endif %}
+    {{ bullets(item.bullets) }}
+    {{ tags(item.tech) }}
+  </div>
+{% endmacro %}
+
+
+{% macro education_entry(item) %}
+  <div class="vn-entry vn-entry--education">
+    {{ entry_row(item.degree, item | date_range) }}
+    {{ entry_row(item.institution, item.location, 'vn-entry-org', 'vn-entry-location') }}
+    {{ bullets(item.details) }}
+  </div>
+{% endmacro %}
+
+
+{% macro project_entry(item) %}
+  <div class="vn-entry vn-entry--project">
+    {{ entry_row(item.name, item.period) }}
+    {{ tags(item.tech) }}
+    {{ bullets(item.bullets) }}
+  </div>
+{% endmacro %}
+
+
+{% macro certification_entry(item) %}
+  <div class="vn-entry vn-entry--certification">
+    {{ entry_row(item.name, item.date) }}
+    {% set detail = [item.issuer, item.note] | select | join(' • ') %}
+    {% if detail %}<div class="vn-entry-org">{{ detail }}</div>{% endif %}
+  </div>
+{% endmacro %}
+
+
+{% macro language_entry(item) %}
+  <div class="vn-entry vn-entry--language">
+    <div class="vn-entry-title">{{ item.name }}</div>
+    {% if item.level %}<div class="vn-entry-org">{{ item.level }}</div>{% endif %}
+  </div>
+{% endmacro %}
+
+
+{% macro skill_group(item) %}
+  <div class="vn-entry vn-entry--skill">
+    {% if item.label %}<div class="vn-entry-title">{{ item.label }}</div>{% endif %}
+    {{ tags(item.keywords, ', ') }}
+  </div>
+{% endmacro %}
+
+
+{% macro custom_entry(item) %}
+  <div class="vn-entry vn-entry--custom">
+    {{ entry_row(item.title, item.meta) }}
+    {% if item.subtitle %}<div class="vn-entry-org">{{ item.subtitle }}</div>{% endif %}
+    {{ bullets(item.bullets) }}
+  </div>
+{% endmacro %}
+
+
+{#- Dispatches a section's items to the right entry macro. Templates call this
+    so none of them has to know about every section type. -#}
+{% macro section_body(section) %}
+  {% if section.type == 'summary' %}
+    <div class="vn-summary">{{ section.content | paragraphs }}</div>
+  {% elif section.type == 'experience' %}
+    {% for item in section.items %}{{ experience_entry(item) }}{% endfor %}
+  {% elif section.type == 'education' %}
+    {% for item in section.items %}{{ education_entry(item) }}{% endfor %}
+  {% elif section.type == 'projects' %}
+    {% for item in section.items %}{{ project_entry(item) }}{% endfor %}
+  {% elif section.type == 'certifications' %}
+    {% for item in section.items %}{{ certification_entry(item) }}{% endfor %}
+  {% elif section.type == 'languages' %}
+    {% for item in section.items %}{{ language_entry(item) }}{% endfor %}
+  {% elif section.type == 'skills' %}
+    {% for item in section.items %}{{ skill_group(item) }}{% endfor %}
+  {% elif section.type == 'custom' %}
+    {% for item in section.items %}{{ custom_entry(item) }}{% endfor %}
+  {% endif %}
+{% endmacro %}
+
+
+{% macro section(section, heading_class='vn-section-title') %}
+  <section class="vn-section vn-section--{{ section.type }}">
+    {% if section.title %}
+      <h2 class="{{ heading_class }}">{{ section.title }}</h2>
+    {% endif %}
+    {{ section_body(section) }}
+  </section>
+{% endmacro %}

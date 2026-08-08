@@ -1,0 +1,106 @@
+/* Creative Split Template Styling */
+
+.vn-creative-split {
+  color: #1e293b;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.vn-creative-split .vn-banner {
+  background: var(--vn-accent, #4f46e5);
+  color: #ffffff;
+  padding: 16mm 14mm 14mm 14mm;
+}
+
+.vn-creative-split .vn-banner-content {
+  max-width: 100%;
+}
+
+.vn-creative-split .vn-name {
+  font-size: calc(24pt * var(--vn-font-scale, 1));
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.vn-creative-split .vn-headline {
+  font-size: calc(12pt * var(--vn-font-scale, 1));
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 12px;
+}
+
+.vn-creative-split .vn-contact-line {
+  font-size: calc(9.5pt * var(--vn-font-scale, 1));
+}
+
+.vn-creative-split .vn-banner-tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-right: 6px;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.vn-creative-split .vn-body-wrapper {
+  padding: 12mm 14mm 14mm 14mm;
+}
+
+.vn-creative-split .vn-main-col {
+  width: 66%;
+  padding-right: 8mm;
+}
+
+.vn-creative-split .vn-side-col {
+  width: 34%;
+  padding-left: 6mm;
+  border-left: 1px solid #e2e8f0;
+}
+
+.vn-creative-split .vn-section-title,
+.vn-creative-split .vn-side-title {
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--vn-accent, #4f46e5);
+  margin-bottom: calc(10px * var(--vn-density, 1));
+  padding-bottom: 4px;
+  border-bottom: 2px solid rgba(79, 70, 229, 0.2);
+}
+
+.vn-creative-split .vn-entry-title {
+  font-size: calc(10.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.vn-creative-split .vn-entry-dates {
+  font-size: calc(9pt * var(--vn-font-scale, 1));
+  color: #64748b;
+  font-weight: 600;
+}
+
+.vn-creative-split .vn-entry-org {
+  font-size: calc(9.8pt * var(--vn-font-scale, 1));
+  font-weight: 600;
+  color: var(--vn-accent, #4f46e5);
+}
+
+.vn-creative-split .vn-entry-location {
+  font-size: calc(9pt * var(--vn-font-scale, 1));
+  color: #64748b;
+}
+
+.vn-creative-split .vn-bullets {
+  padding-left: 1em;
+  color: #334155;
+}
+
+.vn-creative-split .vn-tags {
+  font-size: calc(9pt * var(--vn-font-scale, 1));
+  color: #475569;
+}

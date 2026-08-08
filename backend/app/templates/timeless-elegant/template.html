@@ -1,0 +1,49 @@
+{% import '_shared/macros.html' as m %}
+{#
+  Serif executive layout.
+
+  The reference design finishes with Education and Certifications sitting side by
+  side. That pairing is reproduced here — and its column widths are fixed, unlike
+  the reference PDF where the Education date column overruns into the
+  Certifications text.
+#}
+{% set paired_types = ['education', 'certifications'] %}
+{% set paired = sections_of(sections, *paired_types) %}
+{% set flowing = sections | rejectattr('type', 'in', paired_types) | list %}
+{# Only pair them when there are exactly two; a lone section reads better full width. #}
+{% set use_pair = paired | length == 2 %}
+
+<div class="vn-sheet">
+  <header class="vn-header">
+    <h1 class="vn-name">{{ basics.full_name }}</h1>
+    {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+
+    {% set contacts = [] %}
+    {% if basics.phone %}{% set _ = contacts.append(basics.phone) %}{% endif %}
+    {% if basics.email %}{% set _ = contacts.append(basics.email) %}{% endif %}
+    {% for link in basics.links %}
+      {% if link.label %}{% set _ = contacts.append(link.label) %}{% endif %}
+    {% endfor %}
+    {% if basics.location %}{% set _ = contacts.append(basics.location) %}{% endif %}
+    {% if contacts %}
+      <div class="vn-contact-line">{{ contacts | join(' · ') }}</div>
+    {% endif %}
+    <div class="vn-diamond">&#9670;</div>
+  </header>
+
+  {% for section in flowing %}
+    {{ m.section(section) }}
+  {% endfor %}
+
+  {% if use_pair %}
+    <div class="vn-cols vn-pair">
+      {% for section in paired %}
+        <div class="vn-col vn-pair-col">{{ m.section(section) }}</div>
+      {% endfor %}
+    </div>
+  {% else %}
+    {% for section in paired %}
+      {{ m.section(section) }}
+    {% endfor %}
+  {% endif %}
+</div>

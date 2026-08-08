@@ -1,0 +1,121 @@
+/* Shared layout for the sign-in and register screens: a brand panel on the left,
+   the form on the right, collapsing to a single column on small screens. */
+
+:host {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  min-height: 100vh;
+}
+
+.pitch {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 22px;
+  padding: 48px 56px;
+  color: #e8eef6;
+  background:
+    radial-gradient(1100px 520px at 12% -10%, rgb(13 148 136 / 34%), transparent 62%),
+    var(--vn-ink);
+}
+
+.pitch-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: #fff;
+}
+
+.pitch-name {
+  font-family: var(--vn-font-serif);
+  font-size: 25px;
+}
+.pitch-name strong { color: #34d399; font-weight: 700; }
+
+.pitch h1 {
+  max-width: 12ch;
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.pitch p {
+  max-width: 46ch;
+  color: #a7b6ca;
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.pitch-list {
+  display: grid;
+  gap: 11px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pitch-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14.5px;
+  color: #c8d5e5;
+}
+.pitch-list vn-icon { color: #34d399; margin-top: 2px; }
+
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: var(--vn-surface);
+}
+
+.form-wrap {
+  width: 100%;
+  max-width: 372px;
+}
+
+.form-wrap h2 {
+  font-size: 25px;
+  margin-bottom: 4px;
+}
+
+.form-lead {
+  margin-bottom: 22px;
+  color: var(--vn-text-muted);
+  font-size: 14.5px;
+}
+
+.submit {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 16px;
+}
+
+.alt {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--vn-text-muted);
+  text-align: center;
+}
+
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  color: #991b1b;
+  background: var(--vn-danger-soft);
+  border: 1px solid #fecaca;
+  border-radius: var(--vn-radius-sm);
+}
+
+@media (max-width: 880px) {
+  :host { grid-template-columns: 1fr; }
+  .pitch { display: none; }
+  .panel { align-items: flex-start; padding-top: 64px; }
+}

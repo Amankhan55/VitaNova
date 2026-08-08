@@ -1,0 +1,41 @@
+{% import '_shared/macros.html' as m %}
+{#
+  Executive Bar design for leadership, management, and consulting roles.
+  Distinct vertical accent block next to titles, clean horizontal dividers,
+  and formal corporate typography.
+#}
+<div class="vn-sheet">
+  <header class="vn-header">
+    <h1 class="vn-name">{{ basics.full_name }}</h1>
+    {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+
+    {% set contacts = [] %}
+    {% if basics.phone %}{% set _ = contacts.append(basics.phone) %}{% endif %}
+    {% if basics.email %}{% set _ = contacts.append(basics.email) %}{% endif %}
+    {% if basics.location %}{% set _ = contacts.append(basics.location) %}{% endif %}
+    {% for link in basics.links %}
+      {% if link.label %}{% set _ = contacts.append(link.label) %}{% endif %}
+    {% endfor %}
+    {% if contacts %}
+      <div class="vn-contact-line">
+        {% for entry in contacts %}<span class="vn-inline-sep">{{ entry }}</span>{% endfor %}
+      </div>
+    {% endif %}
+    <div class="vn-header-divider"></div>
+  </header>
+
+  {% for section in sections %}
+    <section class="vn-section vn-section--{{ section.type }}">
+      <h2 class="vn-section-title">
+        <span class="vn-bar"></span>
+        <span class="vn-title-text">{{ section.title }}</span>
+      </h2>
+
+      {% if section.type == 'summary' %}
+        <div class="vn-executive-summary">{{ section.content | paragraphs }}</div>
+      {% else %}
+        {{ m.section_body(section) }}
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>

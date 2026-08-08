@@ -1,0 +1,31 @@
+@if (showHeader()) {
+  <header class="shell-header">
+    <a class="brand" routerLink="/dashboard" aria-label="VitaNova home">
+      <vn-logo [size]="26" />
+      <span class="brand-name">Vita<strong>Nova</strong></span>
+    </a>
+
+    <nav class="shell-nav">
+      <a routerLink="/dashboard" routerLinkActive="is-active">
+        <vn-icon name="file" [size]="16" />
+        Resumes
+      </a>
+      <a routerLink="/templates" routerLinkActive="is-active">
+        <vn-icon name="layers" [size]="16" />
+        Templates
+      </a>
+    </nav>
+
+    <div class="shell-user">
+      <span class="avatar" [title]="auth.user()?.email ?? ''">{{ initials() }}</span>
+      <button type="button" class="vn-btn vn-btn--ghost vn-btn--sm" (click)="signOut()">
+        <vn-icon name="logout" [size]="16" />
+        Sign out
+      </button>
+    </div>
+  </header>
+}
+
+<main class="shell-main" [class.shell-main--bare]="!showHeader()">
+  <router-outlet />
+</main>

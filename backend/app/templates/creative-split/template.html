@@ -1,0 +1,47 @@
+{% import '_shared/macros.html' as m %}
+{#
+  Creative Split design.
+  Full-bleed accent header block with contact info, followed by a two-column
+  body (main experience vs sidebar skills & credentials).
+#}
+{% set sidebar_types = meta.sidebar_sections if meta else ['skills', 'languages', 'certifications'] %}
+{% set sidebar_sections = sections_of(sections, *sidebar_types) %}
+{% set main_sections = sections | rejectattr('type', 'in', sidebar_types) | list %}
+
+<div class="vn-sheet">
+  <header class="vn-banner">
+    <div class="vn-banner-content">
+      <h1 class="vn-name">{{ basics.full_name }}</h1>
+      {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+
+      {% set contacts = [] %}
+      {% if basics.email %}{% set _ = contacts.append(basics.email) %}{% endif %}
+      {% if basics.phone %}{% set _ = contacts.append(basics.phone) %}{% endif %}
+      {% if basics.location %}{% set _ = contacts.append(basics.location) %}{% endif %}
+      {% for link in basics.links %}
+        {% if link.label %}{% set _ = contacts.append(link.label) %}{% endif %}
+      {% endfor %}
+      {% if contacts %}
+        <div class="vn-contact-line">
+          {% for entry in contacts %}<span class="vn-banner-tag">{{ entry }}</span>{% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="vn-body-wrapper">
+    <div class="vn-cols">
+      <main class="vn-col vn-main-col">
+        {% for section in main_sections %}
+          {{ m.section(section, 'vn-section-title') }}
+        {% endfor %}
+      </main>
+
+      <aside class="vn-col vn-side-col">
+        {% for section in sidebar_sections %}
+          {{ m.section(section, 'vn-side-title') }}
+        {% endfor %}
+      </aside>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+{
+  "id": "centered-mono",
+  "name": "Centered Mono",
+  "description": "Monospaced section titles set between hairlines, a wide-tracked nameplate and a two-column skills block. A technical, understated look that still reads cleanly on paper.",
+  "tags": ["Centered", "Monospace", "Technical"],
+  "accent": "#3F4A56",
+  "accent_presets": ["#3F4A56", "#0D9488", "#1F3A5F", "#7C3AED"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "15mm"
+}

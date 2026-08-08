@@ -1,0 +1,109 @@
+/* ==========================================================================
+   VitaNova — shared document base
+   --------------------------------------------------------------------------
+   This stylesheet is inlined into every rendered resume, and the SAME document
+   is used for the on-screen preview and for the PDF. The two contexts differ
+   only in how the page is framed:
+
+     @media screen  browsers see a paper-like sheet on a grey backdrop, with the
+                    page margins faked as padding on .vn-sheet
+     @media print   WeasyPrint sees @page margins doing the real work, so
+                    .vn-sheet drops its own width/padding entirely
+
+   Everything outside those two blocks is shared, which is what keeps preview
+   and PDF from drifting apart.
+
+   CSS SUBSET RULE: no CSS grid, no exotic flexbox. WeasyPrint and Chrome must
+   agree on the layout, so columns use display:table / table-cell and
+   right-aligned metadata uses floats. Both are rock solid in either engine.
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: calc(10.2pt * var(--vn-font-scale, 1));
+  line-height: 1.42;
+  color: #22272e;
+}
+
+p { margin: 0 0 0.45em; }
+p:last-child { margin-bottom: 0; }
+ul { margin: 0; padding-left: 1.05em; }
+li { margin: 0 0 0.2em; }
+li:last-child { margin-bottom: 0; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; line-height: 1.25; }
+strong, b { font-weight: 700; }
+
+/* -------------------------------------------------------------------------
+   The sheet
+   ------------------------------------------------------------------------- */
+
+.vn-sheet {
+  width: var(--vn-page-width, 210mm);
+  min-height: var(--vn-page-height, 297mm);
+  margin: 0 auto;
+  padding: var(--vn-page-margin, 14mm);
+  background: #ffffff;
+  overflow-wrap: break-word;
+}
+
+@media screen {
+  body {
+    background: #e8ebf0;
+    padding: 22px 0;
+  }
+  .vn-sheet {
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.13), 0 14px 38px rgba(15, 23, 42, 0.15);
+  }
+}
+
+@media print {
+  body { background: none; }
+  /* @page owns the margins here; the sheet must not add its own on top. */
+  .vn-sheet {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Shared primitives used by the macros
+   ------------------------------------------------------------------------- */
+
+.vn-section { margin-bottom: calc(11px * var(--vn-density, 1)); }
+.vn-section:last-child { margin-bottom: 0; }
+
+/* A heading stranded at the foot of a page looks broken; keep it with its content. */
+.vn-section-title,
+.vn-entry-title { break-after: avoid; page-break-after: avoid; }
+
+/* Keep one job / degree / project intact rather than splitting it across pages.
+   If an entry is genuinely taller than a page, the engine still breaks it. */
+.vn-entry { break-inside: avoid; page-break-inside: avoid; }
+
+.vn-entry + .vn-entry { margin-top: calc(8px * var(--vn-density, 1)); }
+
+/* Float-based right-aligned dates. The float is emitted before the text in
+   source order so it lands on the correct line in both engines. */
+.vn-entry-row { }
+.vn-entry-row::after { content: ""; display: table; clear: both; }
+.vn-entry-aside { float: right; padding-left: 8px; }
+
+.vn-bullets { margin-top: 2px; }
+
+.vn-tags { margin-top: 1px; }
+
+/* Two-column scaffolding — tables, not grid, so both engines agree. */
+.vn-cols { display: table; width: 100%; table-layout: fixed; border-collapse: collapse; }
+.vn-col { display: table-cell; vertical-align: top; }
+
+.vn-inline-sep::after { content: "  |  "; white-space: pre; }
+.vn-inline-sep:last-child::after { content: ""; }

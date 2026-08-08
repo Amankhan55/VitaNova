@@ -1,0 +1,179 @@
+/* ==========================================================================
+   Modern Professional — dark full-bleed sidebar + main column
+   ========================================================================== */
+
+:root {
+  --mp-sidebar-width: 34%;
+  --mp-ink: #0F1D33;
+  --mp-side-text: #C6D2E2;
+  --mp-side-label: #7C8DA6;
+  --mp-heading: #16202E;
+  --mp-body: #34404F;
+  --mp-muted: #6B7787;
+}
+
+.vn-modern-professional { color: var(--mp-body); }
+
+/* The dark band must run the full height of EVERY page, including page two where
+   the sidebar's own content has usually run out. Painting it on an element does
+   not achieve that — an element's background only covers the height its content
+   occupies on that page. So the band is painted on the page box itself:
+   screen gets it via .vn-sheet (which has a full-page min-height), print gets it
+   via @page, which always covers the whole sheet edge to edge. */
+@media screen {
+  .vn-modern-professional .vn-sheet { background-image: var(--mp-band); }
+}
+
+@media print {
+  @page { background-image: var(--mp-band); }
+  /* The sheet's own white would paint over the band for exactly the height its
+     content occupies, leaving a notch in the sidebar. @page already supplies
+     both the band and the white field, so the sheet stays transparent. */
+  .vn-modern-professional .vn-sheet { background: none; }
+}
+
+:root {
+  --mp-band: linear-gradient(
+    to right,
+    var(--mp-ink) 0,
+    var(--mp-ink) var(--mp-sidebar-width),
+    #ffffff var(--mp-sidebar-width),
+    #ffffff 100%
+  );
+}
+
+/* Vertical page inset comes from the @page margin so it repeats on every page;
+   these paddings only add the extra breathing room at the top of page one and
+   the horizontal insets, which is exactly the intent. */
+.vn-modern-professional .vn-sidebar {
+  width: var(--mp-sidebar-width);
+  padding: 4mm 8mm 8mm;
+  color: var(--mp-side-text);
+}
+
+.vn-modern-professional .vn-main {
+  padding: 4mm 12mm 8mm 10mm;
+}
+
+/* -------------------------------------------------- sidebar */
+
+.vn-modern-professional .vn-monogram {
+  width: 21mm;
+  height: 21mm;
+  margin: 0 auto 9mm;
+  border: 1.6pt solid var(--vn-accent);
+  border-radius: 50%;
+  text-align: center;
+}
+.vn-modern-professional .vn-monogram span {
+  /* Optical centring: line-height matched to the circle's inner height. */
+  display: block;
+  line-height: 19.5mm;
+  font-size: calc(15pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--vn-accent);
+}
+
+.vn-modern-professional .vn-side-title {
+  font-size: calc(10.5pt * var(--vn-font-scale, 1));
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--vn-accent);
+  padding-bottom: 3px;
+  margin-bottom: 7px;
+  border-bottom: 0.75pt solid rgba(255, 255, 255, 0.16);
+}
+
+.vn-modern-professional .vn-contact { margin-bottom: 6px; font-size: 0.94em; }
+.vn-modern-professional .vn-contact-label {
+  display: block;
+  font-size: 0.78em;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mp-side-label);
+  margin-bottom: 1px;
+}
+
+.vn-modern-professional .vn-sidebar .vn-entry-title {
+  display: block;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-size: 0.96em;
+}
+.vn-modern-professional .vn-sidebar .vn-entry-org,
+.vn-modern-professional .vn-sidebar .vn-tags {
+  color: var(--mp-side-text);
+  font-size: 0.94em;
+}
+.vn-modern-professional .vn-sidebar .vn-entry-aside {
+  float: none;
+  display: block;
+  padding-left: 0;
+  color: var(--mp-side-label);
+  font-size: 0.9em;
+}
+.vn-modern-professional .vn-sidebar .vn-entry { margin-bottom: 7px; }
+.vn-modern-professional .vn-sidebar .vn-section { margin-bottom: 10mm; }
+
+/* -------------------------------------------------- main column */
+
+.vn-modern-professional .vn-name {
+  font-size: calc(25pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--mp-heading);
+}
+.vn-modern-professional .vn-headline {
+  margin-top: 3px;
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--vn-accent);
+}
+.vn-modern-professional .vn-header-rule {
+  margin: 7px 0 11px;
+  border-top: 1.4pt solid var(--vn-accent);
+}
+
+.vn-modern-professional .vn-main .vn-section-title {
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+  color: var(--mp-heading);
+  margin-bottom: 6px;
+  padding-bottom: 3px;
+  border-bottom: 0.6pt solid #D7DDE5;
+}
+
+.vn-modern-professional .vn-summary { text-align: justify; }
+
+.vn-modern-professional .vn-main .vn-entry-title {
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: var(--mp-heading);
+}
+.vn-modern-professional .vn-main .vn-entry-dates {
+  font-weight: 700;
+  color: var(--vn-accent);
+  font-size: 0.96em;
+}
+.vn-modern-professional .vn-main .vn-entry-org {
+  font-weight: 700;
+  color: var(--vn-accent);
+  font-size: 0.98em;
+}
+.vn-modern-professional .vn-main .vn-entry-location {
+  font-style: italic;
+  color: var(--mp-muted);
+  font-weight: 400;
+  font-size: 0.96em;
+}
+.vn-modern-professional .vn-main .vn-tags {
+  font-weight: 700;
+  color: #5F7183;
+  font-size: 0.93em;
+}
+.vn-modern-professional .vn-main .vn-bullets { padding-left: 1.1em; }

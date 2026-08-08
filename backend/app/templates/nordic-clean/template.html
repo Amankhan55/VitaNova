@@ -1,0 +1,49 @@
+{% import '_shared/macros.html' as m %}
+{#
+  Nordic Clean design: Scandi-inspired clean layout with pill chips, soft borders,
+  and airy typography.
+#}
+<div class="vn-sheet">
+  <header class="vn-header">
+    <h1 class="vn-name">{{ basics.full_name }}</h1>
+    {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+
+    {% set contacts = [] %}
+    {% if basics.email %}{% set _ = contacts.append(basics.email) %}{% endif %}
+    {% if basics.phone %}{% set _ = contacts.append(basics.phone) %}{% endif %}
+    {% if basics.location %}{% set _ = contacts.append(basics.location) %}{% endif %}
+    {% for link in basics.links %}
+      {% if link.label %}{% set _ = contacts.append(link.label) %}{% endif %}
+    {% endfor %}
+    {% if contacts %}
+      <div class="vn-contact-chips">
+        {% for entry in contacts %}
+          <span class="vn-chip">{{ entry }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </header>
+
+  {% for section in sections %}
+    <section class="vn-section vn-section--{{ section.type }}">
+      <h2 class="vn-section-title"><span class="vn-title-badge">{{ section.title }}</span></h2>
+
+      {% if section.type == 'skills' %}
+        <div class="vn-skills-group">
+          {% for item in section.items %}
+            <div class="vn-skill-block">
+              {% if item.label %}<div class="vn-skill-label">{{ item.label }}</div>{% endif %}
+              <div class="vn-chip-list">
+                {% for kw in item.keywords %}
+                  {% if kw %}<span class="vn-chip vn-chip--accent">{{ kw }}</span>{% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        {{ m.section_body(section) }}
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>

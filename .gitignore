@@ -1,0 +1,18 @@
+# Python
+backend/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+backend/.env
+backend/sample-output/
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Local MongoDB data, created by `mongod --dbpath ./.data/db`
+.data/
+
+# macOS
+.DS_Store

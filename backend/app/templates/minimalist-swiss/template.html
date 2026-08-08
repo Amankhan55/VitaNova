@@ -1,0 +1,37 @@
+{% import '_shared/macros.html' as m %}
+{#
+  Minimalist Swiss / International Typographic Style.
+  High contrast sans-serif typography, clean horizontal rules under section
+  titles, and an indented summary block with a vertical accent bar.
+#}
+<div class="vn-sheet">
+  <header class="vn-header">
+    <h1 class="vn-name">{{ basics.full_name }}</h1>
+    {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+
+    {% set contacts = [] %}
+    {% if basics.email %}{% set _ = contacts.append(basics.email) %}{% endif %}
+    {% if basics.phone %}{% set _ = contacts.append(basics.phone) %}{% endif %}
+    {% if basics.location %}{% set _ = contacts.append(basics.location) %}{% endif %}
+    {% for link in basics.links %}
+      {% if link.label %}{% set _ = contacts.append(link.label) %}{% endif %}
+    {% endfor %}
+    {% if contacts %}
+      <div class="vn-contact-line">
+        {% for entry in contacts %}<span class="vn-inline-sep">{{ entry }}</span>{% endfor %}
+      </div>
+    {% endif %}
+  </header>
+
+  {% for section in sections %}
+    <section class="vn-section vn-section--{{ section.type }}">
+      <h2 class="vn-section-title">{{ section.title }}</h2>
+
+      {% if section.type == 'summary' %}
+        <div class="vn-summary-quote">{{ section.content | paragraphs }}</div>
+      {% else %}
+        {{ m.section_body(section) }}
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>

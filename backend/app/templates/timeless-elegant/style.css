@@ -1,0 +1,136 @@
+/* ==========================================================================
+   Timeless Elegant — cream page, serif nameplate, gold rules
+   ========================================================================== */
+
+:root {
+  --te-paper: #FAFAF7;
+  --te-ink: #1A1A17;
+  --te-body: #3A3F45;
+  --te-muted: #6A7078;
+  --te-serif: Georgia, "Times New Roman", "Iowan Old Style", serif;
+}
+
+.vn-timeless-elegant {
+  color: var(--te-body);
+  font-size: calc(10pt * var(--vn-font-scale, 1));
+}
+
+.vn-timeless-elegant .vn-sheet { background: var(--te-paper); }
+
+/* The cream must reach every edge of every page, so in print the page box
+   carries it — the sheet only covers the height its content occupies. */
+@media print {
+  @page { background: var(--te-paper); }
+}
+
+/* -------------------------------------------------- header */
+
+.vn-timeless-elegant .vn-header {
+  text-align: center;
+  margin-bottom: calc(6px * var(--vn-density, 1));
+}
+.vn-timeless-elegant .vn-name {
+  font-family: var(--te-serif);
+  font-size: calc(27pt * var(--vn-font-scale, 1));
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--te-ink);
+  /* letter-spacing adds a trailing gap that visually shifts centred text left */
+  text-indent: 0.1em;
+}
+.vn-timeless-elegant .vn-headline {
+  margin-top: 7px;
+  font-size: calc(9.5pt * var(--vn-font-scale, 1));
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: var(--vn-accent);
+  text-indent: 0.19em;
+}
+.vn-timeless-elegant .vn-contact-line {
+  margin-top: 8px;
+  font-size: 0.94em;
+  color: var(--te-muted);
+}
+.vn-timeless-elegant .vn-diamond {
+  margin: 9px 0 4px;
+  font-size: 0.7em;
+  color: var(--vn-accent);
+}
+
+/* -------------------------------------------------- section headings
+
+   Heading text followed by a rule that fills the remaining width. The rule is
+   an ::after box given width:100% and clipped by overflow:hidden — no flexbox,
+   so WeasyPrint and the browser draw it identically.                        */
+
+.vn-timeless-elegant .vn-section-title {
+  font-family: var(--te-serif);
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--te-ink);
+  margin-bottom: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.vn-timeless-elegant .vn-section-title::after {
+  content: "";
+  display: inline-block;
+  width: 100%;
+  margin-left: 0.7em;
+  vertical-align: middle;
+  border-top: 0.6pt solid #D8CBA8;
+}
+
+/* -------------------------------------------------- entries */
+
+.vn-timeless-elegant .vn-summary { text-align: justify; }
+
+.vn-timeless-elegant .vn-entry-title {
+  font-family: var(--te-serif);
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: var(--te-ink);
+}
+.vn-timeless-elegant .vn-entry-dates {
+  font-size: 0.92em;
+  letter-spacing: 0.07em;
+  color: var(--vn-accent);
+}
+.vn-timeless-elegant .vn-entry-org {
+  font-weight: 700;
+  font-size: 0.97em;
+  color: #2F3E52;
+}
+.vn-timeless-elegant .vn-entry-location {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--te-muted);
+  font-size: 0.94em;
+}
+
+/* Gold bullet glyphs, set with ::marker's more portable cousin so both engines
+   agree on the colour. */
+.vn-timeless-elegant .vn-bullets { list-style: none; padding-left: 0.2em; }
+.vn-timeless-elegant .vn-bullets li { padding-left: 0.9em; text-indent: -0.9em; }
+.vn-timeless-elegant .vn-bullets li::before {
+  content: "\2022";
+  color: var(--vn-accent);
+  padding-right: 0.55em;
+}
+
+.vn-timeless-elegant .vn-tags { font-style: italic; color: var(--te-muted); font-size: 0.94em; }
+
+/* -------------------------------------------------- paired footer columns
+
+   Fixed 50/50 with a gutter. The reference PDF lets its left column's dates
+   collide with the right column's text; the gutter and table-layout:fixed here
+   make that impossible. */
+
+.vn-timeless-elegant .vn-pair { margin-top: calc(11px * var(--vn-density, 1)); }
+.vn-timeless-elegant .vn-pair-col { width: 50%; }
+.vn-timeless-elegant .vn-pair-col:first-child { padding-right: 7mm; }
+.vn-timeless-elegant .vn-pair-col:last-child { padding-left: 7mm; }
+.vn-timeless-elegant .vn-pair .vn-entry-aside { padding-left: 6px; }

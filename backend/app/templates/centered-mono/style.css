@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Centered Mono — monospaced titles between hairlines
+   ========================================================================== */
+
+:root {
+  --cm-ink: #2B333C;
+  --cm-body: #3E464F;
+  --cm-muted: #6E767F;
+  --cm-rule: #9AA3AC;
+  --cm-mono: ui-monospace, "SF Mono", "Menlo", "DejaVu Sans Mono", monospace;
+}
+
+.vn-centered-mono {
+  color: var(--cm-body);
+  font-size: calc(10pt * var(--vn-font-scale, 1));
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------- header */
+
+.vn-centered-mono .vn-header {
+  text-align: center;
+  margin-bottom: calc(10px * var(--vn-density, 1));
+}
+.vn-centered-mono .vn-name {
+  font-size: calc(26pt * var(--vn-font-scale, 1));
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cm-ink);
+  text-indent: 0.14em; /* offsets the trailing letter-space so it centres true */
+}
+.vn-centered-mono .vn-contact-line {
+  margin-top: 8px;
+  font-size: 0.97em;
+  color: var(--cm-body);
+}
+.vn-centered-mono .vn-headline {
+  margin-top: 4px;
+  font-size: 0.97em;
+  letter-spacing: 0.06em;
+  color: var(--cm-muted);
+}
+
+/* -------------------------------------------------- section headings
+
+   A centred monospace label with a hairline reaching out to both margins.
+   The two rules are ::before / ::after boxes pulled out by negative margins and
+   clipped with overflow:hidden — the portable way to do this without flexbox. */
+
+.vn-centered-mono .vn-section-title {
+  font-family: var(--cm-mono);
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--cm-ink);
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-bottom: 7px;
+}
+.vn-centered-mono .vn-section-title span { display: inline-block; }
+.vn-centered-mono .vn-section-title span::before,
+.vn-centered-mono .vn-section-title span::after {
+  content: "";
+  display: inline-block;
+  width: 50vw;
+  vertical-align: middle;
+  border-top: 0.6pt solid var(--cm-rule);
+}
+.vn-centered-mono .vn-section-title span::before { margin: 0 0.9em 0 -50vw; }
+.vn-centered-mono .vn-section-title span::after { margin: 0 -50vw 0 0.9em; }
+
+/* -------------------------------------------------- entries */
+
+.vn-centered-mono .vn-summary { text-align: center; }
+
+.vn-centered-mono .vn-entry-head {
+  text-align: center;
+  margin-bottom: 3px;
+}
+.vn-centered-mono .vn-head-part { color: var(--cm-body); }
+.vn-centered-mono .vn-head-lead { font-weight: 700; color: var(--cm-ink); }
+.vn-centered-mono .vn-head-sep { color: var(--cm-muted); padding: 0 0.45em; }
+
+.vn-centered-mono .vn-bullets { padding-left: 1.2em; }
+.vn-centered-mono .vn-entry + .vn-entry { margin-top: calc(11px * var(--vn-density, 1)); }
+
+.vn-centered-mono .vn-entry-title { font-weight: 700; color: var(--cm-ink); }
+.vn-centered-mono .vn-entry-org,
+.vn-centered-mono .vn-tags { color: var(--cm-body); }
+.vn-centered-mono .vn-entry-dates { color: var(--cm-muted); }
+
+/* -------------------------------------------------- skills columns */
+
+.vn-centered-mono .vn-skill-col { width: 50%; vertical-align: top; }
+.vn-centered-mono .vn-skill-col:first-child { padding-right: 6mm; }
+.vn-centered-mono .vn-skill-col:last-child { padding-left: 6mm; }
+.vn-centered-mono .vn-entry--skill { margin-bottom: 6px; }
+.vn-centered-mono .vn-entry--skill .vn-entry-title { font-size: 1em; }
+.vn-centered-mono .vn-entry--skill .vn-tags { padding-left: 0.8em; }

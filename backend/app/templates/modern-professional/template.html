@@ -1,0 +1,59 @@
+{% import '_shared/macros.html' as m %}
+{#
+  Two-column design with a full-bleed dark sidebar.
+
+  The split is done with display:table so the sidebar and main column can both
+  flow across page breaks — CSS grid would not survive WeasyPrint, and a floated
+  sidebar would not repeat onto page two. The dark band itself is painted as a
+  gradient on .vn-sheet, which the engine repeats on every page fragment, so the
+  sidebar colour continues even where sidebar content has run out.
+#}
+{% set sidebar_types = meta.sidebar_sections if meta else ['skills', 'languages', 'certifications'] %}
+{% set sidebar_sections = sections_of(sections, *sidebar_types) %}
+{% set main_sections = sections | rejectattr('type', 'in', sidebar_types) | list %}
+
+<div class="vn-sheet">
+  <div class="vn-cols">
+
+    <aside class="vn-col vn-sidebar">
+      {% if monogram %}
+        <div class="vn-monogram"><span>{{ monogram }}</span></div>
+      {% endif %}
+
+      <section class="vn-section vn-section--contact">
+        <h2 class="vn-side-title">Contact</h2>
+        {% if basics.phone %}
+          <div class="vn-contact"><span class="vn-contact-label">Phone</span>{{ basics.phone }}</div>
+        {% endif %}
+        {% if basics.email %}
+          <div class="vn-contact"><span class="vn-contact-label">Email</span>{{ basics.email }}</div>
+        {% endif %}
+        {% for link in basics.links %}
+          {% if link.label %}
+            <div class="vn-contact"><span class="vn-contact-label">{{ link.icon }}</span>{{ link.label }}</div>
+          {% endif %}
+        {% endfor %}
+        {% if basics.location %}
+          <div class="vn-contact"><span class="vn-contact-label">Location</span>{{ basics.location }}</div>
+        {% endif %}
+      </section>
+
+      {% for section in sidebar_sections %}
+        {{ m.section(section, 'vn-side-title') }}
+      {% endfor %}
+    </aside>
+
+    <main class="vn-col vn-main">
+      <header class="vn-header">
+        <h1 class="vn-name">{{ basics.full_name }}</h1>
+        {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+        <div class="vn-header-rule"></div>
+      </header>
+
+      {% for section in main_sections %}
+        {{ m.section(section) }}
+      {% endfor %}
+    </main>
+
+  </div>
+</div>

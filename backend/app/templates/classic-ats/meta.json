@@ -1,0 +1,11 @@
+{
+  "id": "classic-ats",
+  "name": "Classic ATS",
+  "description": "One column, no colour, no graphics — built so applicant tracking systems parse every line correctly. The safest choice when you are applying through a large company's job portal.",
+  "tags": ["Single column", "ATS safe", "Plain"],
+  "accent": "#111827",
+  "accent_presets": ["#111827", "#1F3A5F", "#0D9488"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "14mm"
+}

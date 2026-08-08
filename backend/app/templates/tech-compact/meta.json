@@ -1,0 +1,11 @@
+{
+  "id": "tech-compact",
+  "name": "Tech Compact",
+  "description": "Designed for developers and engineers with dense skill matrices, monospaced tech stack indicators, and compact section spacing.",
+  "tags": ["Developer", "Technical", "Compact", "ATS safe"],
+  "accent": "#0284C7",
+  "accent_presets": ["#0284C7", "#10B981", "#6366F1", "#EA580C", "#0F172A"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "12mm"
+}

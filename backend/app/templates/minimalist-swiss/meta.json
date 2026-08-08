@@ -1,0 +1,11 @@
+{
+  "id": "minimalist-swiss",
+  "name": "Minimalist Swiss",
+  "description": "Grid-aligned international typographic style featuring crisp sans-serif headings, high-contrast accent underline rules, and an ultra-clean layout.",
+  "tags": ["Minimalist", "Swiss Grid", "Clean", "ATS safe"],
+  "accent": "#0F172A",
+  "accent_presets": ["#0F172A", "#2563EB", "#059669", "#7C3AED", "#B91C1C"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "14mm"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "timeless-elegant",
+  "name": "Timeless Elegant",
+  "description": "A warm cream page, a letterspaced serif nameplate and restrained gold rules. Suits executive, consulting, legal and academic applications where gravitas matters more than novelty.",
+  "tags": ["Serif", "Executive", "Warm"],
+  "accent": "#B8912F",
+  "accent_presets": ["#B8912F", "#8C6D1F", "#7C2D12", "#1F3A5F", "#3F4A3C"],
+  "ats_safe": false,
+  "sidebar_sections": [],
+  "page_margin": "16mm"
+}
