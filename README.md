@@ -59,7 +59,8 @@ npm install
 npm start                     # proxies /api → localhost:8000, so no CORS in dev
 ```
 
-Open http://localhost:4200, create an account, pick a design.
+Open http://localhost:4200. The landing page is public — register or log in from there, then pick a
+design.
 
 ### Tests
 
@@ -133,11 +134,32 @@ backend/
   tests/
 frontend/
   src/app/
-    core/          models, API clients, auth (service · guard · interceptor)
-    shared/ui/     vn-icon, vn-logo — hand-drawn SVG, no icon library
-    features/      auth · dashboard · templates · editor
+    core/          models, API clients, auth (service · guard · interceptor), theme
+    shared/ui/     vn-icon, vn-logo, vn-theme-toggle — hand-drawn SVG, no icon library
+    features/      landing · auth · dashboard · templates · editor
   src/assets/brand/
 ```
+
+### Look and feel
+
+Two themes, switched by `data-theme` on `<html>`; every colour in the app comes from a token defined
+twice in `src/styles.scss`. `ThemeService` owns the attribute, remembers an explicit choice in
+localStorage and keeps `system` following the OS. A small script in `index.html` applies the same
+attribute *before first paint* — Angular boots too late, and a dark-theme user would otherwise get a
+white flash on every load.
+
+One rule the themes do not get a vote on: **the rendered resume is white in both of them.** Paper and
+its grey gutter live in `--vn-paper-*`, declared once outside the theme blocks and never overridden;
+the gutter value matches `@media screen` in `_shared/base.css` so the iframe blends into the pane
+around it. Preview surfaces carry `.vn-paper-sheet` / `.vn-paper-gutter` (which also pin
+`color-scheme: light`, so scrollbars inside a preview belong to the paper). A themed token on a
+preview surface is a bug: it would mean the thing you are approving is not the thing that prints.
+
+The landing page at `/` is public and brings its own chrome — the app header is suppressed there, as
+it is on the auth screens. Its "Contact us" form composes a `mailto:` rather than posting: there is no
+contact endpoint, and a form that reported success while dropping the message would be worse than no
+form. The address lives in the `CONTACT` constant at the top of `features/landing/landing.ts`; leave
+a handle blank there and its card is simply not rendered.
 
 ### Data model
 
@@ -178,9 +200,11 @@ is called directly, and passwords over 72 bytes are rejected rather than silentl
 
 ## Notes and limits
 
-- **Fonts** are system stacks (Helvetica / Georgia / ui-monospace) so both renderers resolve them with
-  no font-loading step. Bundling woff2 files would make output identical across machines; today a
-  Linux box without Helvetica will substitute.
+- **Fonts inside a resume** are system stacks (Helvetica / Georgia / ui-monospace) so both renderers
+  resolve them with no font-loading step. Bundling woff2 files would make output identical across
+  machines; today a Linux box without Helvetica will substitute. The *app chrome* is a separate
+  question and does load Inter + Instrument Serif from Google Fonts, behind `display=swap` and a
+  system fallback — offline, the UI simply renders in the system stack.
 - **No password reset or email verification** — there is no mail transport wired up.
 - `POST /api/v1/render` is intentionally unauthenticated. It stores nothing and only echoes back the
   payload it was given, which keeps the live preview instant and decoupled from autosave.

@@ -1,42 +1,150 @@
 /* ==========================================================================
    VitaNova — global styles and design tokens
+   --------------------------------------------------------------------------
+   Two themes live here, selected by `data-theme` on <html> (set before first
+   paint by the inline script in index.html, then owned by ThemeService).
+
+   ONE RULE THAT NEVER BENDS: the rendered resume is printed matter. Paper is
+   white and its gutter is light in *both* themes, so what you approve on
+   screen is what comes out of the PDF. Those values live in the `--vn-paper-*`
+   tokens, which are declared once outside the theme blocks and never
+   overridden. Never paint a preview surface with a themed token.
    ========================================================================== */
 
 :root {
-  /* --- brand ------------------------------------------------------------ */
-  --vn-ink: #0b1220;
-  --vn-accent: #0d9488;
-  --vn-accent-strong: #0f766e;
-  --vn-accent-soft: #ecfdf7;
-  --vn-amber: #f59e0b;
-
-  /* --- surfaces --------------------------------------------------------- */
-  --vn-bg: #f5f7fa;
-  --vn-surface: #ffffff;
-  --vn-surface-2: #f8fafc;
-  --vn-border: #e2e8f0;
-  --vn-border-strong: #cbd5e1;
-
-  /* --- text ------------------------------------------------------------- */
-  --vn-text: #0f172a;
-  --vn-text-muted: #64748b;
-  --vn-text-subtle: #94a3b8;
-  --vn-danger: #dc2626;
-  --vn-danger-soft: #fef2f2;
+  /* --- paper: theme-independent, see the note above --------------------- */
+  --vn-paper: #ffffff;
+  --vn-paper-gutter: #e8ebf0; /* matches @media screen body in _shared/base.css */
+  --vn-paper-edge: rgb(15 23 42 / 16%);
+  --vn-paper-ink: #22272e;
+  --vn-paper-ink-muted: #5b6675;
 
   /* --- geometry --------------------------------------------------------- */
-  --vn-radius-sm: 6px;
-  --vn-radius: 10px;
-  --vn-radius-lg: 16px;
-  --vn-shadow-sm: 0 1px 2px rgb(15 23 42 / 6%), 0 1px 3px rgb(15 23 42 / 8%);
-  --vn-shadow: 0 4px 6px -2px rgb(15 23 42 / 6%), 0 12px 22px -6px rgb(15 23 42 / 12%);
-  --vn-shadow-lg: 0 10px 20px -6px rgb(15 23 42 / 12%), 0 26px 50px -12px rgb(15 23 42 / 20%);
+  --vn-radius-xs: 6px;
+  --vn-radius-sm: 9px;
+  --vn-radius: 13px;
+  --vn-radius-lg: 20px;
+  --vn-radius-xl: 28px;
 
-  --vn-header-height: 60px;
+  --vn-header-height: 62px;
+  --vn-page-max: 1180px;
 
-  --vn-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --vn-font-serif: Georgia, "Times New Roman", serif;
+  /* --- type ------------------------------------------------------------- */
+  --vn-font:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --vn-font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --vn-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  --vn-ease: cubic-bezier(0.32, 0.72, 0, 1);
 }
+
+/* -------------------------------------------------------------------------
+   Light theme (also the fallback when no data-theme is set)
+   ------------------------------------------------------------------------- */
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --vn-bg: #f4f7fa;
+  --vn-bg-tint: radial-gradient(1200px 620px at 88% -12%, rgb(13 148 136 / 9%), transparent 60%);
+  --vn-surface: #ffffff;
+  --vn-surface-2: #f2f5f9;
+  --vn-surface-3: #e8edf4;
+  --vn-surface-inset: #f8fafc;
+
+  --vn-border: #e4eaf1;
+  --vn-border-strong: #cdd7e3;
+  --vn-hover: rgb(15 23 42 / 5%);
+
+  --vn-text: #0c1424;
+  --vn-text-muted: #57687f;
+  --vn-text-subtle: #8695a9;
+
+  --vn-accent: #0d9488;
+  --vn-accent-hover: #0f766e;
+  --vn-accent-text: #0f766e;
+  --vn-accent-soft: #e7f7f4;
+  --vn-accent-line: #99e6da;
+  --vn-on-accent: #ffffff;
+  --vn-accent-ring: rgb(13 148 136 / 22%);
+
+  --vn-amber: #b45309;
+  --vn-amber-soft: #fef4e6;
+
+  --vn-danger: #dc2626;
+  --vn-danger-text: #b91c1c;
+  --vn-danger-soft: #fef2f2;
+  --vn-danger-line: #fecaca;
+
+  --vn-ink: #0b1220;
+  --vn-on-ink: #e9eff7;
+
+  --vn-shadow-sm: 0 1px 2px rgb(15 23 42 / 6%), 0 1px 3px rgb(15 23 42 / 7%);
+  --vn-shadow: 0 2px 6px -2px rgb(15 23 42 / 8%), 0 14px 28px -12px rgb(15 23 42 / 16%);
+  --vn-shadow-lg: 0 8px 18px -8px rgb(15 23 42 / 14%), 0 34px 64px -20px rgb(15 23 42 / 24%);
+}
+
+/* -------------------------------------------------------------------------
+   Dark theme
+   ------------------------------------------------------------------------- */
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --vn-bg: #070b13;
+  --vn-bg-tint: radial-gradient(1200px 620px at 88% -12%, rgb(45 212 191 / 11%), transparent 60%);
+  --vn-surface: #0e1521;
+  --vn-surface-2: #141d2c;
+  --vn-surface-3: #1c2636;
+  --vn-surface-inset: #0a111b;
+
+  --vn-border: #1e2938;
+  --vn-border-strong: #33445c;
+  --vn-hover: rgb(255 255 255 / 6%);
+
+  --vn-text: #e7eef8;
+  --vn-text-muted: #94a5bd;
+  --vn-text-subtle: #67798f;
+
+  --vn-accent: #2dd4bf;
+  --vn-accent-hover: #5eead4;
+  --vn-accent-text: #5eead4;
+  --vn-accent-soft: rgb(45 212 191 / 13%);
+  --vn-accent-line: rgb(45 212 191 / 38%);
+  --vn-on-accent: #04231f;
+  --vn-accent-ring: rgb(45 212 191 / 26%);
+
+  --vn-amber: #fbbf24;
+  --vn-amber-soft: rgb(251 191 36 / 13%);
+
+  --vn-danger: #f87171;
+  --vn-danger-text: #fca5a5;
+  --vn-danger-soft: rgb(248 113 113 / 12%);
+  --vn-danger-line: rgb(248 113 113 / 34%);
+
+  --vn-ink: #060a12;
+  --vn-on-ink: #e7eef8;
+
+  --vn-shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --vn-shadow: 0 2px 8px -2px rgb(0 0 0 / 50%), 0 16px 32px -14px rgb(0 0 0 / 65%);
+  --vn-shadow-lg: 0 10px 24px -10px rgb(0 0 0 / 60%), 0 40px 70px -24px rgb(0 0 0 / 80%);
+}
+
+/* Theme swap is animated only for the ~240ms the toggle marks it, so ordinary
+   hover/scroll work never pays for a global colour transition. */
+:root[data-theme-anim] *,
+:root[data-theme-anim] *::before,
+:root[data-theme-anim] *::after {
+  transition:
+    background-color 220ms var(--vn-ease),
+    border-color 220ms var(--vn-ease),
+    color 220ms var(--vn-ease) !important;
+}
+
+/* ==========================================================================
+   Reset & base
+   ========================================================================== */
 
 *,
 *::before,
@@ -49,54 +157,69 @@ body {
   height: 100%;
 }
 
+html { scroll-behavior: smooth; }
+
 body {
   margin: 0;
   font-family: var(--vn-font);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--vn-text);
-  background: var(--vn-bg);
+  background-color: var(--vn-bg);
+  background-image: var(--vn-bg-tint);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5 {
   margin: 0;
-  line-height: 1.25;
+  line-height: 1.2;
   font-weight: 650;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
 }
 
 p { margin: 0; }
 
 a {
-  color: var(--vn-accent-strong);
+  color: var(--vn-accent-text);
   text-decoration: none;
 }
 a:hover { text-decoration: underline; }
 
-button { font: inherit; }
+button { font: inherit; color: inherit; }
+
+img, svg { display: block; max-width: 100%; }
+
+::selection {
+  background: var(--vn-accent-soft);
+  color: var(--vn-accent-text);
+}
 
 /* Visible focus for keyboard users, suppressed for pointer interaction. */
 :focus-visible {
   outline: 2px solid var(--vn-accent);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
-/* -------------------------------------------------------------------------
+/* ==========================================================================
    Form primitives — shared by every editor panel and auth screen
-   ------------------------------------------------------------------------- */
+   ========================================================================== */
 
 .vn-field {
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .vn-label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.015em;
   color: var(--vn-text-muted);
 }
 
@@ -105,14 +228,20 @@ button { font: inherit; }
 .vn-select {
   display: block;
   width: 100%;
-  padding: 8px 11px;
+  padding: 9px 12px;
   font: inherit;
   font-size: 14px;
   color: var(--vn-text);
   background: var(--vn-surface);
   border: 1px solid var(--vn-border-strong);
-  border-radius: var(--vn-radius-sm);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  border-radius: var(--vn-radius-xs);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.vn-input:hover:not(:disabled),
+.vn-textarea:hover:not(:disabled),
+.vn-select:hover:not(:disabled) {
+  border-color: var(--vn-text-subtle);
 }
 
 .vn-input:focus,
@@ -120,76 +249,124 @@ button { font: inherit; }
 .vn-select:focus {
   outline: none;
   border-color: var(--vn-accent);
-  box-shadow: 0 0 0 3px rgb(13 148 136 / 14%);
+  box-shadow: 0 0 0 3px var(--vn-accent-ring);
+}
+
+.vn-input:disabled,
+.vn-textarea:disabled,
+.vn-select:disabled {
+  background: var(--vn-surface-2);
+  color: var(--vn-text-subtle);
+  cursor: not-allowed;
 }
 
 .vn-textarea {
-  min-height: 76px;
+  min-height: 80px;
   resize: vertical;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .vn-input::placeholder,
 .vn-textarea::placeholder { color: var(--vn-text-subtle); }
 
 .vn-hint {
-  margin-top: 4px;
+  display: block;
+  margin-top: 5px;
   font-size: 12px;
   color: var(--vn-text-subtle);
 }
 
 .vn-error {
-  margin-top: 4px;
+  margin-top: 5px;
   font-size: 12.5px;
-  color: var(--vn-danger);
+  color: var(--vn-danger-text);
 }
 
-/* -------------------------------------------------------------------------
+/* ==========================================================================
    Buttons
-   ------------------------------------------------------------------------- */
+   ========================================================================== */
 
 .vn-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 8px 15px;
+  gap: 8px;
+  padding: 9px 16px;
   font-size: 14px;
   font-weight: 600;
+  letter-spacing: -0.005em;
   color: var(--vn-text);
   background: var(--vn-surface);
   border: 1px solid var(--vn-border-strong);
-  border-radius: var(--vn-radius-sm);
+  border-radius: var(--vn-radius-xs);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  text-decoration: none;
+  transition:
+    background 0.15s var(--vn-ease),
+    border-color 0.15s var(--vn-ease),
+    color 0.15s var(--vn-ease),
+    transform 0.12s var(--vn-ease),
+    box-shadow 0.15s var(--vn-ease);
 }
 
-.vn-btn:hover:not(:disabled) { background: var(--vn-surface-2); border-color: var(--vn-text-subtle); }
-.vn-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.vn-btn:hover:not(:disabled) {
+  background: var(--vn-surface-2);
+  border-color: var(--vn-text-subtle);
+  text-decoration: none;
+}
+.vn-btn:active:not(:disabled) { transform: translateY(1px); }
+.vn-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .vn-btn--primary {
-  color: #fff;
+  color: var(--vn-on-accent);
   background: var(--vn-accent);
   border-color: var(--vn-accent);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
 }
 .vn-btn--primary:hover:not(:disabled) {
-  background: var(--vn-accent-strong);
-  border-color: var(--vn-accent-strong);
+  color: var(--vn-on-accent);
+  background: var(--vn-accent-hover);
+  border-color: var(--vn-accent-hover);
 }
 
-.vn-btn--ghost { background: transparent; border-color: transparent; color: var(--vn-text-muted); }
-.vn-btn--ghost:hover:not(:disabled) { background: rgb(15 23 42 / 6%); border-color: transparent; }
+.vn-btn--soft {
+  color: var(--vn-accent-text);
+  background: var(--vn-accent-soft);
+  border-color: transparent;
+}
+.vn-btn--soft:hover:not(:disabled) {
+  color: var(--vn-accent-text);
+  background: var(--vn-accent-soft);
+  border-color: var(--vn-accent-line);
+}
 
-.vn-btn--danger { color: var(--vn-danger); }
-.vn-btn--danger:hover:not(:disabled) { background: var(--vn-danger-soft); border-color: var(--vn-danger); }
+.vn-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--vn-text-muted);
+}
+.vn-btn--ghost:hover:not(:disabled) {
+  background: var(--vn-hover);
+  border-color: transparent;
+  color: var(--vn-text);
+}
 
-.vn-btn--sm { padding: 5px 10px; font-size: 13px; }
-.vn-btn--icon { padding: 6px; }
+.vn-btn--danger { color: var(--vn-danger-text); }
+.vn-btn--danger:hover:not(:disabled) {
+  background: var(--vn-danger-soft);
+  border-color: var(--vn-danger-line);
+  color: var(--vn-danger-text);
+}
 
-/* -------------------------------------------------------------------------
+.vn-btn--lg { padding: 12px 22px; font-size: 15px; border-radius: var(--vn-radius-sm); }
+.vn-btn--sm { padding: 6px 11px; font-size: 13px; }
+.vn-btn--icon { padding: 7px; }
+.vn-btn--block { width: 100%; }
+
+/* ==========================================================================
    Cards, chips, utilities
-   ------------------------------------------------------------------------- */
+   ========================================================================== */
 
 .vn-card {
   background: var(--vn-surface);
@@ -201,35 +378,82 @@ button { font: inherit; }
 .vn-chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: 5px;
+  padding: 3px 9px;
   font-size: 11.5px;
   font-weight: 600;
+  line-height: 1.5;
   color: var(--vn-text-muted);
   background: var(--vn-surface-2);
   border: 1px solid var(--vn-border);
   border-radius: 999px;
+  white-space: nowrap;
 }
 
 .vn-chip--accent {
-  color: var(--vn-accent-strong);
+  color: var(--vn-accent-text);
   background: var(--vn-accent-soft);
-  border-color: transparent;
+  border-color: var(--vn-accent-line);
+}
+
+/* Small uppercase heading that labels a group without competing with it. */
+.vn-eyebrow {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--vn-text-subtle);
 }
 
 .vn-muted { color: var(--vn-text-muted); }
+
 .vn-sr-only {
   position: absolute;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
 }
 
+/* A skeleton block that shimmers while real content loads. */
+.vn-skeleton {
+  background:
+    linear-gradient(100deg, var(--vn-surface) 30%, var(--vn-surface-2) 50%, var(--vn-surface) 70%);
+  background-size: 220% 100%;
+  animation: vn-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes vn-shimmer {
+  from { background-position: 180% 0; }
+  to { background-position: -60% 0; }
+}
+
+/* ==========================================================================
+   Paper surfaces — every place a rendered resume is shown
+   --------------------------------------------------------------------------
+   Uses only the --vn-paper-* tokens, so these read identically in both themes.
+   ========================================================================== */
+
+.vn-paper-gutter {
+  background: var(--vn-paper-gutter);
+  /* Native scrollbars inside a preview belong to the paper, not the chrome. */
+  color-scheme: light;
+}
+
+.vn-paper-sheet {
+  background: var(--vn-paper);
+  color-scheme: light;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

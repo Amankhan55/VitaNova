@@ -5,9 +5,37 @@
   <title>VitaNova — Resume Builder</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="VitaNova — build a polished, ATS-ready resume and export it as a pixel-perfect PDF.">
-  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="VitaNova — write your experience once, typeset it in nine designs, and export a print-ready PDF that matches the preview exactly.">
+  <meta name="theme-color" content="#f4f7fa">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Type. Both faces degrade to the system stack if the network is unavailable. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
+    rel="stylesheet">
+
+  <!--
+    Theme, applied before the first paint. Angular boots too late to do this:
+    a dark-theme user would see a white flash on every load. ThemeService owns
+    the attribute from here on — keep the storage key and the fallback colours
+    in sync with core/theme/theme.service.ts.
+  -->
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem('vitanova.theme');
+        var dark = stored === 'dark'
+          || (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        document.querySelector('meta[name="theme-color"]')
+          .setAttribute('content', dark ? '#070b13' : '#f4f7fa');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

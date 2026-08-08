@@ -1,12 +1,15 @@
 .sections {
   display: grid;
-  gap: 9px;
+  gap: 10px;
 }
 
 .section {
   overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
+.section:hover { border-color: var(--vn-border-strong); }
 
+.section.is-hidden { background: var(--vn-surface-inset); }
 .section.is-hidden .section-name {
   color: var(--vn-text-subtle);
   text-decoration: line-through;
@@ -16,18 +19,18 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 4px 8px 4px 4px;
+  padding: 5px 9px 5px 4px;
 }
 
 .handle {
   display: grid;
   place-items: center;
   width: 26px;
-  height: 30px;
+  height: 32px;
   color: var(--vn-text-subtle);
   background: none;
   border: 0;
-  border-radius: var(--vn-radius-sm);
+  border-radius: var(--vn-radius-xs);
   cursor: grab;
 }
 .handle:hover { color: var(--vn-text-muted); background: var(--vn-surface-2); }
@@ -37,19 +40,20 @@
   display: flex;
   flex: 1;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   min-width: 0;
-  padding: 7px 6px;
+  padding: 8px 7px;
   font-size: 14.5px;
   font-weight: 600;
   color: var(--vn-text);
   text-align: left;
   background: none;
   border: 0;
-  border-radius: var(--vn-radius-sm);
+  border-radius: var(--vn-radius-xs);
   cursor: pointer;
 }
 .section-toggle:hover { background: var(--vn-surface-2); }
+.section-toggle > vn-icon:first-child { color: var(--vn-text-subtle); }
 
 .section-name {
   flex: 1;
@@ -71,13 +75,14 @@
 }
 
 .section-body {
-  padding: 4px 14px 14px;
+  padding: 6px 15px 15px;
   border-top: 1px solid var(--vn-border);
+  background: var(--vn-surface-inset);
 }
 
 .item {
-  padding: 12px 0 4px;
-  border-top: 1px dashed var(--vn-border);
+  padding: 14px 0 4px;
+  border-top: 1px dashed var(--vn-border-strong);
 }
 .item:first-of-type { border-top: 0; }
 
@@ -85,33 +90,34 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .item-index {
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
   font-size: 11px;
   font-weight: 700;
   color: var(--vn-text-muted);
-  background: var(--vn-surface-2);
-  border: 1px solid var(--vn-border);
+  background: var(--vn-surface);
+  border: 1px solid var(--vn-border-strong);
   border-radius: 50%;
 }
 .item-head > :last-child { margin-left: auto; }
 
 .add-item {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 12px;
   justify-content: center;
   border-style: dashed;
+  background: transparent;
 }
 
 .add-section {
-  margin-top: 18px;
-  padding-top: 14px;
+  margin-top: 22px;
+  padding-top: 16px;
   border-top: 1px solid var(--vn-border);
 }
 
@@ -119,7 +125,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 /* --- drag-and-drop feedback ------------------------------------------------ */
@@ -127,11 +133,11 @@
 .cdk-drag-preview {
   border-radius: var(--vn-radius);
   box-shadow: var(--vn-shadow-lg);
-  opacity: 0.96;
+  opacity: 0.98;
 }
 
 .cdk-drag-placeholder {
-  opacity: 0.35;
+  opacity: 0.3;
 }
 
 .cdk-drag-animating,

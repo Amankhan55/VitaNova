@@ -47,6 +47,9 @@ const PAGE_WIDTH_PX = 794;
       width: 100%;
       height: 100%;
       overflow: hidden;
+      /* A rendered resume is printed matter: white in both app themes. */
+      background: var(--vn-paper);
+      color-scheme: light;
     }
 
     /* Rendered at full A4 width, then scaled to fit the card. Scaling rather than
@@ -63,13 +66,13 @@ const PAGE_WIDTH_PX = 794;
       transform: scale(var(--vn-thumb-scale, 0.3));
       transform-origin: top left;
       pointer-events: none;
-      background: #fff;
+      background: var(--vn-paper);
     }
 
     .frame-placeholder {
       width: 100%;
       height: 100%;
-      background: linear-gradient(180deg, #fff, var(--vn-surface-2));
+      background: linear-gradient(180deg, var(--vn-paper), var(--vn-paper-gutter));
     }
   `,
 })

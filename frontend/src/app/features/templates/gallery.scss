@@ -1,36 +1,76 @@
 .page {
   width: 100%;
-  max-width: 1160px;
+  max-width: var(--vn-page-max);
   margin: 0 auto;
-  padding: 32px 20px 56px;
+  padding: clamp(24px, 4vw, 44px) clamp(16px, 3vw, 28px) 72px;
 }
 
+/* -------------------------------------------------------------------- head */
+
 .page-head {
-  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
 }
+
 .page-head h1 {
-  font-size: 26px;
-  margin-bottom: 5px;
+  margin: 6px 0 6px;
+  font-size: clamp(26px, 3vw, 34px);
+  letter-spacing: -0.028em;
 }
 .page-head p {
-  max-width: 68ch;
+  max-width: 66ch;
   font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--vn-text-muted);
+}
+
+.filters {
+  display: flex;
+  flex: none;
+  gap: 3px;
+  padding: 3px;
+  background: var(--vn-surface-2);
+  border: 1px solid var(--vn-border);
+  border-radius: 999px;
+}
+.filters button {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vn-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.filters button:hover { color: var(--vn-text); }
+.filters button.is-active {
+  color: var(--vn-text);
+  background: var(--vn-surface);
+  box-shadow: var(--vn-shadow-sm);
 }
 
 .notice {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
-  padding: 12px 14px;
-  color: #991b1b;
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  font-size: 14px;
+  color: var(--vn-danger-text);
   background: var(--vn-danger-soft);
-  border-color: #fecaca;
+  border-color: var(--vn-danger-line);
 }
+
+/* ------------------------------------------------------------------- cards */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(266px, 1fr));
   gap: 20px;
 }
 
@@ -38,33 +78,37 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+  transition:
+    box-shadow 0.2s var(--vn-ease),
+    border-color 0.2s var(--vn-ease),
+    transform 0.2s var(--vn-ease);
 }
 .card:hover {
   border-color: var(--vn-border-strong);
-  box-shadow: var(--vn-shadow);
-  transform: translateY(-2px);
+  box-shadow: var(--vn-shadow-lg);
+  transform: translateY(-3px);
 }
 
 /* A4 aspect ratio so the card shows one whole page.
    No max-height here: combined with aspect-ratio it sized the box from the
    height cap instead of the column, leaving it narrower than the scaled iframe
    and clipping the right edge of every design. The scale itself is measured at
-   runtime by vn-template-preview. */
+   runtime by vn-template-preview.
+
+   .vn-paper-sheet, not a themed surface — the sheet stays white in dark mode. */
 .thumb {
   position: relative;
   width: 100%;
   aspect-ratio: 794 / 1123;
   overflow: hidden;
   border-bottom: 1px solid var(--vn-border);
-  background: #fff;
 }
 
 .card-body {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  padding: 15px 16px 16px;
+  gap: 10px;
+  padding: 16px 17px 17px;
 }
 
 .card-head {
@@ -73,13 +117,25 @@
   gap: 9px;
 }
 .card-head h2 {
-  font-size: 17px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   margin-right: auto;
+  font-size: 17.5px;
+  letter-spacing: -0.018em;
+}
+
+.swatch {
+  width: 11px;
+  height: 11px;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--vn-surface-2);
 }
 
 .card-desc {
   font-size: 13.5px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--vn-text-muted);
 }
 
@@ -92,4 +148,15 @@
 .use {
   margin-top: 4px;
   justify-content: center;
+  padding: 10px 16px;
+}
+
+.skeleton {
+  aspect-ratio: 794 / 1123;
+  border-radius: var(--vn-radius);
+}
+
+@media (max-width: 720px) {
+  .page-head { flex-direction: column; align-items: stretch; }
+  .filters { align-self: flex-start; }
 }

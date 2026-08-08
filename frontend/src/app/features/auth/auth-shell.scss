@@ -1,23 +1,62 @@
 /* Shared layout for the sign-in and register screens: a brand panel on the left,
-   the form on the right, collapsing to a single column on small screens. */
+   the form on the right, collapsing to a single column on small screens.
+
+   The brand panel is deliberately dark in *both* themes — it is a poster, not a
+   working surface, so it does not need to invert. Everything on the form side
+   uses themed tokens and does. */
 
 :host {
   display: grid;
-  grid-template-columns: 1.05fr 1fr;
+  grid-template-columns: 1.02fr 1fr;
   min-height: 100vh;
 }
 
+/* ------------------------------------------------------------------- pitch */
+
 .pitch {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 22px;
-  padding: 48px 56px;
-  color: #e8eef6;
+  gap: 24px;
+  padding: 48px clamp(32px, 4.5vw, 64px);
+  overflow: hidden;
+  color: #dce6f2;
+  /* Lifted off its own base rather than sitting at #0b1220: in the dark theme
+     the form panel beside it is nearly that colour, and the split disappeared. */
   background:
-    radial-gradient(1100px 520px at 12% -10%, rgb(13 148 136 / 34%), transparent 62%),
-    var(--vn-ink);
+    radial-gradient(900px 460px at 8% -12%, rgb(13 148 136 / 42%), transparent 62%),
+    radial-gradient(620px 420px at 96% 108%, rgb(52 211 153 / 22%), transparent 60%),
+    linear-gradient(165deg, #14202f, #0a1120);
+  border-right: 1px solid rgb(255 255 255 / 8%);
 }
+
+/* A faint sheet of ruled lines behind the copy — paper, without being literal. */
+.pitch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px);
+  background-size: 100% 34px;
+  mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  pointer-events: none;
+}
+
+.pitch > * { position: relative; z-index: 1; }
+
+.pitch-back {
+  position: absolute;
+  top: 26px;
+  left: clamp(32px, 4.5vw, 64px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 550;
+  color: rgb(220 230 242 / 72%);
+}
+.pitch-back:hover { color: #fff; text-decoration: none; }
 
 .pitch-brand {
   display: inline-flex;
@@ -27,30 +66,36 @@
 }
 
 .pitch-name {
-  font-family: var(--vn-font-serif);
-  font-size: 25px;
+  font-family: var(--vn-font-display);
+  font-size: 27px;
 }
-.pitch-name strong { color: #34d399; font-weight: 700; }
+.pitch-name strong { color: #5eead4; font-weight: 400; }
 
 .pitch h1 {
-  max-width: 12ch;
-  font-size: clamp(30px, 3.4vw, 44px);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  max-width: 13ch;
+  font-size: clamp(32px, 3.6vw, 46px);
+  line-height: 1.06;
+  letter-spacing: -0.032em;
   color: #fff;
+}
+.pitch h1 em {
+  font-family: var(--vn-font-display);
+  font-style: italic;
+  font-weight: 400;
+  color: #5eead4;
 }
 
 .pitch p {
   max-width: 46ch;
-  color: #a7b6ca;
+  color: rgb(220 230 242 / 70%);
   font-size: 15.5px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .pitch-list {
   display: grid;
-  gap: 11px;
-  margin: 4px 0 0;
+  gap: 12px;
+  margin: 6px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -58,64 +103,101 @@
 .pitch-list li {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 11px;
   font-size: 14.5px;
-  color: #c8d5e5;
+  color: rgb(220 230 242 / 86%);
 }
-.pitch-list vn-icon { color: #34d399; margin-top: 2px; }
+.pitch-list vn-icon {
+  flex: none;
+  margin-top: 1px;
+  padding: 3px;
+  color: #5eead4;
+  background: rgb(94 234 212 / 12%);
+  border-radius: 50%;
+}
+
+/* -------------------------------------------------------------------- form */
 
 .panel {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px;
+  padding: 72px 24px 48px;
   background: var(--vn-surface);
 }
 
+.panel-top {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-home {
+  display: none;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 550;
+  color: var(--vn-text-muted);
+}
+.panel-home:hover { color: var(--vn-text); text-decoration: none; }
+
+.panel-top vn-theme-toggle { margin-left: auto; }
+
 .form-wrap {
   width: 100%;
-  max-width: 372px;
+  max-width: 388px;
 }
 
 .form-wrap h2 {
-  font-size: 25px;
-  margin-bottom: 4px;
+  font-size: 27px;
+  letter-spacing: -0.026em;
+  margin-bottom: 6px;
 }
 
 .form-lead {
-  margin-bottom: 22px;
+  margin-bottom: 26px;
   color: var(--vn-text-muted);
   font-size: 14.5px;
 }
 
 .submit {
   width: 100%;
-  margin-top: 6px;
-  padding: 10px 16px;
+  margin-top: 10px;
+  padding: 11px 16px;
 }
 
 .alt {
-  margin-top: 18px;
+  margin-top: 22px;
   font-size: 14px;
   color: var(--vn-text-muted);
   text-align: center;
 }
+.alt a { font-weight: 600; }
 
 .form-error {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 14px;
-  padding: 9px 12px;
+  gap: 9px;
+  margin-bottom: 16px;
+  padding: 11px 13px;
   font-size: 13.5px;
-  color: #991b1b;
+  line-height: 1.45;
+  color: var(--vn-danger-text);
   background: var(--vn-danger-soft);
-  border: 1px solid #fecaca;
-  border-radius: var(--vn-radius-sm);
+  border: 1px solid var(--vn-danger-line);
+  border-radius: var(--vn-radius-xs);
 }
+.form-error vn-icon { flex: none; margin-top: 2px; }
 
-@media (max-width: 880px) {
+@media (max-width: 900px) {
   :host { grid-template-columns: 1fr; }
   .pitch { display: none; }
-  .panel { align-items: flex-start; padding-top: 64px; }
+  .panel { align-items: flex-start; padding-top: 84px; }
+  .panel-home { display: inline-flex; }
 }

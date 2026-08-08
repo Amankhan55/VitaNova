@@ -103,44 +103,60 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
     </div>
   `,
   styles: `
-    .group { margin-bottom: 18px; }
+    .group { margin-bottom: 22px; }
 
-    .templates { display: grid; gap: 6px; margin-top: 6px; }
+    .templates { display: grid; gap: 6px; margin-top: 7px; }
 
     .template {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 9px 11px;
+      gap: 11px;
+      padding: 10px 12px;
       font: inherit;
       font-size: 14px;
       text-align: left;
       color: var(--vn-text);
       background: var(--vn-surface);
       border: 1px solid var(--vn-border);
-      border-radius: var(--vn-radius-sm);
+      border-radius: var(--vn-radius-xs);
       cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
     }
     .template:hover { border-color: var(--vn-border-strong); background: var(--vn-surface-2); }
-    .template.is-active { border-color: var(--vn-accent); background: var(--vn-accent-soft); color: var(--vn-accent-strong); }
+    .template.is-active {
+      border-color: var(--vn-accent);
+      background: var(--vn-accent-soft);
+      color: var(--vn-accent-text);
+    }
 
-    .swatch { width: 15px; height: 15px; border-radius: 4px; flex: none; }
+    .swatch {
+      width: 15px;
+      height: 15px;
+      border-radius: 4px;
+      flex: none;
+      box-shadow: inset 0 0 0 1px var(--vn-paper-edge);
+    }
     .template-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .template-name { font-weight: 600; }
     .template-note { font-size: 11.5px; color: var(--vn-text-muted); }
 
-    .swatches { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 7px; }
 
     .dot {
-      width: 26px;
-      height: 26px;
+      width: 27px;
+      height: 27px;
       padding: 0;
       border: 2px solid transparent;
       border-radius: 50%;
-      box-shadow: inset 0 0 0 1px rgb(15 23 42 / 12%);
+      box-shadow: inset 0 0 0 1px var(--vn-border-strong);
       cursor: pointer;
+      transition: transform 0.12s var(--vn-ease);
     }
-    .dot.is-active { border-color: var(--vn-text); }
+    .dot:hover { transform: scale(1.08); }
+    .dot.is-active {
+      border-color: var(--vn-text);
+      box-shadow: inset 0 0 0 1px var(--vn-surface);
+    }
     .dot--custom {
       display: grid;
       place-items: center;
@@ -151,14 +167,14 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
 
     .segmented {
       display: flex;
-      margin-top: 6px;
+      margin-top: 7px;
       border: 1px solid var(--vn-border-strong);
-      border-radius: var(--vn-radius-sm);
+      border-radius: var(--vn-radius-xs);
       overflow: hidden;
     }
     .segmented button {
       flex: 1;
-      padding: 6px 8px;
+      padding: 7px 8px;
       font-size: 13px;
       font-weight: 600;
       text-transform: capitalize;
@@ -167,11 +183,13 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
       border: 0;
       border-left: 1px solid var(--vn-border);
       cursor: pointer;
+      transition: background 0.15s, color 0.15s;
     }
     .segmented button:first-child { border-left: 0; }
-    .segmented button.is-active { color: #fff; background: var(--vn-accent); }
+    .segmented button:hover:not(.is-active) { background: var(--vn-surface-2); color: var(--vn-text); }
+    .segmented button.is-active { color: var(--vn-on-accent); background: var(--vn-accent); }
 
-    .slider { width: 100%; margin-top: 8px; accent-color: var(--vn-accent); }
+    .slider { width: 100%; margin-top: 10px; accent-color: var(--vn-accent); }
   `,
 })
 export class DesignPanel {

@@ -52,7 +52,12 @@ export class AuthService {
       .pipe(tap((tokens) => this.storeTokens(tokens)));
   }
 
-  logout(navigate = true): void {
+  /**
+   * Ends the session. `navigateTo` defaults to the sign-in screen because most
+   * logouts are involuntary (a refresh token that no longer works); the header's
+   * deliberate "Sign out" passes the landing page instead. `null` stays put.
+   */
+  logout(navigateTo: string | null = '/login'): void {
     const refresh = this.refreshToken();
     if (refresh) {
       // Fire-and-forget: the local session is cleared either way.
@@ -61,8 +66,8 @@ export class AuthService {
         .subscribe({ error: () => undefined });
     }
     this.clear();
-    if (navigate) {
-      void this.router.navigate(['/login']);
+    if (navigateTo) {
+      void this.router.navigateByUrl(navigateTo);
     }
   }
 

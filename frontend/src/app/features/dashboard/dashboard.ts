@@ -1,9 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { ResumeApi, TemplateApi } from '../../core/api/resume.api';
+import { AuthService } from '../../core/auth/auth.service';
 import { downloadBlob, filenameFrom } from '../../core/download';
 import { TemplateMeta } from '../../core/models/auth.model';
 import { ResumeSummary } from '../../core/models/resume.model';
@@ -12,30 +14,46 @@ import { Icon } from '../../shared/ui/icon/icon';
 @Component({
   selector: 'vn-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DatePipe, Icon],
+  imports: [RouterLink, DatePipe, FormsModule, Icon],
   styleUrl: './dashboard.scss',
   template: `
     <div class="page">
       <header class="page-head">
-        <div>
+        <div class="page-title">
+          <span class="vn-eyebrow">{{ greeting() }}</span>
           <h1>Your resumes</h1>
-          <p class="vn-muted">Everything you have written, ready to edit or export.</p>
+          <p class="vn-muted">{{ subtitle() }}</p>
         </div>
-        <a class="vn-btn vn-btn--primary" routerLink="/templates">
-          <vn-icon name="plus" [size]="16" />
-          New resume
-        </a>
+
+        <div class="page-tools">
+          @if (resumes().length > 2) {
+            <label class="search">
+              <vn-icon name="search" [size]="16" />
+              <input
+                type="search"
+                [(ngModel)]="query"
+                (ngModelChange)="search.set($event)"
+                placeholder="Search by title or name"
+                aria-label="Search your resumes"
+              />
+            </label>
+          }
+          <a class="vn-btn vn-btn--primary" routerLink="/templates">
+            <vn-icon name="plus" [size]="16" />
+            New resume
+          </a>
+        </div>
       </header>
 
       @if (loading()) {
         <div class="grid">
           @for (n of [1, 2, 3]; track n) {
-            <div class="vn-card skeleton"></div>
+            <div class="vn-card vn-skeleton skeleton"></div>
           }
         </div>
       } @else if (error()) {
         <div class="empty vn-card">
-          <vn-icon name="x" [size]="26" />
+          <span class="empty-icon is-danger"><vn-icon name="x" [size]="22" /></span>
           <h2>Could not load your resumes</h2>
           <p class="vn-muted">{{ error() }}</p>
           <button class="vn-btn" type="button" (click)="load()">
@@ -45,19 +63,30 @@ import { Icon } from '../../shared/ui/icon/icon';
         </div>
       } @else if (resumes().length === 0) {
         <div class="empty vn-card">
-          <vn-icon name="file" [size]="26" />
-          <h2>No resumes yet</h2>
-          <p class="vn-muted">Pick a design and VitaNova will set up the sections for you.</p>
+          <span class="empty-icon"><vn-icon name="file" [size]="22" /></span>
+          <h2>Nothing written yet</h2>
+          <p class="vn-muted">
+            Pick a design and VitaNova sets up the sections for you — summary, experience, education
+            and the rest, ready to fill in.
+          </p>
           <a class="vn-btn vn-btn--primary" routerLink="/templates">
             <vn-icon name="sparkle" [size]="16" />
-            Browse templates
+            Browse designs
           </a>
+        </div>
+      } @else if (visible().length === 0) {
+        <div class="empty vn-card">
+          <span class="empty-icon"><vn-icon name="search" [size]="22" /></span>
+          <h2>No match for “{{ search() }}”</h2>
+          <p class="vn-muted">Try a shorter search, or clear it to see everything.</p>
+          <button class="vn-btn" type="button" (click)="clearSearch()">Clear search</button>
         </div>
       } @else {
         <div class="grid">
-          @for (resume of resumes(); track resume.id) {
+          @for (resume of visible(); track resume.id) {
             <article class="vn-card card">
               <a class="card-body" [routerLink]="['/editor', resume.id]">
+                <span class="card-swatch" [style.background]="accentFor(resume.template_id)"></span>
                 <span class="vn-chip">{{ templateName(resume.template_id) }}</span>
                 <h2>{{ resume.title }}</h2>
                 <p class="card-person">
@@ -66,7 +95,10 @@ import { Icon } from '../../shared/ui/icon/icon';
                     <span class="vn-muted"> — {{ resume.headline }}</span>
                   }
                 </p>
-                <p class="card-date vn-muted">Edited {{ resume.updated_at | date: 'mediumDate' }}</p>
+                <p class="card-date">
+                  <vn-icon name="clock" [size]="13" />
+                  Edited {{ resume.updated_at | date: 'mediumDate' }}
+                </p>
               </a>
 
               <footer class="card-actions">
@@ -84,7 +116,7 @@ import { Icon } from '../../shared/ui/icon/icon';
                   {{ busyId() === resume.id ? 'Preparing…' : 'PDF' }}
                 </button>
                 <button
-                  class="vn-btn vn-btn--sm vn-btn--icon"
+                  class="vn-btn vn-btn--sm vn-btn--icon vn-btn--ghost"
                   type="button"
                   title="Duplicate"
                   aria-label="Duplicate resume"
@@ -93,7 +125,7 @@ import { Icon } from '../../shared/ui/icon/icon';
                   <vn-icon name="copy" [size]="15" />
                 </button>
                 <button
-                  class="vn-btn vn-btn--sm vn-btn--icon vn-btn--danger"
+                  class="vn-btn vn-btn--sm vn-btn--icon vn-btn--ghost vn-btn--danger"
                   type="button"
                   title="Delete"
                   aria-label="Delete resume"
@@ -113,16 +145,40 @@ export class DashboardPage {
   private readonly resumeApi = inject(ResumeApi);
   private readonly templateApi = inject(TemplateApi);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
   protected readonly resumes = signal<ResumeSummary[]>([]);
   protected readonly templates = signal<TemplateMeta[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal('');
   protected readonly busyId = signal('');
+  protected readonly search = signal('');
 
-  private readonly templateNames = computed(
-    () => new Map(this.templates().map((meta) => [meta.id, meta.name])),
+  protected query = '';
+
+  private readonly templatesById = computed(
+    () => new Map(this.templates().map((meta) => [meta.id, meta])),
   );
+
+  protected readonly visible = computed(() => {
+    const needle = this.search().trim().toLowerCase();
+    if (!needle) return this.resumes();
+    return this.resumes().filter((resume) =>
+      `${resume.title} ${resume.full_name} ${resume.headline}`.toLowerCase().includes(needle),
+    );
+  });
+
+  protected readonly greeting = computed(() => {
+    const name = this.auth.user()?.full_name.trim().split(/\s+/)[0];
+    return name ? `Welcome back, ${name}` : 'Welcome back';
+  });
+
+  protected readonly subtitle = computed(() => {
+    const count = this.resumes().length;
+    if (this.loading() || this.error()) return 'Everything you have written, ready to edit or export.';
+    if (count === 0) return 'Everything you write will live here.';
+    return `${count} ${count === 1 ? 'resume' : 'resumes'}, ready to edit or export.`;
+  });
 
   constructor() {
     this.load();
@@ -145,7 +201,17 @@ export class DashboardPage {
   }
 
   protected templateName(id: string): string {
-    return this.templateNames().get(id) ?? id;
+    return this.templatesById().get(id)?.name ?? id;
+  }
+
+  /** Ties a card to its design at a glance, without loading a full render. */
+  protected accentFor(id: string): string {
+    return this.templatesById().get(id)?.accent ?? 'var(--vn-border-strong)';
+  }
+
+  protected clearSearch(): void {
+    this.query = '';
+    this.search.set('');
   }
 
   protected download(resume: ResumeSummary): void {

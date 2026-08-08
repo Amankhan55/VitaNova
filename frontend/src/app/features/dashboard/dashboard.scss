@@ -1,99 +1,168 @@
 .page {
   width: 100%;
-  max-width: 1080px;
+  max-width: var(--vn-page-max);
   margin: 0 auto;
-  padding: 32px 20px 56px;
+  padding: clamp(24px, 4vw, 44px) clamp(16px, 3vw, 28px) 72px;
 }
+
+/* -------------------------------------------------------------------- head */
 
 .page-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 18px;
+  margin-bottom: 28px;
 }
 
-.page-head h1 {
-  font-size: 26px;
-  margin-bottom: 3px;
+.page-title h1 {
+  margin: 6px 0 4px;
+  font-size: clamp(26px, 3vw, 34px);
+  letter-spacing: -0.028em;
 }
+.page-title p { font-size: 14.5px; }
+
+.page-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 38px;
+  color: var(--vn-text-subtle);
+  background: var(--vn-surface);
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-xs);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search:focus-within {
+  border-color: var(--vn-accent);
+  box-shadow: 0 0 0 3px var(--vn-accent-ring);
+}
+.search input {
+  width: 210px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--vn-text);
+  background: none;
+  border: 0;
+  outline: none;
+}
+.search input::placeholder { color: var(--vn-text-subtle); }
+
+/* ------------------------------------------------------------------- cards */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
 }
 
 .card {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+  transition:
+    box-shadow 0.2s var(--vn-ease),
+    border-color 0.2s var(--vn-ease),
+    transform 0.2s var(--vn-ease);
 }
 .card:hover {
   border-color: var(--vn-border-strong);
   box-shadow: var(--vn-shadow);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .card-body {
   display: block;
+  position: relative;
   flex: 1;
-  padding: 16px 16px 14px;
+  padding: 20px 18px 16px;
   color: inherit;
   text-decoration: none;
 }
 .card-body:hover { text-decoration: none; }
 
+/* The design's own accent, as a hairline along the top edge of the card. */
+.card-swatch {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+}
+
 .card-body h2 {
-  margin: 9px 0 3px;
-  font-size: 17px;
+  margin: 11px 0 4px;
+  font-size: 17.5px;
+  letter-spacing: -0.018em;
 }
 
 .card-person {
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .card-date {
-  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
   font-size: 12.5px;
+  color: var(--vn-text-subtle);
 }
 
 .card-actions {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 12px;
+  padding: 11px 12px;
   border-top: 1px solid var(--vn-border);
   background: var(--vn-surface-2);
 }
+.card-actions > :nth-last-child(2) { margin-left: auto; }
 
-.card-actions > :last-child { margin-left: auto; }
+/* ------------------------------------------------------------------- empty */
 
 .empty {
   display: grid;
   justify-items: center;
-  gap: 8px;
-  padding: 56px 24px;
+  gap: 10px;
+  padding: clamp(48px, 8vw, 76px) 24px;
   text-align: center;
-  color: var(--vn-text-muted);
 }
-.empty h2 { font-size: 18px; color: var(--vn-text); }
-.empty > :last-child { margin-top: 10px; }
+.empty h2 { font-size: 19px; }
+.empty p { max-width: 44ch; font-size: 14.5px; }
+.empty > :last-child { margin-top: 12px; }
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 4px;
+  color: var(--vn-accent-text);
+  background: var(--vn-accent-soft);
+  border: 1px solid var(--vn-accent-line);
+  border-radius: 50%;
+}
+.empty-icon.is-danger {
+  color: var(--vn-danger-text);
+  background: var(--vn-danger-soft);
+  border-color: var(--vn-danger-line);
+}
 
 .skeleton {
-  height: 168px;
-  background: linear-gradient(100deg, var(--vn-surface) 30%, var(--vn-surface-2) 50%, var(--vn-surface) 70%);
-  background-size: 220% 100%;
-  animation: shimmer 1.3s ease-in-out infinite;
+  height: 186px;
+  border: 0;
 }
 
-@keyframes shimmer {
-  from { background-position: 180% 0; }
-  to { background-position: -60% 0; }
-}
-
-@media (max-width: 560px) {
+@media (max-width: 620px) {
   .page-head { flex-direction: column; align-items: stretch; }
+  .page-tools { flex-wrap: wrap; }
+  .search { flex: 1; }
+  .search input { width: 100%; }
 }

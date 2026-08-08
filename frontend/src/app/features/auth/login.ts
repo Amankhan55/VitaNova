@@ -6,38 +6,53 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { Icon } from '../../shared/ui/icon/icon';
 import { Logo } from '../../shared/ui/logo/logo';
+import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
 
 @Component({
   selector: 'vn-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink, Icon, Logo],
+  imports: [FormsModule, RouterLink, Icon, Logo, ThemeToggle],
   styleUrl: './auth-shell.scss',
   template: `
     <section class="pitch">
+      <a class="pitch-back" routerLink="/">
+        <vn-icon name="arrow-left" [size]="15" />
+        Back to vitanova
+      </a>
+
       <div class="pitch-brand">
         <vn-logo [size]="32" />
         <span class="pitch-name">Vita<strong>Nova</strong></span>
       </div>
-      <h1>Your career, beautifully set.</h1>
+
+      <h1>Your career, <em>beautifully</em> set.</h1>
       <p>
         Write your experience once, then see it typeset in any of our designs. What you see in the
         preview is the very same document we turn into your PDF — never a near-enough approximation.
       </p>
       <ul class="pitch-list">
-        <li><vn-icon name="check" [size]="17" /> Four designs, from bold sidebar to strict ATS</li>
-        <li><vn-icon name="check" [size]="17" /> Live preview that matches the export exactly</li>
-        <li><vn-icon name="check" [size]="17" /> Reorder, rename and hide any section</li>
+        <li><vn-icon name="check" [size]="15" /> Nine designs, from bold sidebar to strict ATS</li>
+        <li><vn-icon name="check" [size]="15" /> Live preview that matches the export exactly</li>
+        <li><vn-icon name="check" [size]="15" /> Reorder, rename and hide any section</li>
       </ul>
     </section>
 
     <section class="panel">
+      <div class="panel-top">
+        <a class="panel-home" routerLink="/">
+          <vn-icon name="arrow-left" [size]="15" />
+          Home
+        </a>
+        <vn-theme-toggle [compact]="true" />
+      </div>
+
       <div class="form-wrap">
         <h2>Welcome back</h2>
         <p class="form-lead">Sign in to pick up where you left off.</p>
 
         @if (error(); as message) {
           <div class="form-error" role="alert">
-            <vn-icon name="x" [size]="16" />
+            <vn-icon name="x" [size]="15" />
             <span>{{ message }}</span>
           </div>
         }
@@ -69,7 +84,11 @@ import { Logo } from '../../shared/ui/logo/logo';
             />
           </label>
 
-          <button class="vn-btn vn-btn--primary submit" type="submit" [disabled]="busy() || form.invalid">
+          <button
+            class="vn-btn vn-btn--primary submit"
+            type="submit"
+            [disabled]="busy() || form.invalid"
+          >
             {{ busy() ? 'Signing in…' : 'Sign in' }}
           </button>
         </form>

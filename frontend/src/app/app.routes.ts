@@ -3,7 +3,12 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./features/landing/landing').then((m) => m.LandingPage),
+    title: 'VitaNova — your career, beautifully set',
+  },
   {
     path: 'login',
     canActivate: [guestGuard],
@@ -34,5 +39,5 @@ export const routes: Routes = [
     loadComponent: () => import('./features/editor/editor').then((m) => m.EditorPage),
     title: 'Editor — VitaNova',
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: '' },
 ];

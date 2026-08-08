@@ -5,23 +5,54 @@
       <span class="brand-name">Vita<strong>Nova</strong></span>
     </a>
 
-    <nav class="shell-nav">
+    <nav class="shell-nav" aria-label="Main">
       <a routerLink="/dashboard" routerLinkActive="is-active">
         <vn-icon name="file" [size]="16" />
-        Resumes
+        <span>Resumes</span>
       </a>
       <a routerLink="/templates" routerLinkActive="is-active">
         <vn-icon name="layers" [size]="16" />
-        Templates
+        <span>Designs</span>
+      </a>
+      <a routerLink="/" class="nav-home">
+        <vn-icon name="globe" [size]="16" />
+        <span>Home</span>
       </a>
     </nav>
 
-    <div class="shell-user">
-      <span class="avatar" [title]="auth.user()?.email ?? ''">{{ initials() }}</span>
-      <button type="button" class="vn-btn vn-btn--ghost vn-btn--sm" (click)="signOut()">
-        <vn-icon name="logout" [size]="16" />
-        Sign out
-      </button>
+    <div class="shell-actions">
+      <vn-theme-toggle [compact]="true" />
+
+      <div class="user-menu">
+        <button
+          type="button"
+          class="avatar-button"
+          [attr.aria-expanded]="menuOpen()"
+          aria-haspopup="menu"
+          [attr.aria-label]="'Account menu for ' + (user()?.email ?? '')"
+          (click)="toggleMenu($event)"
+        >
+          <span class="avatar">{{ initials() }}</span>
+          <vn-icon [name]="menuOpen() ? 'chevron-up' : 'chevron-down'" [size]="14" />
+        </button>
+
+        @if (menuOpen()) {
+          <div class="menu vn-card" role="menu">
+            <div class="menu-head">
+              <span class="menu-name">{{ user()?.full_name || 'Your account' }}</span>
+              <span class="menu-email">{{ user()?.email }}</span>
+            </div>
+            <a class="menu-item" routerLink="/templates" role="menuitem">
+              <vn-icon name="sparkle" [size]="16" />
+              Start a new resume
+            </a>
+            <button class="menu-item" type="button" role="menuitem" (click)="signOut()">
+              <vn-icon name="logout" [size]="16" />
+              Sign out
+            </button>
+          </div>
+        }
+      </div>
     </div>
   </header>
 }

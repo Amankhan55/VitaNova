@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -35,7 +43,14 @@ type Tab = 'content' | 'design';
           placeholder="Untitled resume"
         />
 
-        <span class="status" [class]="'status--' + store.status()">
+        @if (designName(); as design) {
+          <span class="vn-chip design-chip">
+            <vn-icon name="palette" [size]="12" />
+            {{ design }}
+          </span>
+        }
+
+        <span class="status" [class]="'status--' + store.status()" aria-live="polite">
           @switch (store.status()) {
             @case ('saving') { <vn-icon name="refresh" [size]="14" /> Saving… }
             @case ('saved') { <vn-icon name="check" [size]="14" /> Saved }
@@ -90,7 +105,9 @@ type Tab = 'content' | 'design';
             </div>
           </aside>
 
-          <section class="preview" [class.is-stale]="store.previewPending()">
+          <!-- .vn-paper-gutter, never a themed surface: the preview is printed
+               matter, so paper and its backdrop look the same in either theme. -->
+          <section class="preview vn-paper-gutter" [class.is-stale]="store.previewPending()">
             @if (store.previewHtml(); as doc) {
               <iframe
                 class="preview-frame"
@@ -100,6 +117,13 @@ type Tab = 'content' | 'design';
               ></iframe>
             } @else {
               <div class="preview-loading">Rendering your resume…</div>
+            }
+
+            @if (store.previewPending()) {
+              <span class="preview-badge">
+                <vn-icon name="refresh" [size]="13" />
+                Updating
+              </span>
             }
           </section>
         </div>
@@ -123,6 +147,13 @@ export class EditorPage {
     { id: 'content', label: 'Content' },
     { id: 'design', label: 'Design' },
   ];
+
+  /** Blank until the template list arrives, which hides the chip rather than
+   *  flashing a raw template id at the user. */
+  protected readonly designName = computed(() => {
+    const id = this.store.resume()?.template_id;
+    return this.templates().find((meta) => meta.id === id)?.name ?? '';
+  });
 
   constructor() {
     effect(() => {

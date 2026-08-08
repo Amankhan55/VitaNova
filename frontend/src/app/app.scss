@@ -4,61 +4,95 @@
   min-height: 100%;
 }
 
+/* ------------------------------------------------------------------ header */
+
 .shell-header {
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: 22px;
   height: var(--vn-header-height);
   padding: 0 20px;
-  background: var(--vn-surface);
+  background: color-mix(in srgb, var(--vn-surface) 82%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
   border-bottom: 1px solid var(--vn-border);
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 30;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  color: var(--vn-ink);
+  color: var(--vn-text);
   text-decoration: none;
 }
 .brand:hover { text-decoration: none; }
 
 .brand-name {
-  font-family: var(--vn-font-serif);
-  font-size: 19px;
-  letter-spacing: 0.01em;
+  font-family: var(--vn-font-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.005em;
 }
-.brand-name strong { color: var(--vn-accent); font-weight: 700; }
+.brand-name strong { color: var(--vn-accent-text); font-weight: 400; }
+
+/* --------------------------------------------------------------------- nav */
 
 .shell-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   margin-right: auto;
 }
 
 .shell-nav a {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
+  gap: 8px;
+  padding: 7px 13px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 550;
   color: var(--vn-text-muted);
-  border-radius: var(--vn-radius-sm);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.shell-nav a:hover {
+  background: var(--vn-hover);
+  color: var(--vn-text);
   text-decoration: none;
 }
-.shell-nav a:hover { background: var(--vn-surface-2); color: var(--vn-text); text-decoration: none; }
-.shell-nav a.is-active { color: var(--vn-accent-strong); background: var(--vn-accent-soft); }
+.shell-nav a.is-active {
+  color: var(--vn-accent-text);
+  background: var(--vn-accent-soft);
+}
 
-.shell-user {
+.nav-home { display: none; }
+
+/* ----------------------------------------------------------------- account */
+
+.shell-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
+
+.user-menu { position: relative; }
+
+.avatar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px 3px 3px;
+  color: var(--vn-text-subtle);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.avatar-button:hover { background: var(--vn-hover); border-color: var(--vn-border); }
 
 .avatar {
   display: grid;
@@ -66,12 +100,64 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #fff;
-  background: var(--vn-ink);
+  color: var(--vn-on-accent);
+  background: linear-gradient(140deg, var(--vn-accent), var(--vn-accent-hover));
 }
+
+.menu {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 40;
+  min-width: 232px;
+  padding: 5px;
+  box-shadow: var(--vn-shadow-lg);
+  animation: menu-in 0.14s var(--vn-ease);
+}
+
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.menu-head {
+  display: grid;
+  gap: 1px;
+  padding: 9px 11px 11px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--vn-border);
+}
+.menu-name { font-size: 14px; font-weight: 650; }
+.menu-email {
+  font-size: 12.5px;
+  color: var(--vn-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 11px;
+  font-size: 14px;
+  font-weight: 550;
+  text-align: left;
+  color: var(--vn-text);
+  background: none;
+  border: 0;
+  border-radius: var(--vn-radius-xs);
+  cursor: pointer;
+  text-decoration: none;
+}
+.menu-item:hover { background: var(--vn-surface-2); text-decoration: none; color: var(--vn-text); }
+.menu-item vn-icon { color: var(--vn-text-subtle); }
+
+/* -------------------------------------------------------------------- main */
 
 .shell-main {
   flex: 1;
@@ -80,8 +166,10 @@
   flex-direction: column;
 }
 
-@media (max-width: 640px) {
-  .shell-header { gap: 12px; padding: 0 12px; }
+@media (max-width: 720px) {
+  .shell-header { gap: 10px; padding: 0 12px; }
   .brand-name { display: none; }
+  .shell-nav a { padding: 7px 10px; }
   .shell-nav a span { display: none; }
+  .nav-home { display: inline-flex; }
 }

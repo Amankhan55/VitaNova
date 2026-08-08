@@ -6,39 +6,54 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { Icon } from '../../shared/ui/icon/icon';
 import { Logo } from '../../shared/ui/logo/logo';
+import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
 import { readError } from './login';
 
 @Component({
   selector: 'vn-register',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink, Icon, Logo],
+  imports: [FormsModule, RouterLink, Icon, Logo, ThemeToggle],
   styleUrl: './auth-shell.scss',
   template: `
     <section class="pitch">
+      <a class="pitch-back" routerLink="/">
+        <vn-icon name="arrow-left" [size]="15" />
+        Back to vitanova
+      </a>
+
       <div class="pitch-brand">
         <vn-logo [size]="32" />
         <span class="pitch-name">Vita<strong>Nova</strong></span>
       </div>
-      <h1>A new chapter starts here.</h1>
+
+      <h1>A new chapter <em>starts</em> here.</h1>
       <p>
         Create an account and your work is saved as you type. Switch designs whenever you like —
         your content is stored independently of how it looks, so nothing is ever re-entered.
       </p>
       <ul class="pitch-list">
-        <li><vn-icon name="check" [size]="17" /> Autosaves while you write</li>
-        <li><vn-icon name="check" [size]="17" /> Swap designs without losing a word</li>
-        <li><vn-icon name="check" [size]="17" /> Export a print-ready PDF in one click</li>
+        <li><vn-icon name="check" [size]="15" /> Autosaves while you write</li>
+        <li><vn-icon name="check" [size]="15" /> Swap designs without losing a word</li>
+        <li><vn-icon name="check" [size]="15" /> Export a print-ready PDF in one click</li>
       </ul>
     </section>
 
     <section class="panel">
+      <div class="panel-top">
+        <a class="panel-home" routerLink="/">
+          <vn-icon name="arrow-left" [size]="15" />
+          Home
+        </a>
+        <vn-theme-toggle [compact]="true" />
+      </div>
+
       <div class="form-wrap">
         <h2>Create your account</h2>
         <p class="form-lead">Free, and takes about twenty seconds.</p>
 
         @if (error(); as message) {
           <div class="form-error" role="alert">
-            <vn-icon name="x" [size]="16" />
+            <vn-icon name="x" [size]="15" />
             <span>{{ message }}</span>
           </div>
         }
@@ -84,7 +99,11 @@ import { readError } from './login';
             <span class="vn-hint">Use 8 characters or more.</span>
           </label>
 
-          <button class="vn-btn vn-btn--primary submit" type="submit" [disabled]="busy() || form.invalid">
+          <button
+            class="vn-btn vn-btn--primary submit"
+            type="submit"
+            [disabled]="busy() || form.invalid"
+          >
             {{ busy() ? 'Creating account…' : 'Create account' }}
           </button>
         </form>
