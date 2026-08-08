@@ -51,6 +51,36 @@ at the OS level. The native runtime gives you no way to `apt-get` it, so the PDF
 endpoint would fail at import. The Dockerfile installs Pango plus the Liberation
 fonts, which are metric-compatible with the Helvetica/Arial the templates ask for.
 
+### Try the image locally first
+
+Worth doing once — a Render build takes minutes to tell you what a local one tells
+you in seconds.
+
+```bash
+cd backend
+docker build -t vitanova-api:local .
+
+# Does WeasyPrint work in the image? Renders all nine designs, needs no database.
+docker run --rm vitanova-api:local python scripts/render_samples.py --out /tmp/samples
+
+# Full stack, including the $PORT binding Render relies on.
+docker network create vn-test
+docker run -d --name vn-mongo --network vn-test mongo:7
+docker run -d --name vn-api --network vn-test -p 8080:9999 \
+  -e PORT=9999 \
+  -e VITANOVA_MONGO_URI=mongodb://vn-mongo:27017 \
+  -e VITANOVA_DEBUG=false \
+  -e VITANOVA_JWT_SECRET="$(openssl rand -hex 32)" \
+  vitanova-api:local
+
+curl localhost:8080/health          # {"status":"ok","app":"VitaNova","templates":9}
+
+docker rm -f vn-api vn-mongo && docker network rm vn-test
+```
+
+Note this builds for your Mac's architecture. Render runs x86_64, so to reproduce
+its exact image add `--platform linux/amd64` to the build (slower, emulated).
+
 ### Deploy
 
 1. Push this repository to GitHub.
