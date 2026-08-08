@@ -1,7 +1,11 @@
 # VitaNova API
 fastapi==0.141.1
 uvicorn[standard]==0.52.1
-pymongo==4.17.0            # native async driver (AsyncMongoClient); Motor is EOL
+# Native async driver (AsyncMongoClient); Motor is EOL. dnspython comes with it
+# as a hard dependency, so mongodb+srv:// URIs -- i.e. every MongoDB Atlas
+# connection string -- resolve without an extra. (The [srv] extra was dropped in
+# PyMongo 4.9; asking for it now only earns a warning.)
+pymongo==4.17.0
 pydantic[email]==2.13.4
 pydantic-settings==2.15.0
 PyJWT==2.13.0

@@ -11,6 +11,9 @@ frontend/node_modules/
 frontend/dist/
 frontend/.angular/
 
+# Vercel CLI
+.vercel/
+
 # Local MongoDB data, created by `mongod --dbpath ./.data/db`
 .data/
 

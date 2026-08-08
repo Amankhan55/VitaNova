@@ -62,6 +62,9 @@ npm start                     # proxies /api → localhost:8000, so no CORS in d
 Open http://localhost:4200. The landing page is public — register or log in from there, then pick a
 design.
 
+To put it online — Vercel for the frontend, Render for the API, MongoDB Atlas for the database — see
+**[DEPLOYMENT.md](DEPLOYMENT.md)**.
+
 ### Tests
 
 ```bash

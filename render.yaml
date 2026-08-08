@@ -1,0 +1,39 @@
+# Render blueprint for the VitaNova API.
+#
+# Render > New > Blueprint, point it at this repository. VITANOVA_MONGO_URI is
+# marked `sync: false`, so Render prompts for it rather than reading it from
+# here — a connection string carries a password and does not belong in git.
+#
+# The frontend is NOT here; it goes to Vercel. See DEPLOYMENT.md.
+
+services:
+  - type: web
+    name: vitanova-api
+    runtime: docker
+    plan: free          # free instances sleep after 15 idle minutes — see DEPLOYMENT.md
+    region: oregon      # pick the one nearest your MongoDB Atlas region
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      # Generated once by Render and then held stable. Rotating it invalidates
+      # every issued access token, which signs everyone out.
+      - key: VITANOVA_JWT_SECRET
+        generateValue: true
+
+      - key: VITANOVA_MONGO_URI
+        sync: false
+      - key: VITANOVA_MONGO_DB
+        value: vitanova
+
+      # Turns on the startup guard against the default JWT secret, and drops
+      # logging from INFO to WARNING.
+      - key: VITANOVA_DEBUG
+        value: "false"
+
+      # No CORS entry on purpose: the deployed frontend reaches this API through
+      # a Vercel rewrite, so requests arrive server-to-server and never trigger a
+      # preflight. If you point the browser straight at this host instead, add
+      # VITANOVA_CORS_ORIGINS (a JSON array) or VITANOVA_CORS_ORIGIN_REGEX here.

@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import auth, render, resumes, templates
-from app.core import db
+from app.core import config, db
 from app.core.config import settings
 from app.services import template_registry
 
@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.INFO if settings.debug else logging.WARNING)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    config.check_production_config()
     await db.connect()
     template_registry.load_registry(force=True)
     yield
@@ -30,6 +31,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
+    allow_origin_regex=settings.cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
