@@ -33,11 +33,13 @@ async def connect() -> None:
         return
 
     kwargs = {}
-    try:
-        import certifi
-        kwargs["tlsCAFile"] = certifi.where()
-    except ImportError:
-        pass
+    uri = settings.mongo_uri.lower()
+    if "mongodb+srv://" in uri or "tls=true" in uri or "ssl=true" in uri:
+        try:
+            import certifi
+            kwargs["tlsCAFile"] = certifi.where()
+        except ImportError:
+            pass
 
     _client = AsyncMongoClient(settings.mongo_uri, tz_aware=True, **kwargs)
     await _client.aconnect()
