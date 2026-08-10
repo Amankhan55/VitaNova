@@ -87,8 +87,12 @@ its exact image add `--platform linux/amd64` to the build (slower, emulated).
 2. Render → **New** → **Blueprint** → select the repo. It reads `render.yaml`.
 3. When prompted, paste your Atlas string into **`VITANOVA_MONGO_URI`**.
    `VITANOVA_JWT_SECRET` is generated for you; leave it alone.
-4. Apply. The first Docker build takes roughly 3–5 minutes.
-5. Check it: `https://<your-service>.onrender.com/health` should return
+4. Optionally set **`VITANOVA_GEMINI_API_KEY`** — a free key from
+   <https://aistudio.google.com>, which powers "Import PDF" on the dashboard.
+   Leave it empty and everything else works normally; only that one button
+   fails, with a 503 saying import is not configured.
+5. Apply. The first Docker build takes roughly 3–5 minutes.
+6. Check it: `https://<your-service>.onrender.com/health` should return
 
    ```json
    { "status": "ok", "app": "VitaNova", "templates": 9 }

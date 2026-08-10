@@ -99,6 +99,26 @@ async def export_pdf(resume_id: str, user: CurrentUser, db: DbDep) -> Response:
     )
 
 
+async def _read_capped(file: UploadFile, limit: int) -> bytes:
+    """Read an upload, refusing it as soon as it passes ``limit``.
+
+    Reading first and measuring afterwards means a hostile client can make the
+    server buffer an arbitrarily large body before anyone objects -- which on a
+    512 MB Render instance is the whole attack.
+    """
+    chunks: list[bytes] = []
+    total = 0
+    while chunk := await file.read(64 * 1024):
+        total += len(chunk)
+        if total > limit:
+            raise HTTPException(
+                status.HTTP_413_CONTENT_TOO_LARGE,
+                detail=f"PDF is too large (max {limit // (1024 * 1024)} MB).",
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
 @router.post("/import", response_model=ResumeRead, status_code=status.HTTP_201_CREATED)
 async def import_resume(
     file: UploadFile, user: CurrentUser, db: DbDep,
@@ -111,23 +131,29 @@ async def import_resume(
             detail=f"Limit of {settings.max_resumes_per_user} resumes reached",
         )
 
+    # Content-Type is whatever the client claimed, so this only filters honest
+    # mistakes. pdfplumber is the real check.
     if not file.content_type or "pdf" not in file.content_type.lower():
         raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Only PDF files are accepted.",
         )
 
-    pdf_bytes = await file.read()
+    pdf_bytes = await _read_capped(file, import_service.MAX_PDF_SIZE)
 
     try:
-        text = import_service.extract_text(pdf_bytes)
+        text = await import_service.extract_text_async(pdf_bytes)
         resume_data = await import_service.parse_resume_text(text)
-    except import_service.ImportError_ as exc:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc))
+    except import_service.UpstreamUnavailable as exc:
+        # Gemini's problem, not this upload's. A 4xx here would tell the user
+        # their perfectly good resume was rejected.
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
+    except import_service.BadDocument as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
 
-    title = resume_data.basics.full_name or "Imported Resume"
+    name = resume_data.basics.full_name.strip()
     payload = ResumeCreate(
-        title=f"{title} (imported)",
+        title=f"{name} (imported)" if name else "Imported resume",
         template_id=template_id,
         basics=resume_data.basics,
         sections=resume_data.sections,

@@ -189,6 +189,27 @@ cannot freeze the page you are looking at. Downloading exports the draft current
 than the last saved copy, so hitting Download immediately after typing still gives you your latest
 edit.
 
+### Importing an existing resume
+
+`POST /resumes/import` takes a PDF, pulls its text out with pdfplumber, and asks Gemini to shape that
+text into the same section list the editor already speaks. Two stages, split so each can be tested
+alone — the extraction is a pure function, and the parsing is the only part that needs a network.
+
+Failures are deliberately sorted into two kinds, because they mean opposite things to whoever is
+holding the file:
+
+| | Cause | Status | What the user should do |
+| --- | --- | :--: | --- |
+| `BadDocument` | Scanned image, corrupt file, model returned something that isn't a resume | 422 | Try a different PDF |
+| `UpstreamUnavailable` | Gemini busy, rate-limited, down, or no API key configured | 503 | Wait and retry — the file was fine |
+
+Collapsing those into one status is the tempting shortcut and the wrong one: a 503 from Gemini
+reported as a 4xx tells people their perfectly good resume was rejected. Transient upstream failures
+are retried once before giving up, which absorbs most of the free tier's "high demand" responses.
+
+Set `VITANOVA_GEMINI_API_KEY` to enable it. Without a key the rest of the app is unaffected and the
+endpoint returns a 503 that says so.
+
 ### Auth
 
 Email + password (bcrypt), JWT access tokens (30 min) and rotating refresh tokens (7 days). Refresh

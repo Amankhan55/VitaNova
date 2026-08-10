@@ -55,6 +55,38 @@
 }
 .search input::placeholder { color: var(--vn-text-subtle); }
 
+/* ------------------------------------------------------------- import error */
+
+.import-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-bottom: 20px;
+  padding: 13px 12px 13px 15px;
+  color: var(--vn-danger-text);
+  background: var(--vn-danger-soft);
+  border-color: var(--vn-danger-line);
+}
+
+.import-error p {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.import-error-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  background: var(--vn-danger-line);
+  border-radius: 50%;
+}
+
+.import-error .vn-btn { flex: none; color: var(--vn-danger-text); }
+
 /* ------------------------------------------------------------------- cards */
 
 .grid {

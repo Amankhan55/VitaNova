@@ -10,8 +10,14 @@ independently:
      that mirrors VitaNova's section schema, then validate the JSON response
      into a ``ResumeData`` instance.
 
-The Gemini call uses the free tier of ``google-generativeai`` (Gemini 2.0 Flash),
-which allows 15 req/min and 1 M tokens/day — more than enough for resume imports.
+The Gemini call goes through the ``google-genai`` SDK against ``gemini-3.6-flash``.
+
+Failures are split into two kinds, because they mean opposite things to the
+caller. ``BadDocument`` is the upload's fault and will fail again identically
+(a scanned image, a corrupt file) -- there is nothing to retry.
+``UpstreamUnavailable`` is Gemini's fault and very likely succeeds on a second
+attempt; reporting it as a client error would tell people their perfectly good
+resume was rejected.
 """
 
 import json
@@ -19,9 +25,12 @@ import logging
 import re
 from io import BytesIO
 
+import anyio
 import pdfplumber
 from google import genai
-from google.genai.types import GenerateContentConfig
+from google.genai import errors as genai_errors
+from google.genai.types import GenerateContentConfig, HttpOptions
+from pydantic import ValidationError
 
 from app.core.config import settings
 from app.models.resume import (
@@ -48,9 +57,26 @@ logger = logging.getLogger(__name__)
 MAX_PDF_SIZE = 5 * 1024 * 1024  # 5 MB
 MAX_TEXT_LENGTH = 30_000  # characters — generous for any resume
 
+MODEL = "gemini-3.6-flash"
+REQUEST_TIMEOUT_MS = 60_000
+MAX_ATTEMPTS = 2
+RETRY_DELAY_SECONDS = 2.0
 
-class ImportError_(Exception):
-    """User-facing error raised when an import cannot proceed."""
+# Statuses where trying again is reasonable: rate limits and Gemini-side faults.
+_TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
+
+
+class ImportFailed(Exception):
+    """Base for anything that stops an import."""
+
+
+class BadDocument(ImportFailed):
+    """The upload is the problem. Retrying changes nothing."""
+
+
+class UpstreamUnavailable(ImportFailed):
+    """The AI service cannot serve this request: down, busy, rate-limiting, or
+    not configured. Never the upload's fault, and usually worth trying again."""
 
 
 # --------------------------------------------------------------------------- #
@@ -59,24 +85,38 @@ class ImportError_(Exception):
 
 
 def extract_text(pdf_bytes: bytes) -> str:
-    """Return the concatenated text of every page in a PDF."""
+    """Return the concatenated text of every page in a PDF.
+
+    Synchronous and CPU-bound. Callers on the event loop must go through
+    ``extract_text_async``.
+    """
     if len(pdf_bytes) > MAX_PDF_SIZE:
-        raise ImportError_("PDF is too large (max 5 MB).")
+        raise BadDocument("PDF is too large (max 5 MB).")
 
     try:
         with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
             pages = [page.extract_text() or "" for page in pdf.pages]
     except Exception as exc:
         logger.warning("pdfplumber could not read the uploaded file: %s", exc)
-        raise ImportError_("Could not read the PDF. Is the file corrupt?") from exc
+        raise BadDocument("Could not read the PDF. Is the file corrupt?") from exc
 
     text = "\n\n".join(pages).strip()
     if len(text) < 40:
-        raise ImportError_(
+        raise BadDocument(
             "Could not extract enough text from this PDF. "
             "It may be a scanned image — try a text-based PDF instead."
         )
     return text[:MAX_TEXT_LENGTH]
+
+
+async def extract_text_async(pdf_bytes: bytes) -> str:
+    """``extract_text`` off the event loop.
+
+    pdfplumber is CPU-bound and blocking -- the same reason
+    ``render_service.render_pdf`` hands WeasyPrint to a worker thread. Left
+    inline, a large upload stalls every other request on the worker.
+    """
+    return await anyio.to_thread.run_sync(extract_text, pdf_bytes)
 
 
 # --------------------------------------------------------------------------- #
@@ -147,13 +187,27 @@ Rules:
 
 
 def _extract_json(text: str) -> dict:
-    """Extract the JSON object from Gemini's response, tolerating markdown fences."""
+    """Extract the JSON object from Gemini's response, tolerating markdown fences.
+
+    Raises ``BadDocument`` rather than letting a JSONDecodeError -- or a
+    perfectly valid JSON *array* -- escape as a 500 from the endpoint.
+    """
     text = text.strip()
     # Strip ```json ... ``` fences if present
     fence_match = re.search(r"```(?:json)?\s*\n?(.*?)```", text, re.DOTALL)
     if fence_match:
         text = fence_match.group(1).strip()
-    return json.loads(text)
+
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError as exc:
+        logger.error("Gemini returned non-JSON: %.500s", text)
+        raise BadDocument("The AI response could not be parsed. Please try again.") from exc
+
+    if not isinstance(parsed, dict):
+        logger.error("Gemini returned a %s, not an object: %.500s", type(parsed).__name__, text)
+        raise BadDocument("The AI response could not be parsed. Please try again.")
+    return parsed
 
 
 def _build_link(raw: dict) -> Link:
@@ -164,7 +218,24 @@ def _build_link(raw: dict) -> Link:
 
 
 def _to_resume_data(parsed: dict) -> ResumeData:
-    """Convert the raw parsed dict into a validated ResumeData."""
+    """Convert the raw parsed dict into a validated ResumeData.
+
+    Every failure here is a ``BadDocument``: the JSON parsed but does not
+    describe a resume -- a number where a string belongs, a string where a list
+    belongs, a null section. Left unwrapped these surface as pydantic
+    ValidationErrors and AttributeErrors, i.e. a 500 blamed on the server for
+    something the model did.
+    """
+    try:
+        return _build_resume_data(parsed)
+    except (ValidationError, AttributeError, TypeError, KeyError) as exc:
+        logger.error("Gemini JSON did not fit the resume schema: %s", exc)
+        raise BadDocument(
+            "The AI returned data in an unexpected shape. Please try again."
+        ) from exc
+
+
+def _build_resume_data(parsed: dict) -> ResumeData:
     basics_raw = parsed.get("basics", {})
     basics = Basics(
         full_name=basics_raw.get("full_name", ""),
@@ -288,41 +359,82 @@ def _to_resume_data(parsed: dict) -> ResumeData:
     return ResumeData(basics=basics, sections=sections)
 
 
+def _is_transient(exc: genai_errors.APIError) -> bool:
+    return getattr(exc, "code", None) in _TRANSIENT_STATUSES
+
+
+async def _generate(text: str) -> str:
+    """One Gemini round trip, retried once when the failure looks temporary.
+
+    A 503 'high demand' is common enough on the free tier that a single retry
+    turns most of them into a success the user never sees.
+    """
+    client = genai.Client(api_key=settings.gemini_api_key)
+    config = GenerateContentConfig(
+        system_instruction=_SYSTEM_PROMPT,
+        temperature=0.1,
+        # Without this the request inherits no deadline, so a stalled upstream
+        # would hold the connection -- and a worker slot -- indefinitely.
+        http_options=HttpOptions(timeout=REQUEST_TIMEOUT_MS),
+    )
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            response = await client.aio.models.generate_content(
+                model=MODEL,
+                contents=f"Parse this resume:\n\n{text}",
+                config=config,
+            )
+        except genai_errors.APIError as exc:
+            retryable = _is_transient(exc) and attempt < MAX_ATTEMPTS
+            logger.warning(
+                "Gemini %s on attempt %d/%d%s",
+                getattr(exc, "code", "error"),
+                attempt,
+                MAX_ATTEMPTS,
+                " — retrying" if retryable else "",
+            )
+            if retryable:
+                await anyio.sleep(RETRY_DELAY_SECONDS)
+                continue
+            if _is_transient(exc):
+                raise UpstreamUnavailable(
+                    "The AI service is busy right now. Please try again in a moment."
+                ) from exc
+            # 400/401/403 — our key or our request is wrong, not the user's PDF.
+            logger.error("Gemini rejected the request: %s", exc)
+            raise UpstreamUnavailable(
+                "The AI service rejected the request. Please try again later."
+            ) from exc
+        except Exception as exc:  # network failure, DNS, timeout
+            logger.exception("Gemini call failed on attempt %d", attempt)
+            if attempt < MAX_ATTEMPTS:
+                await anyio.sleep(RETRY_DELAY_SECONDS)
+                continue
+            raise UpstreamUnavailable(
+                "Could not reach the AI service. Please try again in a moment."
+            ) from exc
+
+        raw_text = response.text
+        if raw_text:
+            return raw_text
+        # An empty body is not an error the SDK reports; treat it as transient.
+        logger.warning("Gemini returned an empty response on attempt %d", attempt)
+        if attempt < MAX_ATTEMPTS:
+            await anyio.sleep(RETRY_DELAY_SECONDS)
+
+    raise UpstreamUnavailable("The AI service returned nothing. Please try again.")
+
+
 async def parse_resume_text(text: str) -> ResumeData:
     """Send extracted text to Gemini and return structured ResumeData."""
     if not settings.gemini_api_key:
-        raise ImportError_(
-            "Resume import is not configured. The VITANOVA_GEMINI_API_KEY "
-            "environment variable is missing."
+        # Not the upload's fault and not fixable by retrying with a better PDF,
+        # so it belongs with the other "service can't serve this" failures.
+        raise UpstreamUnavailable(
+            "Resume import is not configured on this server — "
+            "VITANOVA_GEMINI_API_KEY is not set."
         )
 
-    client = genai.Client(api_key=settings.gemini_api_key)
-
-    try:
-        response = await client.aio.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=f"Parse this resume:\n\n{text}",
-            config=GenerateContentConfig(
-                system_instruction=_SYSTEM_PROMPT,
-                temperature=0.1,
-            ),
-        )
-    except Exception as exc:
-        logger.exception("Gemini API call failed")
-        raise ImportError_(
-            "Could not reach the AI service. Please try again in a moment."
-        ) from exc
-
-    raw_text = response.text
-    if not raw_text:
-        raise ImportError_("The AI returned an empty response. Please try again.")
-
-    try:
-        parsed = _extract_json(raw_text)
-    except json.JSONDecodeError:
-        logger.error("Gemini returned non-JSON: %.500s", raw_text)
-        raise ImportError_(
-            "The AI response could not be parsed. Please try again."
-        )
-
-    return _to_resume_data(parsed)
+    raw_text = await _generate(text)
+    return _to_resume_data(_extract_json(raw_text))

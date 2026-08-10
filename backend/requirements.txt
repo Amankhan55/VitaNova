@@ -6,7 +6,7 @@ uvicorn[standard]==0.52.1
 # connection string -- resolve without an extra. (The [srv] extra was dropped in
 # PyMongo 4.9; asking for it now only earns a warning.)
 pymongo==4.17.0
-certifi>=2024.2.2
+certifi==2026.7.22         # CA bundle for the Atlas TLS handshake
 pydantic[email]==2.13.4
 pydantic-settings==2.15.0
 PyJWT==2.13.0
@@ -14,8 +14,11 @@ bcrypt==5.0.0
 Jinja2==3.1.6
 weasyprint==69.0           # needs pango + cairo (brew install pango)
 python-multipart==0.0.32
-pdfplumber>=0.11.0         # PDF text extraction for resume import
-google-genai>=1.0.0        # Gemini API client for AI-powered resume parsing
+pdfplumber==0.11.10        # PDF text extraction for resume import
+# Pinned exactly, like everything else here: google-genai moves fast enough that
+# an unpinned lower bound means two Render builds a week apart can ship
+# different SDKs, and the import endpoint is the only thing that would notice.
+google-genai==2.17.0
 
 # dev / test
 pytest==9.0.1
