@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, HTTPException, Response, UploadFile, status
 from fastapi.responses import HTMLResponse
 
 from app.api.deps import CurrentUser, DbDep
 from app.core.config import settings
 from app.models.resume import ResumeData
 from app.schemas.resume import ResumeCreate, ResumeRead, ResumeSummary, ResumeUpdate
-from app.services import render_service, resume_service
+from app.services import import_service, render_service, resume_service
 
 router = APIRouter(prefix="/resumes", tags=["resumes"])
 
@@ -97,3 +97,45 @@ async def export_pdf(resume_id: str, user: CurrentUser, db: DbDep) -> Response:
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@router.post("/import", response_model=ResumeRead, status_code=status.HTTP_201_CREATED)
+async def import_resume(
+    file: UploadFile, user: CurrentUser, db: DbDep,
+    template_id: str = "modern-professional",
+) -> ResumeRead:
+    """Upload a PDF resume, parse it with AI, and create a pre-filled resume."""
+    if await resume_service.count_for_owner(db, user.id) >= settings.max_resumes_per_user:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            detail=f"Limit of {settings.max_resumes_per_user} resumes reached",
+        )
+
+    if not file.content_type or "pdf" not in file.content_type.lower():
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Only PDF files are accepted.",
+        )
+
+    pdf_bytes = await file.read()
+
+    try:
+        text = import_service.extract_text(pdf_bytes)
+        resume_data = await import_service.parse_resume_text(text)
+    except import_service.ImportError_ as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc))
+
+    title = resume_data.basics.full_name or "Imported Resume"
+    payload = ResumeCreate(
+        title=f"{title} (imported)",
+        template_id=template_id,
+        basics=resume_data.basics,
+        sections=resume_data.sections,
+        seed_from_template=False,
+    )
+    resume = await resume_service.create_resume(
+        db, user.id, payload,
+        owner_name=user.full_name, owner_email=str(user.email),
+    )
+    return _read(resume)
+

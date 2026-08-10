@@ -49,6 +49,16 @@ export class ResumeApi {
       observe: 'response',
     });
   }
+
+  /** Upload a PDF resume, parse it with AI, and create a pre-filled resume. */
+  importResume(file: File, templateId = 'modern-professional'): Observable<Resume> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<Resume>(
+      `${API_BASE}/resumes/import?template_id=${encodeURIComponent(templateId)}`,
+      form,
+    );
+  }
 }
 
 @Injectable({ providedIn: 'root' })

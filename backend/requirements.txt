@@ -14,6 +14,8 @@ bcrypt==5.0.0
 Jinja2==3.1.6
 weasyprint==69.0           # needs pango + cairo (brew install pango)
 python-multipart==0.0.32
+pdfplumber>=0.11.0         # PDF text extraction for resume import
+google-genai>=1.0.0        # Gemini API client for AI-powered resume parsing
 
 # dev / test
 pytest==9.0.1

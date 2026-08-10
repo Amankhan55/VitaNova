@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     # Maximum resumes a single account may hold, a cheap guard against runaway writes.
     max_resumes_per_user: int = 50
 
+    # Google Gemini API key for resume import (free tier: 15 req/min, 1M tokens/day).
+    # Get one at https://aistudio.google.com
+    gemini_api_key: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

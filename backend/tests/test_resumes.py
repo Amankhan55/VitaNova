@@ -114,3 +114,14 @@ def test_delete_removes_the_resume(client, account):
     assert (
         client.get(f"/api/v1/resumes/{resume['id']}", headers=account["headers"]).status_code == 404
     )
+
+
+def test_import_rejects_non_pdf_file(client, account):
+    response = client.post(
+        "/api/v1/resumes/import",
+        files={"file": ("test.txt", b"hello world", "text/plain")},
+        headers=account["headers"],
+    )
+    assert response.status_code == 422
+    assert "Only PDF files" in response.json()["detail"]
+

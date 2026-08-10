@@ -33,6 +33,11 @@ services:
       - key: VITANOVA_DEBUG
         value: "false"
 
+      # Google Gemini API key for AI-powered resume import (free tier).
+      # Get one at https://aistudio.google.com
+      - key: VITANOVA_GEMINI_API_KEY
+        sync: false
+
       # No CORS entry on purpose: the deployed frontend reaches this API through
       # a Vercel rewrite, so requests arrive server-to-server and never trigger a
       # preflight. If you point the browser straight at this host instead, add

@@ -38,6 +38,22 @@ import { Icon } from '../../shared/ui/icon/icon';
               />
             </label>
           }
+          <button
+            class="vn-btn vn-btn--ghost"
+            type="button"
+            (click)="fileInput.click()"
+            [disabled]="importing()"
+          >
+            <vn-icon name="upload" [size]="16" />
+            {{ importing() ? 'Parsing…' : 'Import PDF' }}
+          </button>
+          <input
+            #fileInput
+            type="file"
+            accept=".pdf,application/pdf"
+            hidden
+            (change)="onFileSelected($event)"
+          />
           <a class="vn-btn vn-btn--primary" routerLink="/templates">
             <vn-icon name="plus" [size]="16" />
             New resume
@@ -153,6 +169,7 @@ export class DashboardPage {
   protected readonly error = signal('');
   protected readonly busyId = signal('');
   protected readonly search = signal('');
+  protected readonly importing = signal(false);
 
   protected query = '';
 
@@ -241,6 +258,29 @@ export class DashboardPage {
     if (!confirmed) return;
     this.resumeApi.remove(resume.id).subscribe(() => {
       this.resumes.update((list) => list.filter((item) => item.id !== resume.id));
+    });
+  }
+
+  protected onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';  // reset so re-selecting the same file still triggers
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('PDF is too large (max 5 MB).');
+      return;
+    }
+    this.importing.set(true);
+    this.resumeApi.importResume(file).subscribe({
+      next: (resume) => {
+        this.importing.set(false);
+        void this.router.navigate(['/editor', resume.id]);
+      },
+      error: (err) => {
+        this.importing.set(false);
+        const detail = err?.error?.detail || 'Could not import the resume. Please try again.';
+        alert(detail);
+      },
     });
   }
 }
