@@ -55,6 +55,120 @@
 }
 .search input::placeholder { color: var(--vn-text-subtle); }
 
+/* ---------------------------------------------------------- import progress */
+
+.import-progress {
+  margin-bottom: 20px;
+  padding: 15px 18px 16px;
+  border-color: var(--vn-accent-line);
+  animation: import-in 0.25s var(--vn-ease);
+}
+
+@keyframes import-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.import-progress-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+
+.import-spinner {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  color: var(--vn-accent-text);
+  background: var(--vn-accent-soft);
+  border-radius: 50%;
+  animation: import-pulse 1.6s ease-in-out infinite;
+}
+.import-spinner.is-done {
+  animation: none;
+  color: var(--vn-on-accent);
+  background: var(--vn-accent);
+}
+
+@keyframes import-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.92); }
+}
+
+.import-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.import-percent {
+  flex: none;
+  font-size: 19px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums; /* stops the width jittering as digits change */
+  letter-spacing: -0.02em;
+  color: var(--vn-accent-text);
+}
+.import-percent small { font-size: 12px; font-weight: 600; margin-left: 1px; }
+
+.import-track {
+  position: relative;
+  height: 7px;
+  overflow: hidden;
+  background: var(--vn-surface-3);
+  border-radius: 999px;
+}
+
+.import-fill {
+  position: relative; /* so the sheen below is clipped to the fill, not the track */
+  overflow: hidden;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--vn-accent), var(--vn-accent-hover));
+  /* Matches the ~120ms tick so the bar glides between samples instead of
+     stepping. Slightly longer than the tick to keep motion continuous. */
+  transition: width 0.18s linear;
+}
+
+/* A sheen travelling over the filled part: the work is ongoing even in the
+   stretch where the percentage is only an estimate. */
+.import-fill.is-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--vn-surface) 55%, transparent),
+    transparent
+  );
+  animation: import-sheen 1.5s linear infinite;
+}
+
+@keyframes import-sheen {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.import-note {
+  margin-top: 9px;
+  font-size: 12.5px;
+  color: var(--vn-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The number still climbs; only the decorative motion stops. */
+  .import-fill.is-active::after,
+  .import-spinner { animation: none; }
+}
+
 /* ------------------------------------------------------------- import error */
 
 .import-error {

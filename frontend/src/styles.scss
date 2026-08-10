@@ -76,6 +76,7 @@
   --vn-danger-text: #b91c1c;
   --vn-danger-soft: #fef2f2;
   --vn-danger-line: #fecaca;
+  --vn-on-danger: #ffffff;
 
   --vn-ink: #0b1220;
   --vn-on-ink: #e9eff7;
@@ -122,6 +123,9 @@
   --vn-danger-text: #fca5a5;
   --vn-danger-soft: rgb(248 113 113 / 12%);
   --vn-danger-line: rgb(248 113 113 / 34%);
+  /* --vn-danger is a *light* red here, so text sitting on it must be dark:
+     white on #f87171 is about 2.4:1, which fails at any size. */
+  --vn-on-danger: #2c0707;
 
   --vn-ink: #060a12;
   --vn-on-ink: #e7eef8;

@@ -1,6 +1,6 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, filter, map } from 'rxjs';
 
 import { API_BASE } from '../auth/auth.service';
 import { TemplateMeta } from '../models/auth.model';
@@ -11,6 +11,11 @@ export interface CreateResumePayload {
   template_id?: string;
   seed_from_template?: boolean;
 }
+
+/** What an in-flight import can tell us. `fraction` is 0–1 of bytes sent. */
+export type ImportEvent =
+  | { state: 'uploading'; fraction: number }
+  | { state: 'done'; resume: Resume };
 
 @Injectable({ providedIn: 'root' })
 export class ResumeApi {
@@ -50,14 +55,37 @@ export class ResumeApi {
     });
   }
 
-  /** Upload a PDF resume, parse it with AI, and create a pre-filled resume. */
-  importResume(file: File, templateId = 'modern-professional'): Observable<Resume> {
+  /**
+   * Upload a PDF resume, parse it with AI, and create a pre-filled resume.
+   *
+   * Emits upload progress before the result. The upload fraction is measured;
+   * what happens after it — text extraction, then the model call — reports
+   * nothing back, so this stream simply goes quiet until the response lands.
+   * See `IMPORT_PARSE_HALFLIFE_MS` in the dashboard for how that gap is shown.
+   */
+  importResume(file: File, templateId = 'modern-professional'): Observable<ImportEvent> {
     const form = new FormData();
     form.append('file', file);
-    return this.http.post<Resume>(
-      `${API_BASE}/resumes/import?template_id=${encodeURIComponent(templateId)}`,
-      form,
-    );
+    return this.http
+      .post<Resume>(`${API_BASE}/resumes/import?template_id=${encodeURIComponent(templateId)}`, form, {
+        reportProgress: true,
+        observe: 'events',
+      })
+      .pipe(
+        filter(
+          (event) =>
+            event.type === HttpEventType.UploadProgress || event.type === HttpEventType.Response,
+        ),
+        map((event): ImportEvent => {
+          if (event.type === HttpEventType.UploadProgress) {
+            // `total` is absent when the browser cannot size the body; treat
+            // that as "uploading, fraction unknown" rather than dividing by zero.
+            const fraction = event.total ? event.loaded / event.total : 0;
+            return { state: 'uploading', fraction };
+          }
+          return { state: 'done', resume: (event as HttpResponse<Resume>).body! };
+        }),
+      );
   }
 }
 

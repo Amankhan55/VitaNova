@@ -12,6 +12,7 @@ import {
   SummarySection,
 } from '../../../core/models/resume.model';
 import { emptyItemFor, emptySection, isItemSection } from '../../../core/models/resume.factory';
+import { ConfirmService } from '../../../shared/ui/confirm/confirm.service';
 import { IconName } from '../../../shared/ui/icon/icons';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { ResumeStore } from '../resume-store';
@@ -146,6 +147,7 @@ const ADDABLE: SectionType[] = [
 })
 export class SectionList {
   private readonly store = inject(ResumeStore);
+  private readonly confirm = inject(ConfirmService);
 
   protected readonly addable = ADDABLE;
   protected readonly sections = computed(() => this.store.resume()?.sections ?? []);
@@ -222,9 +224,15 @@ export class SectionList {
     this.store.updateSection(section.id, (current) => ({ ...current, title }));
   }
 
-  protected removeSection(section: ResumeSection): void {
+  protected async removeSection(section: ResumeSection): Promise<void> {
     const name = section.title || this.label(section.type);
-    if (!confirm(`Remove the "${name}" section and everything in it?`)) return;
+    const confirmed = await this.confirm.ask({
+      title: `Remove “${name}”?`,
+      message: 'The section and every entry in it will be deleted from this resume.',
+      confirmLabel: 'Remove section',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.store.replaceSections(this.sections().filter((item) => item.id !== section.id));
   }
 

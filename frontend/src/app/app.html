@@ -60,3 +60,7 @@
 <main class="shell-main" [class.shell-main--bare]="!showHeader()">
   <router-outlet />
 </main>
+
+<!-- Mounted once, outside the header, so every route can ask a question. -->
+<vn-confirm-dialog />
+

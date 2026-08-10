@@ -11,6 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
 
 import { AuthService } from './core/auth/auth.service';
+import { ConfirmDialog } from './shared/ui/confirm/confirm-dialog';
 import { Icon } from './shared/ui/icon/icon';
 import { Logo } from './shared/ui/logo/logo';
 import { ThemeToggle } from './shared/ui/theme-toggle/theme-toggle';
@@ -21,7 +22,7 @@ const PUBLIC_ROUTES = ['/login', '/register'];
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Logo, ThemeToggle],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ConfirmDialog, Icon, Logo, ThemeToggle],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

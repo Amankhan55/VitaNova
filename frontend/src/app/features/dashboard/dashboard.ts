@@ -1,6 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -9,11 +16,61 @@ import { ResumeApi, TemplateApi } from '../../core/api/resume.api';
 import { AuthService } from '../../core/auth/auth.service';
 import { downloadBlob, filenameFrom } from '../../core/download';
 import { TemplateMeta } from '../../core/models/auth.model';
-import { ResumeSummary } from '../../core/models/resume.model';
+import { Resume, ResumeSummary } from '../../core/models/resume.model';
+import { ConfirmService } from '../../shared/ui/confirm/confirm.service';
 import { Icon } from '../../shared/ui/icon/icon';
 
 /** Kept in step with `import_service.MAX_PDF_SIZE` on the server. */
 const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+
+/* --------------------------------------------------------------------------
+   Import progress
+   --------------------------------------------------------------------------
+   Only one part of an import can be measured: the upload, which the browser
+   reports byte by byte. Everything after it happens on the server behind a
+   single request that says nothing until it answers — and measured against a
+   real import, that silent stretch is ~99.7% of the wall time (12–13s of model
+   call versus ~36ms of text extraction).
+
+   So the bar is honest in two different ways for two different phases:
+
+     0 → UPLOAD_CEILING    real, from HttpEventType.UploadProgress
+     UPLOAD_CEILING → 100  an estimate, and never allowed to reach 100
+
+   The estimate decays toward PARSE_CEILING with the half-life below. Against a
+   measured 12–13s median that lands the bar around 76% when the response
+   arrives, and it is still visibly climbing (~92%) even at 30s, so a slow
+   import never looks hung. It cannot finish on its own: only the real response
+   moves it to 100. A bar that sits at 100% while the user waits is the one
+   thing worse than no bar.
+   -------------------------------------------------------------------------- */
+
+export const UPLOAD_CEILING = 20;
+export const PARSE_CEILING = 95;
+/** Half-life, not time-constant: percent = 95 − 75·(½)^(t/6.5s). */
+const IMPORT_PARSE_HALFLIFE_MS = 6_500;
+
+/**
+ * The estimated percentage `elapsedMs` into the server-side phase.
+ *
+ * Exported so its invariants can be tested: it starts at UPLOAD_CEILING, only
+ * ever increases, and approaches PARSE_CEILING without reaching it.
+ */
+export function importParsePercent(elapsedMs: number): number {
+  const decay = Math.pow(0.5, elapsedMs / IMPORT_PARSE_HALFLIFE_MS);
+  return PARSE_CEILING - (PARSE_CEILING - UPLOAD_CEILING) * decay;
+}
+const PROGRESS_TICK_MS = 120;
+/** After this long the wait is unusual enough to deserve an explanation. */
+const SLOW_IMPORT_MS = 20_000;
+
+interface ImportProgress {
+  percent: number;
+  label: string;
+  note: string;
+  /** Drives the indeterminate shimmer — off once the real result is in. */
+  active: boolean;
+}
 
 /**
  * Turns a failed import into something worth reading.
@@ -65,7 +122,7 @@ function readImportError(err: HttpErrorResponse): string {
             [disabled]="importing()"
           >
             <vn-icon name="upload" [size]="16" />
-            {{ importing() ? 'Parsing…' : 'Import PDF' }}
+            {{ importing() ? 'Importing…' : 'Import PDF' }}
           </button>
           <input
             #fileInput
@@ -80,6 +137,31 @@ function readImportError(err: HttpErrorResponse): string {
           </a>
         </div>
       </header>
+
+      @if (progress(); as p) {
+        <div class="import-progress vn-card">
+          <div class="import-progress-head">
+            <span class="import-spinner" [class.is-done]="!p.active">
+              <vn-icon [name]="p.active ? 'sparkle' : 'check'" [size]="15" />
+            </span>
+            <span class="import-label">{{ p.label }}</span>
+            <span class="import-percent">{{ p.percent }}<small>%</small></span>
+          </div>
+
+          <div
+            class="import-track"
+            role="progressbar"
+            [attr.aria-valuenow]="p.percent"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-label]="p.label"
+          >
+            <div class="import-fill" [class.is-active]="p.active" [style.width.%]="p.percent"></div>
+          </div>
+
+          <p class="import-note" aria-live="polite">{{ p.note }}</p>
+        </div>
+      }
 
       @if (importError(); as message) {
         <div class="import-error vn-card" role="alert">
@@ -197,6 +279,7 @@ export class DashboardPage {
   private readonly templateApi = inject(TemplateApi);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly confirm = inject(ConfirmService);
 
   protected readonly resumes = signal<ResumeSummary[]>([]);
   protected readonly templates = signal<TemplateMeta[]>([]);
@@ -206,6 +289,15 @@ export class DashboardPage {
   protected readonly search = signal('');
   protected readonly importing = signal(false);
   protected readonly importError = signal('');
+  protected readonly progress = signal<ImportProgress | null>(null);
+
+  /** Set while the post-upload estimate is animating. */
+  private ticker?: ReturnType<typeof setInterval>;
+
+  constructor() {
+    this.load();
+    inject(DestroyRef).onDestroy(() => this.stopTicker());
+  }
 
   protected query = '';
 
@@ -232,10 +324,6 @@ export class DashboardPage {
     if (count === 0) return 'Everything you write will live here.';
     return `${count} ${count === 1 ? 'resume' : 'resumes'}, ready to edit or export.`;
   });
-
-  constructor() {
-    this.load();
-  }
 
   protected load(): void {
     this.loading.set(true);
@@ -289,8 +377,13 @@ export class DashboardPage {
     });
   }
 
-  protected remove(resume: ResumeSummary): void {
-    const confirmed = confirm(`Delete "${resume.title}"? This cannot be undone.`);
+  protected async remove(resume: ResumeSummary): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      title: 'Delete this resume?',
+      message: `“${resume.title}” and everything in it will be removed. This cannot be undone.`,
+      confirmLabel: 'Delete',
+      tone: 'danger',
+    });
     if (!confirmed) return;
     this.resumeApi.remove(resume.id).subscribe(() => {
       this.resumes.update((list) => list.filter((item) => item.id !== resume.id));
@@ -315,15 +408,92 @@ export class DashboardPage {
     }
 
     this.importing.set(true);
+    this.progress.set({
+      percent: 0,
+      label: `Uploading ${file.name}`,
+      note: 'Sending the file to the server.',
+      active: true,
+    });
+
     this.resumeApi.importResume(file).subscribe({
-      next: (resume) => {
-        this.importing.set(false);
-        void this.router.navigate(['/editor', resume.id]);
+      next: (event) => {
+        if (event.state === 'uploading') {
+          this.onUploadProgress(event.fraction, file.name);
+          return;
+        }
+        this.onImportComplete(event.resume);
       },
       error: (err: HttpErrorResponse) => {
+        this.stopTicker();
         this.importing.set(false);
+        this.progress.set(null);
         this.importError.set(readImportError(err));
       },
     });
+  }
+
+  private onUploadProgress(fraction: number, filename: string): void {
+    const percent = Math.round(fraction * UPLOAD_CEILING);
+    this.progress.set({
+      percent,
+      label: `Uploading ${filename}`,
+      note: 'Sending the file to the server.',
+      active: true,
+    });
+    // The upload finishing is the last thing we hear about until the response,
+    // so this is where the estimate takes over.
+    if (fraction >= 1) this.startParseEstimate();
+  }
+
+  /**
+   * Animates from UPLOAD_CEILING toward PARSE_CEILING while the server works.
+   *
+   * Exponential decay rather than a straight line: a fast import should look
+   * fast, and a slow one should visibly keep moving without ever implying it is
+   * about to finish. It asymptotes below 100 by construction.
+   */
+  private startParseEstimate(): void {
+    this.stopTicker();
+    const startedAt = performance.now();
+
+    const tick = () => {
+      const elapsed = performance.now() - startedAt;
+      this.progress.set({
+        percent: Math.round(importParsePercent(elapsed)),
+        label: 'Reading your resume',
+        note:
+          elapsed > SLOW_IMPORT_MS
+            ? 'Still going — the free AI tier gets busy at times. Hang on.'
+            : 'Pulling out your experience, education and skills.',
+        active: true,
+      });
+    };
+
+    tick();
+    this.ticker = setInterval(tick, PROGRESS_TICK_MS);
+  }
+
+  private onImportComplete(resume: Resume): void {
+    this.stopTicker();
+    // Only the real response is allowed to say 100%.
+    this.progress.set({
+      percent: 100,
+      label: 'Imported',
+      note: 'Opening it in the editor…',
+      active: false,
+    });
+    // A beat at 100% so the bar reads as finished rather than just vanishing.
+    setTimeout(() => {
+      this.importing.set(false);
+      this.progress.set(null);
+      void this.router.navigate(['/editor', resume.id]);
+    }, 500);
+  }
+
+  private stopTicker(): void {
+    if (this.ticker !== undefined) {
+      clearInterval(this.ticker);
+      this.ticker = undefined;
+    }
   }
 }
