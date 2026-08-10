@@ -6,6 +6,7 @@ uvicorn[standard]==0.52.1
 # connection string -- resolve without an extra. (The [srv] extra was dropped in
 # PyMongo 4.9; asking for it now only earns a warning.)
 pymongo==4.17.0
+certifi>=2024.2.2
 pydantic[email]==2.13.4
 pydantic-settings==2.15.0
 PyJWT==2.13.0

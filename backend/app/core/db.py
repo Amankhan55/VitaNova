@@ -31,7 +31,15 @@ async def connect() -> None:
     global _client
     if _client is not None:
         return
-    _client = AsyncMongoClient(settings.mongo_uri, tz_aware=True)
+
+    kwargs = {}
+    try:
+        import certifi
+        kwargs["tlsCAFile"] = certifi.where()
+    except ImportError:
+        pass
+
+    _client = AsyncMongoClient(settings.mongo_uri, tz_aware=True, **kwargs)
     await _client.aconnect()
     await _ensure_indexes(get_database())
     logger.info("Connected to MongoDB at %s/%s", settings.mongo_uri, settings.mongo_db)
