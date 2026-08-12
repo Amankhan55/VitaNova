@@ -1,0 +1,11 @@
+{
+  "id": "compact-dense",
+  "name": "Compact Dense",
+  "description": "Built for a long history. Smaller type, tighter leading and lean section rules fit noticeably more on a page without ever crowding a line — for the fifteen-year career that keeps spilling onto a third page.",
+  "tags": ["Single column", "ATS safe", "Dense", "Long careers"],
+  "accent": "#334155",
+  "accent_presets": ["#334155", "#1D4ED8", "#0F766E", "#7C2D12"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "12mm"
+}

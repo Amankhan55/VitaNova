@@ -1,0 +1,12 @@
+{% import '_shared/ats.html' as ats %}
+{#
+  A book-like serif setting. Shared ATS markup, generous CSS — see
+  _shared/ats.html.
+#}
+<div class="vn-sheet">
+  {{ ats.header(basics) }}
+
+  {% for section in sections %}
+    {{ ats.section(section) }}
+  {% endfor %}
+</div>

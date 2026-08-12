@@ -28,6 +28,11 @@ body {
   font-size: calc(10.2pt * var(--vn-font-scale, 1));
   line-height: 1.42;
   color: #22272e;
+  /* Never strand a single line of a paragraph on its own at a page boundary.
+     WeasyPrint honours both; browsers ignore them on screen, which is fine —
+     the screen has no page boundaries to strand anything at. */
+  orphans: 2;
+  widows: 2;
 }
 
 p { margin: 0 0 0.45em; }
@@ -97,6 +102,10 @@ strong, b { font-weight: 700; }
 .vn-entry-row::after { content: ""; display: table; clear: both; }
 .vn-entry-aside { float: right; padding-left: 8px; }
 
+/* Languages sit on one line: name, then proficiency set apart by a separator
+   the templates do not have to draw themselves. */
+.vn-entry--language .vn-entry-level::before { content: " — "; }
+
 .vn-bullets { margin-top: 2px; }
 
 .vn-tags { margin-top: 1px; }
@@ -105,5 +114,12 @@ strong, b { font-weight: 700; }
 .vn-cols { display: table; width: 100%; table-layout: fixed; border-collapse: collapse; }
 .vn-col { display: table-cell; vertical-align: top; }
 
-.vn-inline-sep::after { content: "  |  "; white-space: pre; }
+/* pre-wrap, not pre: both keep the padding either side of the rule, but `pre`
+   also forbade wrapping there — which left an inline list with NO soft wrap
+   opportunity anywhere in it. .vn-sheet's overflow-wrap:break-word then did the
+   only thing left to it and split "linkedin.com/in/alex-morgan-dev" mid-slug.
+   With the separator breakable, the line wraps between entries and a long
+   address moves whole to the next line; break-word stays as the last resort it
+   was meant to be, for a token genuinely wider than the column. */
+.vn-inline-sep::after { content: "  |  "; white-space: pre-wrap; }
 .vn-inline-sep:last-child::after { content: ""; }

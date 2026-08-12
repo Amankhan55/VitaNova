@@ -1,0 +1,113 @@
+/* ==========================================================================
+   Quiet Professional — no rules, no fills, hierarchy from space alone
+   --------------------------------------------------------------------------
+   Every other design in the set separates its sections with something drawn: a
+   rule, a bar, a tint. This one separates them with distance, and lets the
+   accent appear in exactly one place — the section headings. If a line looks
+   important here it is because of its weight and the space around it, which is
+   the whole exercise.
+   ========================================================================== */
+
+.vn-quiet-professional {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: calc(10.2pt * var(--vn-font-scale, 1));
+  line-height: 1.5;
+  color: #2b3038;
+}
+
+/* -------------------------------------------------- header */
+
+.vn-quiet-professional .vn-header {
+  margin-bottom: calc(22px * var(--vn-density, 1));
+}
+
+.vn-quiet-professional .vn-name {
+  font-size: calc(21pt * var(--vn-font-scale, 1));
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: #14181d;
+}
+
+.vn-quiet-professional .vn-headline {
+  margin-top: 3px;
+  font-size: calc(11pt * var(--vn-font-scale, 1));
+  font-weight: 400;
+  color: #5b6472;
+}
+
+.vn-quiet-professional .vn-contact-line {
+  margin-top: 9px;
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  line-height: 1.6;
+  color: #5b6472;
+}
+
+/* -------------------------------------------------- sections */
+
+/* The gap below a heading is deliberately much smaller than the gap above it,
+   so a heading reads as belonging to what follows rather than floating between
+   two blocks. With no rules to do that job, spacing is the only signal. */
+.vn-quiet-professional .vn-section { margin-bottom: calc(19px * var(--vn-density, 1)); }
+
+.vn-quiet-professional .vn-section-title {
+  font-size: calc(8.8pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--vn-accent, #475569);
+  margin-bottom: calc(8px * var(--vn-density, 1));
+}
+
+/* -------------------------------------------------- entries */
+
+.vn-quiet-professional .vn-entry + .vn-entry { margin-top: calc(12px * var(--vn-density, 1)); }
+
+.vn-quiet-professional .vn-entry-title {
+  font-size: calc(10.6pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #14181d;
+}
+
+.vn-quiet-professional .vn-entry-dates,
+.vn-quiet-professional .vn-entry-location {
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  font-weight: 400;
+  color: #6a7280;
+}
+
+.vn-quiet-professional .vn-entry-org { color: #3f4650; }
+.vn-quiet-professional .vn-entry-detail { color: #6a7280; }
+
+.vn-quiet-professional .vn-bullets {
+  padding-left: 1.1em;
+  margin-top: 4px;
+}
+.vn-quiet-professional .vn-bullets li { margin-bottom: 2.5px; }
+
+.vn-quiet-professional .vn-tags {
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  color: #6a7280;
+}
+
+.vn-quiet-professional .vn-project-tech { color: #6a7280; }
+
+/* -------------------------------------------------- skills */
+
+.vn-quiet-professional .vn-skill-table { display: table; width: 100%; }
+.vn-quiet-professional .vn-skill-row { display: table-row; }
+.vn-quiet-professional .vn-skill-label,
+.vn-quiet-professional .vn-skill-values {
+  display: table-cell;
+  padding-bottom: 4px;
+  vertical-align: top;
+}
+.vn-quiet-professional .vn-skill-label {
+  width: 36mm;
+  padding-right: 4mm;
+  font-weight: 700;
+  color: #14181d;
+  white-space: nowrap;
+}
+
+.vn-quiet-professional .vn-language-line { line-height: 1.65; }

@@ -1,0 +1,11 @@
+{
+  "id": "quiet-professional",
+  "name": "Quiet Professional",
+  "description": "No rules, no bars, no fills. Structure comes entirely from weight, size and whitespace, which makes it the calmest design here and the one that gets out of the way of long, well-written bullets.",
+  "tags": ["Single column", "ATS safe", "Minimal", "Understated"],
+  "accent": "#475569",
+  "accent_presets": ["#475569", "#1D4ED8", "#0F766E", "#7C2D12", "#111111"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "17mm"
+}

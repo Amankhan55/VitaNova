@@ -1,0 +1,119 @@
+/* ==========================================================================
+   Serif Book — open serif, generous leading, hairline headings
+   --------------------------------------------------------------------------
+   The opposite trade to Compact Dense: this design spends space to make the
+   page easy to read slowly. It suits a one-page senior resume and will run
+   long if given fifteen years of bullets — which is what Compact Dense is for.
+   ========================================================================== */
+
+.vn-serif-book {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: calc(10.4pt * var(--vn-font-scale, 1));
+  line-height: 1.55;
+  color: #26221d;
+}
+
+/* -------------------------------------------------- header */
+
+.vn-serif-book .vn-header {
+  margin-bottom: calc(16px * var(--vn-density, 1));
+}
+
+.vn-serif-book .vn-name {
+  font-size: calc(24pt * var(--vn-font-scale, 1));
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.1;
+  color: #17140f;
+}
+
+.vn-serif-book .vn-headline {
+  margin-top: 4px;
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-style: italic;
+  color: var(--vn-accent, #7c2d12);
+}
+
+.vn-serif-book .vn-contact-line {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 0.6pt solid #d8d0c4;
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  line-height: 1.6;
+  color: #5c5347;
+}
+
+/* -------------------------------------------------- sections */
+
+.vn-serif-book .vn-section { margin-bottom: calc(15px * var(--vn-density, 1)); }
+
+/* Small, widely tracked, and sitting on a hairline — the book convention for a
+   running head rather than the poster convention of a heavy bar. */
+.vn-serif-book .vn-section-title {
+  font-size: calc(9pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--vn-accent, #7c2d12);
+  padding-bottom: 5px;
+  margin-bottom: calc(9px * var(--vn-density, 1));
+  border-bottom: 0.6pt solid #d8d0c4;
+}
+
+/* -------------------------------------------------- entries */
+
+.vn-serif-book .vn-entry + .vn-entry { margin-top: calc(11px * var(--vn-density, 1)); }
+
+.vn-serif-book .vn-entry-title {
+  font-size: calc(11pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #17140f;
+}
+
+.vn-serif-book .vn-entry-dates,
+.vn-serif-book .vn-entry-location {
+  font-size: calc(9.4pt * var(--vn-font-scale, 1));
+  font-style: italic;
+  color: #6b6255;
+}
+
+.vn-serif-book .vn-entry-org {
+  font-style: italic;
+  color: #4a4239;
+}
+
+.vn-serif-book .vn-entry-detail { font-style: italic; color: #6b6255; }
+
+.vn-serif-book .vn-bullets {
+  padding-left: 1.15em;
+  margin-top: 4px;
+}
+.vn-serif-book .vn-bullets li { margin-bottom: 3px; }
+
+.vn-serif-book .vn-tags {
+  font-style: italic;
+  font-size: calc(9.4pt * var(--vn-font-scale, 1));
+  color: #6b6255;
+}
+
+.vn-serif-book .vn-project-tech { font-style: italic; color: #6b6255; }
+
+/* -------------------------------------------------- skills */
+
+.vn-serif-book .vn-skill-table { display: table; width: 100%; }
+.vn-serif-book .vn-skill-row { display: table-row; }
+.vn-serif-book .vn-skill-label,
+.vn-serif-book .vn-skill-values {
+  display: table-cell;
+  padding-bottom: 5px;
+  vertical-align: top;
+}
+.vn-serif-book .vn-skill-label {
+  width: 38mm;
+  padding-right: 5mm;
+  font-weight: 700;
+  color: #17140f;
+  white-space: nowrap;
+}
+
+.vn-serif-book .vn-language-line { line-height: 1.7; }

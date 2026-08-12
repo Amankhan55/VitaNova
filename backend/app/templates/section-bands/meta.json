@@ -1,0 +1,11 @@
+{
+  "id": "section-bands",
+  "name": "Section Bands",
+  "description": "Every section heading sits in a tinted bar running the width of the page, so the structure of your resume is legible from across a desk. Strong rhythm, ordinary text underneath.",
+  "tags": ["Single column", "ATS safe", "Structured", "Colour"],
+  "accent": "#0F766E",
+  "accent_presets": ["#0F766E", "#1D4ED8", "#4338CA", "#9A3412", "#334155"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "14mm"
+}

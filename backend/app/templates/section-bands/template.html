@@ -1,0 +1,13 @@
+{% import '_shared/ats.html' as ats %}
+{#
+  Banded section headings. The bands are backgrounds on the <h2> elements
+  themselves — no wrapper divs, no artwork — so the heading a parser reads is
+  the same element a reader sees the colour on. See _shared/ats.html.
+#}
+<div class="vn-sheet">
+  {{ ats.header(basics) }}
+
+  {% for section in sections %}
+    {{ ats.section(section) }}
+  {% endfor %}
+</div>

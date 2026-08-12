@@ -1,0 +1,13 @@
+{% import '_shared/ats.html' as ats %}
+{#
+  The traditional academic CV. Structurally identical to Classic ATS — header,
+  then sections, one column — and different from it only in CSS. See
+  _shared/ats.html for why every ats_safe design shares that markup.
+#}
+<div class="vn-sheet">
+  {{ ats.header(basics) }}
+
+  {% for section in sections %}
+    {{ ats.section(section) }}
+  {% endfor %}
+</div>

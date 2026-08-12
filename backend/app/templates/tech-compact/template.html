@@ -10,12 +10,20 @@
         <h1 class="vn-name">{{ basics.full_name }}</h1>
         {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
       </div>
+      {#
+        The terminal-style glyph in front of each line is drawn by CSS ::before,
+        not written into the markup. It is decoration, and a resume parser
+        extracting this document must read "a.morgan@techmail.com", not
+        "@ a.morgan@techmail.com" — which is what it read while the glyph was a
+        real text node. This design claims ats_safe, so that distinction is the
+        whole point.
+      #}
       <div class="vn-header-right">
-        {% if basics.email %}<div><span class="vn-contact-icon">@</span>{{ basics.email }}</div>{% endif %}
-        {% if basics.phone %}<div><span class="vn-contact-icon">#</span>{{ basics.phone }}</div>{% endif %}
-        {% if basics.location %}<div><span class="vn-contact-icon">^</span>{{ basics.location }}</div>{% endif %}
+        {% if basics.email %}<div class="vn-contact-row vn-contact-row--email">{{ basics.email }}</div>{% endif %}
+        {% if basics.phone %}<div class="vn-contact-row vn-contact-row--phone">{{ basics.phone }}</div>{% endif %}
+        {% if basics.location %}<div class="vn-contact-row vn-contact-row--location">{{ basics.location }}</div>{% endif %}
         {% for link in basics.links %}
-          {% if link.label %}<div><span class="vn-contact-icon">&gt;</span>{{ link.label }}</div>{% endif %}
+          {% if link.label %}<div class="vn-contact-row vn-contact-row--link">{{ link.label }}</div>{% endif %}
         {% endfor %}
       </div>
     </div>
@@ -23,7 +31,8 @@
 
   {% for section in sections %}
     <section class="vn-section vn-section--{{ section.type }}">
-      <h2 class="vn-section-title">// {{ section.title }}</h2>
+      {# The "//" prefix is a CSS ::before, for the reason given above. #}
+      <h2 class="vn-section-title">{{ section.title }}</h2>
 
       {% if section.type == 'skills' %}
         <div class="vn-skills-container">

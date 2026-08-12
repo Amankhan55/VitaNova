@@ -1,0 +1,148 @@
+{# =============================================================================
+   VitaNova — the ATS-safe body
+
+   One implementation of "the plain, parseable way to set a resume", shared by
+   every design whose meta.json claims ats_safe. Those designs differ in CSS
+   alone; if they each wrote their own markup, "ATS safe" would quietly come to
+   mean something slightly different in each of them.
+
+   The conventions encoded here, and why:
+
+     * ONE COLUMN, in source order. Parsers read the document linearly. Nothing
+       here is laid out in table cells, floated into a sidebar, or reordered by
+       CSS, so extracted text arrives in the order a human reads it.
+     * ROLE AND EMPLOYER ON ONE LINE, "Senior Engineer — TechScale Solutions".
+       Most parsers look for the pair adjacent; stacking them onto separate
+       lines is a common reason an employer goes unread.
+     * STANDARD HEADINGS in real <h2> elements, one per section.
+     * NO TEXT IN DECORATION. Any glyph, rule or counter a design wants belongs
+       in CSS (::before, border, background), never in a text node — generated
+       content is not extracted, so it cannot corrupt a parsed field.
+
+   Designs that want a different header (a banner, say) can call
+   `contact_entries` and lay the header out themselves; everything below the
+   header should go through `section`.
+   ============================================================================= #}
+
+{% import '_shared/macros.html' as m %}
+
+
+{#- The standard header: name, headline, one wrapping line of contact details.
+    The contact list itself comes from the `contact_entries` global (defined in
+    render_service) rather than from a macro — a Jinja macro can only return a
+    string, and every caller here wants the list. -#}
+{% macro header(basics) %}
+  <header class="vn-header">
+    <h1 class="vn-name">{{ basics.full_name }}</h1>
+    {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+    {{ contact_line(basics) }}
+  </header>
+{% endmacro %}
+
+
+{#- Just the contact line, for designs that lay their header out differently. -#}
+{% macro contact_line(basics) %}
+  {% set contacts = contact_entries(basics) %}
+  {% if contacts %}
+    <div class="vn-contact-line">
+      {% for entry in contacts %}<span class="vn-inline-sep">{{ entry }}</span>{% endfor %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+
+{#- Location and dates, as one right-aligned run: "San Francisco, CA | 2022 – Present". -#}
+{% macro meta_right(item) %}
+  {%- set bits = [] -%}
+  {%- if item.location %}{% set _ = bits.append(item.location) %}{% endif -%}
+  {%- set dates = item | date_range('–') -%}
+  {%- if dates %}{% set _ = bits.append(dates) %}{% endif -%}
+  {{- bits | join(' | ') -}}
+{% endmacro %}
+
+
+{% macro section(section) %}
+  <section class="vn-section vn-section--{{ section.type }}">
+    {% if section.title %}<h2 class="vn-section-title">{{ section.title }}</h2>{% endif %}
+
+    {% if section.type == 'summary' %}
+      <div class="vn-summary">{{ section.content | paragraphs }}</div>
+
+    {% elif section.type == 'experience' %}
+      {% for item in section.items %}
+        <div class="vn-entry">
+          <div class="vn-entry-row">
+            <span class="vn-entry-aside vn-entry-dates">{{ meta_right(item) }}</span>
+            <span class="vn-entry-title">
+              {{ item.role }}{% if item.role and item.organization %} — {% endif %}{{ item.organization }}
+            </span>
+          </div>
+          {% if item.summary %}<div class="vn-entry-summary">{{ item.summary }}</div>{% endif %}
+          {{ m.bullets(item.bullets) }}
+          {{ m.tags(item.tech, ', ') }}
+        </div>
+      {% endfor %}
+
+    {% elif section.type == 'education' %}
+      {% for item in section.items %}
+        <div class="vn-entry">
+          <div class="vn-entry-row">
+            <span class="vn-entry-aside vn-entry-dates">{{ meta_right(item) }}</span>
+            <span class="vn-entry-title">{{ item.degree }}</span>
+          </div>
+          {% set detail = [item.institution] + (item.details | select | list) %}
+          {% set detail = detail | select | list %}
+          {% if detail %}<div class="vn-entry-org">{{ detail | join(' • ') }}</div>{% endif %}
+        </div>
+      {% endfor %}
+
+    {% elif section.type == 'skills' %}
+      {# Label/value rows keep long skill lists readable without any colour. #}
+      <div class="vn-skill-table">
+        {% for item in section.items %}
+          <div class="vn-skill-row">
+            <div class="vn-skill-label">{{ item.label }}{% if item.label %}:{% endif %}</div>
+            <div class="vn-skill-values">{{ item.keywords | select | join(', ') }}</div>
+          </div>
+        {% endfor %}
+      </div>
+
+    {% elif section.type == 'projects' %}
+      {% for item in section.items %}
+        <div class="vn-entry">
+          <div class="vn-entry-row">
+            {% if item.period %}<span class="vn-entry-aside vn-entry-dates">{{ item.period }}</span>{% endif %}
+            <span class="vn-entry-title">{{ item.name }}</span>
+            {% set tech = item.tech | select | join(', ') %}
+            {% if tech %}<span class="vn-project-tech"> | {{ tech }}</span>{% endif %}
+          </div>
+          {{ m.bullets(item.bullets) }}
+        </div>
+      {% endfor %}
+
+    {% elif section.type == 'certifications' %}
+      {% for item in section.items %}
+        <div class="vn-entry vn-entry--tight">
+          <div class="vn-entry-row">
+            {% if item.date %}<span class="vn-entry-aside vn-entry-dates">{{ item.date }}</span>{% endif %}
+            <span class="vn-entry-title">{{ item.name }}</span>
+            {% set detail = [item.issuer, item.note] | select | join(' • ') %}
+            {% if detail %}<span class="vn-entry-detail"> — {{ detail }}</span>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+    {% elif section.type == 'languages' %}
+      <div class="vn-language-line">
+        {% for item in section.items %}
+          <span class="vn-inline-sep">
+            <strong>{{ item.name }}</strong>{% if item.level %} ({{ item.level }}){% endif %}
+          </span>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      {{ m.section_body(section) }}
+    {% endif %}
+  </section>
+{% endmacro %}

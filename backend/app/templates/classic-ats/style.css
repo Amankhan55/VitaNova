@@ -54,7 +54,10 @@
   border-bottom: 0.6pt solid var(--ats-rule);
 }
 
-.vn-classic-ats .vn-summary { text-align: justify; }
+/* Left-aligned, never justified: with no hyphenation engine in play,
+   justification opens rivers of whitespace between words in narrow
+   measures. Ragged-right reads better and prints the same. */
+.vn-classic-ats .vn-summary { text-align: left; }
 
 .vn-classic-ats .vn-entry-title {
   font-weight: 700;
@@ -74,7 +77,7 @@
   font-weight: 700;
   color: var(--ats-ink);
 }
-.vn-classic-ats .vn-bullets { text-align: justify; padding-left: 1.15em; }
+.vn-classic-ats .vn-bullets { text-align: left; padding-left: 1.15em; }
 .vn-classic-ats .vn-tags { font-style: italic; font-size: 0.97em; }
 
 /* -------------------------------------------------- skills grid */

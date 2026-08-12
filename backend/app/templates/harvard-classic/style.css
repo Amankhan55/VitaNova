@@ -1,0 +1,127 @@
+/* ==========================================================================
+   Harvard Classic — traditional academic, serif, ruled
+   --------------------------------------------------------------------------
+   The most conservative design in the set. Colour is used for nothing except
+   the section rules, and even those default to near-black: a reader should be
+   unable to tell that this document had a theme at all.
+   ========================================================================== */
+
+.vn-harvard-classic {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: calc(10.4pt * var(--vn-font-scale, 1));
+  line-height: 1.4;
+  color: #1c1c1c;
+}
+
+/* -------------------------------------------------- header */
+
+.vn-harvard-classic .vn-header {
+  text-align: center;
+  margin-bottom: calc(13px * var(--vn-density, 1));
+}
+
+.vn-harvard-classic .vn-name {
+  font-size: calc(20pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  /* Wide tracking is what makes a small-caps nameplate read as a nameplate
+     rather than as a heading; at this size it needs the air. */
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.vn-harvard-classic .vn-headline {
+  margin-top: 5px;
+  font-size: calc(11pt * var(--vn-font-scale, 1));
+  font-style: italic;
+  color: #33383f;
+}
+
+.vn-harvard-classic .vn-contact-line {
+  margin-top: 6px;
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  line-height: 1.55;
+  color: #33383f;
+}
+
+/* -------------------------------------------------- sections */
+
+.vn-harvard-classic .vn-section {
+  margin-bottom: calc(12px * var(--vn-density, 1));
+}
+
+.vn-harvard-classic .vn-section-title {
+  font-size: calc(11pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #000;
+  padding-bottom: 3px;
+  margin-bottom: calc(7px * var(--vn-density, 1));
+  border-bottom: 1pt solid var(--vn-accent, #111);
+}
+
+/* -------------------------------------------------- entries */
+
+.vn-harvard-classic .vn-entry-title {
+  font-size: calc(10.8pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #000;
+}
+
+.vn-harvard-classic .vn-entry-dates,
+.vn-harvard-classic .vn-entry-location {
+  font-size: calc(9.6pt * var(--vn-font-scale, 1));
+  font-style: italic;
+  color: #3d434b;
+}
+
+.vn-harvard-classic .vn-entry-org {
+  font-size: calc(10pt * var(--vn-font-scale, 1));
+  font-style: italic;
+  color: #2b3038;
+}
+
+.vn-harvard-classic .vn-entry-detail {
+  font-style: italic;
+  color: #3d434b;
+}
+
+.vn-harvard-classic .vn-entry-summary { margin-top: 1px; }
+
+.vn-harvard-classic .vn-bullets {
+  padding-left: 1.2em;
+  margin-top: 3px;
+}
+.vn-harvard-classic .vn-bullets li { margin-bottom: 1.5px; }
+
+.vn-harvard-classic .vn-tags {
+  font-style: italic;
+  font-size: calc(9.4pt * var(--vn-font-scale, 1));
+  color: #3d434b;
+}
+
+.vn-harvard-classic .vn-project-tech {
+  font-style: italic;
+  color: #3d434b;
+}
+
+/* -------------------------------------------------- skills */
+
+.vn-harvard-classic .vn-skill-table { display: table; width: 100%; }
+.vn-harvard-classic .vn-skill-row { display: table-row; }
+.vn-harvard-classic .vn-skill-label,
+.vn-harvard-classic .vn-skill-values {
+  display: table-cell;
+  padding-bottom: 3px;
+  vertical-align: top;
+}
+.vn-harvard-classic .vn-skill-label {
+  width: 36mm;
+  padding-right: 4mm;
+  font-weight: 700;
+  color: #000;
+  white-space: nowrap;
+}
+
+.vn-harvard-classic .vn-language-line { line-height: 1.6; }

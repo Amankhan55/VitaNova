@@ -33,7 +33,7 @@ import { readError } from './read-error';
         preview is the very same document we turn into your PDF — never a near-enough approximation.
       </p>
       <ul class="pitch-list">
-        <li><vn-icon name="check" [size]="15" /> Nine designs, from bold sidebar to strict ATS</li>
+        <li><vn-icon name="check" [size]="15" /> Fifteen designs, from bold sidebar to strict ATS</li>
         <li><vn-icon name="check" [size]="15" /> Live preview that matches the export exactly</li>
         <li><vn-icon name="check" [size]="15" /> Reorder, rename and hide any section</li>
       </ul>

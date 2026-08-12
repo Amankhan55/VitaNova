@@ -1,9 +1,24 @@
+import re
+
 import pytest
 
 from app.services import template_registry
 from app.services.seed import demo_resume_data
 
-TEMPLATE_IDS = [meta.id for meta in template_registry.load_registry(force=True).values()]
+_REGISTRY = template_registry.load_registry(force=True).values()
+TEMPLATE_IDS = [meta.id for meta in _REGISTRY]
+ATS_SAFE_IDS = [meta.id for meta in _REGISTRY if meta.ats_safe]
+
+
+def body_of(html: str) -> str:
+    """The rendered document without its inlined stylesheet.
+
+    Every design's CSS is inlined into the same file as the content, so a naive
+    `"Languages" not in html` also matches the word in a comment or a selector.
+    Assertions about what the document *says* belong here; assertions about how
+    it looks belong against the full string.
+    """
+    return re.sub(r"<style>.*?</style>", "", html, flags=re.S)
 
 
 def draft(template_id: str) -> dict:
@@ -16,7 +31,7 @@ def draft(template_id: str) -> dict:
     }
 
 
-def test_all_nine_designs_are_registered(client):
+def test_every_design_is_registered(client):
     listed = {meta["id"] for meta in client.get("/api/v1/templates").json()}
     assert listed == {
         "modern-professional",
@@ -28,6 +43,12 @@ def test_all_nine_designs_are_registered(client):
         "tech-compact",
         "executive-bar",
         "nordic-clean",
+        "harvard-classic",
+        "banner-bold",
+        "compact-dense",
+        "serif-book",
+        "section-bands",
+        "quiet-professional",
     }
 
 
@@ -44,6 +65,56 @@ def test_every_template_renders_html(client, template_id):
     assert "<style>" in html
     assert "<link" not in html
     assert "<script" not in html
+
+
+@pytest.mark.parametrize("template_id", ATS_SAFE_IDS)
+def test_ats_safe_headings_carry_no_decoration(client, template_id):
+    """A design claiming ats_safe must not put decoration into extractable text.
+
+    Regression guard: tech-compact used to write its "// " prefix straight into
+    the heading, so a parser read "// Professional Summary" and could fail to
+    recognise the section at all. Decoration belongs in ::before, which is not
+    part of the document's text. Any design that reintroduces the mistake fails
+    here rather than silently shipping a broken ATS promise.
+    """
+    body = body_of(client.post("/api/v1/render", json=draft(template_id)).text)
+    titles = {section.title for section in demo_resume_data().sections}
+
+    headings = re.findall(r"<h2[^>]*>(.*?)</h2>", body, re.S)
+    assert headings, f"{template_id} rendered no section headings at all"
+    for heading in headings:
+        text = re.sub(r"<[^>]+>", "", heading).strip()
+        assert text in titles, (
+            f"{template_id} heading {text!r} is not a bare section title — "
+            "move the decoration into CSS"
+        )
+
+
+@pytest.mark.parametrize("template_id", ATS_SAFE_IDS)
+def test_ats_safe_designs_keep_prose_in_one_column(client, template_id):
+    """Nothing a parser reads as prose may be split across table cells.
+
+    .vn-cols is the project's two-column primitive (display:table). A parser
+    walks cells one after another, so a paragraph or a job entry laid across two
+    of them comes out interleaved and unreadable.
+
+    Skills are the one exception, and centered-mono relies on it: that design
+    puts whole skill groups in each cell and fills the left column top-to-bottom
+    before starting the right, so extraction yields every left-hand group intact
+    and then every right-hand one. No single "Label: values" pair is ever split,
+    which is the property that actually matters. Prose sections get no such
+    latitude.
+    """
+    meta = template_registry.get_template(template_id)
+    assert meta.sidebar_sections == [], f"{template_id} claims ats_safe but declares a sidebar"
+
+    body = body_of(client.post("/api/v1/render", json=draft(template_id)).text)
+    prose_only = re.sub(
+        r'<section class="[^"]*vn-section--skills[^"]*">.*?</section>', "", body, flags=re.S
+    )
+    assert "vn-cols" not in prose_only, (
+        f"{template_id} lays prose out in columns; a parser will interleave it"
+    )
 
 
 @pytest.mark.parametrize("template_id", TEMPLATE_IDS)
@@ -92,9 +163,9 @@ def test_empty_sections_do_not_render_a_stray_heading(client):
         {"id": "a", "type": "summary", "title": "Professional Summary", "visible": True, "content": ""},
         {"id": "b", "type": "projects", "title": "Projects", "visible": True, "items": []},
     ]
-    html = client.post("/api/v1/render", json=payload).text
-    assert "Professional Summary" not in html
-    assert "Projects" not in html
+    body = body_of(client.post("/api/v1/render", json=payload).text)
+    assert "Professional Summary" not in body
+    assert "Projects" not in body
 
 
 def test_hidden_sections_are_left_out(client):
@@ -102,8 +173,8 @@ def test_hidden_sections_are_left_out(client):
     for section in payload["sections"]:
         if section["type"] == "languages":
             section["visible"] = False
-    html = client.post("/api/v1/render", json=payload).text
-    assert "Languages" not in html
+    body = body_of(client.post("/api/v1/render", json=payload).text)
+    assert "Languages" not in body
 
 
 def test_accent_is_restricted_to_a_hex_colour(client):

@@ -1,0 +1,119 @@
+/* ==========================================================================
+   Section Bands — tinted heading bars over a plain body
+   --------------------------------------------------------------------------
+   The band is a background and a negative-margin bleed on the heading element
+   itself, so the coloured element and the parsed heading are the same node.
+   Nothing is drawn with an empty div, and nothing is an image.
+   ========================================================================== */
+
+.vn-section-bands {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: calc(10.2pt * var(--vn-font-scale, 1));
+  color: #22272e;
+}
+
+/* -------------------------------------------------- header */
+
+.vn-section-bands .vn-header {
+  margin-bottom: calc(12px * var(--vn-density, 1));
+}
+
+.vn-section-bands .vn-name {
+  font-size: calc(23pt * var(--vn-font-scale, 1));
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  color: #111827;
+}
+
+.vn-section-bands .vn-headline {
+  margin-top: 3px;
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 600;
+  color: var(--vn-accent, #0f766e);
+}
+
+.vn-section-bands .vn-contact-line {
+  margin-top: 7px;
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+/* -------------------------------------------------- the bands */
+
+.vn-section-bands .vn-section { margin-bottom: calc(12px * var(--vn-density, 1)); }
+
+.vn-section-bands .vn-section-title {
+  font-size: calc(10pt * var(--vn-font-scale, 1));
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--vn-accent, #0f766e);
+  /* The negative inline margins let the tint bleed into the page margin a
+     little, which is what makes it read as a band rather than as a highlighted
+     word. Padding puts the text back where it belongs. */
+  margin: 0 -4mm calc(8px * var(--vn-density, 1));
+  padding: 4px 4mm 4px;
+  /* An 11% tint of whatever accent the user picked, composited as a flat white
+     veil over the accent itself.
+     NOT color-mix(): WeasyPrint 69 does not implement it, so the browser
+     preview would show a tinted band and the exported PDF a neutral one — the
+     one kind of divergence this project exists to prevent. linear-gradient and
+     rgba are understood by both engines and composite identically. */
+  background-color: var(--vn-accent, #0f766e);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.89), rgba(255, 255, 255, 0.89));
+  border-left: 3px solid var(--vn-accent, #0f766e);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* -------------------------------------------------- entries */
+
+.vn-section-bands .vn-entry + .vn-entry { margin-top: calc(8px * var(--vn-density, 1)); }
+
+.vn-section-bands .vn-entry-title {
+  font-size: calc(10.8pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #111827;
+}
+
+.vn-section-bands .vn-entry-dates,
+.vn-section-bands .vn-entry-location {
+  font-size: calc(9.4pt * var(--vn-font-scale, 1));
+  font-weight: 600;
+  color: #5b6472;
+}
+
+.vn-section-bands .vn-entry-org { color: #333a44; }
+.vn-section-bands .vn-entry-detail { color: #5b6472; }
+
+.vn-section-bands .vn-bullets { padding-left: 1.15em; margin-top: 3px; }
+.vn-section-bands .vn-bullets li { margin-bottom: 2px; }
+
+.vn-section-bands .vn-tags {
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  color: #5b6472;
+}
+
+.vn-section-bands .vn-project-tech { color: #5b6472; font-weight: 500; }
+
+/* -------------------------------------------------- skills */
+
+.vn-section-bands .vn-skill-table { display: table; width: 100%; }
+.vn-section-bands .vn-skill-row { display: table-row; }
+.vn-section-bands .vn-skill-label,
+.vn-section-bands .vn-skill-values {
+  display: table-cell;
+  padding-bottom: 3px;
+  vertical-align: top;
+}
+.vn-section-bands .vn-skill-label {
+  width: 36mm;
+  padding-right: 4mm;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+}
+
+.vn-section-bands .vn-language-line { line-height: 1.6; }

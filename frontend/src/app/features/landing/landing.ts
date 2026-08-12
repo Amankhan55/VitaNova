@@ -48,7 +48,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: 'layers',
-    title: 'Nine designs, one draft',
+    title: 'Fifteen designs, one draft',
     body:
       'Content is stored apart from its presentation. Switch from a strict ATS layout to a bold sidebar and not a single word is retyped.',
   },
@@ -172,7 +172,7 @@ const STEPS: Step[] = [
       <section class="hero">
         <div class="dateline">
           <span>VitaNova</span>
-          <span>Nine designs</span>
+          <span>Fifteen designs</span>
           <span>One source of truth</span>
           <span class="dateline-end">Free to use</span>
         </div>
@@ -360,7 +360,7 @@ const STEPS: Step[] = [
 
           <dl class="about-facts">
             <div class="fact">
-              <dt class="fact-value">9</dt>
+              <dt class="fact-value">15</dt>
               <dd class="fact-label">designs, all live-rendered</dd>
             </div>
             <div class="fact">

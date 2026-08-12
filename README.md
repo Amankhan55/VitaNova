@@ -1,6 +1,6 @@
 # VitaNova
 
-A resume builder — write your experience once, see it typeset in any of nine designs, and export a
+A resume builder — write your experience once, see it typeset in any of fifteen designs, and export a
 print-ready PDF.
 
 **Angular 20** front end · **FastAPI + MongoDB** back end · **WeasyPrint** for PDF.

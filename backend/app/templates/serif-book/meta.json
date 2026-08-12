@@ -1,0 +1,11 @@
+{
+  "id": "serif-book",
+  "name": "Serif Book",
+  "description": "Set like a page from a well-made book: an open serif face, generous leading, and small tracked headings with a hairline beneath. Reads slowly and deliberately, which suits senior and writing-heavy roles.",
+  "tags": ["Single column", "ATS safe", "Serif", "Editorial"],
+  "accent": "#7C2D12",
+  "accent_presets": ["#7C2D12", "#1F3A5F", "#3F3F46", "#155E52"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "18mm"
+}

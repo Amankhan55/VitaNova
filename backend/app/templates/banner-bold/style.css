@@ -1,0 +1,119 @@
+/* ==========================================================================
+   Banner Bold — full-bleed accent band over a plain body
+   --------------------------------------------------------------------------
+   page_margin is "0" so the band can reach the paper edge. Everything else
+   restores the inset itself: the band pads its own contents, and .vn-body
+   carries the page margin for the rest of the document.
+   ========================================================================== */
+
+.vn-banner-bold {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: calc(10.2pt * var(--vn-font-scale, 1));
+  color: #22272e;
+}
+
+/* -------------------------------------------------- the band */
+
+.vn-banner-bold .vn-banner {
+  padding: calc(15mm) 16mm calc(13mm);
+  margin-bottom: calc(11px * var(--vn-density, 1));
+  background: var(--vn-accent, #1d4ed8);
+  color: #fff;
+  /* print-color-adjust, or the band vanishes in engines that helpfully strip
+     backgrounds to save ink — taking white-on-white text with it. */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vn-banner-bold .vn-name {
+  font-size: calc(25pt * var(--vn-font-scale, 1));
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: #fff;
+}
+
+.vn-banner-bold .vn-headline {
+  margin-top: 5px;
+  font-size: calc(11.5pt * var(--vn-font-scale, 1));
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.vn-banner-bold .vn-contact-line {
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.34);
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* -------------------------------------------------- body */
+
+/* The page margin the sheet gave up so the band could bleed. The bottom inset
+   is padding on this block, so it repeats on every page fragment. */
+.vn-banner-bold .vn-body { padding: 0 16mm 14mm; }
+
+.vn-banner-bold .vn-section { margin-bottom: calc(11px * var(--vn-density, 1)); }
+
+.vn-banner-bold .vn-section-title {
+  font-size: calc(11pt * var(--vn-font-scale, 1));
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--vn-accent, #1d4ed8);
+  padding-bottom: 3px;
+  margin-bottom: calc(7px * var(--vn-density, 1));
+  border-bottom: 2px solid var(--vn-accent, #1d4ed8);
+}
+
+/* -------------------------------------------------- entries */
+
+.vn-banner-bold .vn-entry-title {
+  font-size: calc(10.8pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #111827;
+}
+
+.vn-banner-bold .vn-entry-dates,
+.vn-banner-bold .vn-entry-location {
+  font-size: calc(9.4pt * var(--vn-font-scale, 1));
+  font-weight: 600;
+  color: #5b6472;
+}
+
+.vn-banner-bold .vn-entry-org { color: #333a44; }
+
+.vn-banner-bold .vn-entry-detail { color: #5b6472; }
+
+.vn-banner-bold .vn-bullets { padding-left: 1.15em; margin-top: 3px; }
+.vn-banner-bold .vn-bullets li { margin-bottom: 1.5px; }
+
+.vn-banner-bold .vn-tags {
+  font-size: calc(9.2pt * var(--vn-font-scale, 1));
+  color: #5b6472;
+}
+
+.vn-banner-bold .vn-project-tech { color: #5b6472; font-weight: 500; }
+
+/* -------------------------------------------------- skills */
+
+.vn-banner-bold .vn-skill-table { display: table; width: 100%; }
+.vn-banner-bold .vn-skill-row { display: table-row; }
+.vn-banner-bold .vn-skill-label,
+.vn-banner-bold .vn-skill-values {
+  display: table-cell;
+  padding-bottom: 3px;
+  vertical-align: top;
+}
+.vn-banner-bold .vn-skill-label {
+  width: 36mm;
+  padding-right: 4mm;
+  font-weight: 700;
+  color: var(--vn-accent, #1d4ed8);
+  white-space: nowrap;
+}
+
+.vn-banner-bold .vn-language-line { line-height: 1.6; }

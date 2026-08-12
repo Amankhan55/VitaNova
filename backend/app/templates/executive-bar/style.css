@@ -65,11 +65,14 @@
   vertical-align: middle;
 }
 
+/* Left-aligned, never justified: with no hyphenation engine in play,
+   justification opens rivers of whitespace between words in narrow
+   measures. Ragged-right reads better and prints the same. */
 .vn-executive-bar .vn-executive-summary {
   font-size: calc(10pt * var(--vn-font-scale, 1));
   line-height: 1.55;
   color: #334155;
-  text-align: justify;
+  text-align: left;
 }
 
 .vn-executive-bar .vn-entry-title {

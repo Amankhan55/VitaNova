@@ -1,124 +1,18 @@
-{% import '_shared/macros.html' as m %}
+{% import '_shared/ats.html' as ats %}
 {#
   Deliberately plain: a single column, no sidebar, no artwork, one <h2> per
   section in reading order. Resume parsers read this correctly, which is the
   entire point of the design.
 
-  This template writes its own entry rows rather than using the shared macros,
-  because the ATS convention pairs job title and employer on a SINGLE line
-  ("Senior Engineer — TechScale Solutions"), which is how parsers expect to find
-  them. The other three designs stack them.
+  The markup lives in _shared/ats.html, shared with every other design that
+  claims ats_safe — see the rationale at the top of that file. This template is
+  the reference implementation of that shape: header, then sections, and
+  nothing else. Its character comes from style.css alone.
 #}
-{% macro meta_right(item) %}
-  {%- set bits = [] -%}
-  {%- if item.location %}{% set _ = bits.append(item.location) %}{% endif -%}
-  {%- set dates = item | date_range('–') -%}
-  {%- if dates %}{% set _ = bits.append(dates) %}{% endif -%}
-  {{- bits | join(' | ') -}}
-{% endmacro %}
-
 <div class="vn-sheet">
-  <header class="vn-header">
-    <h1 class="vn-name">{{ basics.full_name }}</h1>
-    {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
-
-    {% set contacts = [] %}
-    {% if basics.location %}{% set _ = contacts.append(basics.location) %}{% endif %}
-    {% if basics.phone %}{% set _ = contacts.append(basics.phone) %}{% endif %}
-    {% if basics.email %}{% set _ = contacts.append(basics.email) %}{% endif %}
-    {% for link in basics.links %}
-      {% if link.label %}{% set _ = contacts.append(link.label) %}{% endif %}
-    {% endfor %}
-    {% if contacts %}
-      <div class="vn-contact-line">
-        {% for entry in contacts %}<span class="vn-inline-sep">{{ entry }}</span>{% endfor %}
-      </div>
-    {% endif %}
-  </header>
+  {{ ats.header(basics) }}
 
   {% for section in sections %}
-    <section class="vn-section vn-section--{{ section.type }}">
-      <h2 class="vn-section-title">{{ section.title }}</h2>
-
-      {% if section.type == 'summary' %}
-        <div class="vn-summary">{{ section.content | paragraphs }}</div>
-
-      {% elif section.type == 'experience' %}
-        {% for item in section.items %}
-          <div class="vn-entry">
-            <div class="vn-entry-row">
-              <span class="vn-entry-aside vn-entry-dates">{{ meta_right(item) }}</span>
-              <span class="vn-entry-title">
-                {{ item.role }}{% if item.role and item.organization %} — {% endif %}{{ item.organization }}
-              </span>
-            </div>
-            {% if item.summary %}<div class="vn-entry-summary">{{ item.summary }}</div>{% endif %}
-            {{ m.bullets(item.bullets) }}
-            {{ m.tags(item.tech, ', ') }}
-          </div>
-        {% endfor %}
-
-      {% elif section.type == 'education' %}
-        {% for item in section.items %}
-          <div class="vn-entry">
-            <div class="vn-entry-row">
-              <span class="vn-entry-aside vn-entry-dates">{{ meta_right(item) }}</span>
-              <span class="vn-entry-title">{{ item.degree }}</span>
-            </div>
-            {% set detail = [item.institution] + (item.details | select | list) %}
-            {% set detail = detail | select | list %}
-            {% if detail %}<div class="vn-entry-org">{{ detail | join(' • ') }}</div>{% endif %}
-          </div>
-        {% endfor %}
-
-      {% elif section.type == 'skills' %}
-        {# Label/value rows keep long skill lists readable without any colour. #}
-        <div class="vn-skill-table">
-          {% for item in section.items %}
-            <div class="vn-skill-row">
-              <div class="vn-skill-label">{{ item.label }}{% if item.label %}:{% endif %}</div>
-              <div class="vn-skill-values">{{ item.keywords | select | join(', ') }}</div>
-            </div>
-          {% endfor %}
-        </div>
-
-      {% elif section.type == 'projects' %}
-        {% for item in section.items %}
-          <div class="vn-entry">
-            <div class="vn-entry-row">
-              {% if item.period %}<span class="vn-entry-aside vn-entry-dates">{{ item.period }}</span>{% endif %}
-              <span class="vn-entry-title">{{ item.name }}</span>
-              {% set tech = item.tech | select | join(', ') %}
-              {% if tech %}<span class="vn-project-tech"> | {{ tech }}</span>{% endif %}
-            </div>
-            {{ m.bullets(item.bullets) }}
-          </div>
-        {% endfor %}
-
-      {% elif section.type == 'certifications' %}
-        {% for item in section.items %}
-          <div class="vn-entry vn-entry--tight">
-            <div class="vn-entry-row">
-              {% if item.date %}<span class="vn-entry-aside vn-entry-dates">{{ item.date }}</span>{% endif %}
-              <span class="vn-entry-title">{{ item.name }}</span>
-              {% set detail = [item.issuer, item.note] | select | join(' • ') %}
-              {% if detail %}<span class="vn-entry-detail"> — {{ detail }}</span>{% endif %}
-            </div>
-          </div>
-        {% endfor %}
-
-      {% elif section.type == 'languages' %}
-        <div class="vn-language-line">
-          {% for item in section.items %}
-            <span class="vn-inline-sep">
-              <strong>{{ item.name }}</strong>{% if item.level %} ({{ item.level }}){% endif %}
-            </span>
-          {% endfor %}
-        </div>
-
-      {% else %}
-        {{ m.section_body(section) }}
-      {% endif %}
-    </section>
+    {{ ats.section(section) }}
   {% endfor %}
 </div>

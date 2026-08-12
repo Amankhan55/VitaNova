@@ -148,7 +148,10 @@
   border-bottom: 0.6pt solid #D7DDE5;
 }
 
-.vn-modern-professional .vn-summary { text-align: justify; }
+/* Left-aligned, never justified: with no hyphenation engine in play,
+   justification opens rivers of whitespace between words in narrow
+   measures. Ragged-right reads better and prints the same. */
+.vn-modern-professional .vn-summary { text-align: left; }
 
 .vn-modern-professional .vn-main .vn-entry-title {
   font-size: calc(11.5pt * var(--vn-font-scale, 1));

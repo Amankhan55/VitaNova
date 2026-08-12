@@ -25,8 +25,13 @@
       {% if link.label %}{% set _ = contacts.append(link.label) %}{% endif %}
     {% endfor %}
     {% if basics.location %}{% set _ = contacts.append(basics.location) %}{% endif %}
+    {# Spans rather than a joined string: the base stylesheet keeps each entry
+       unbroken and wraps the line at the separators between them. Joined, the
+       line broke wherever it liked and orphaned half a city name. #}
     {% if contacts %}
-      <div class="vn-contact-line">{{ contacts | join(' · ') }}</div>
+      <div class="vn-contact-line">
+        {% for entry in contacts %}<span class="vn-inline-sep">{{ entry }}</span>{% endfor %}
+      </div>
     {% endif %}
     <div class="vn-diamond">&#9670;</div>
   </header>

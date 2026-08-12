@@ -60,7 +60,7 @@ you in seconds.
 cd backend
 docker build -t vitanova-api:local .
 
-# Does WeasyPrint work in the image? Renders all nine designs, needs no database.
+# Does WeasyPrint work in the image? Renders every design, needs no database.
 docker run --rm vitanova-api:local python scripts/render_samples.py --out /tmp/samples
 
 # Full stack, including the $PORT binding Render relies on.

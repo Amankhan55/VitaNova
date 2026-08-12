@@ -1,0 +1,11 @@
+{
+  "id": "harvard-classic",
+  "name": "Harvard Classic",
+  "description": "The traditional academic setting: a centred nameplate, serif type, and section headings ruled across the full measure. No colour anywhere by default — the most conservative design here, and the one least likely to surprise a hiring committee.",
+  "tags": ["Single column", "ATS safe", "Serif", "Traditional"],
+  "accent": "#111111",
+  "accent_presets": ["#111111", "#1F3A5F", "#1E4620", "#5B2333"],
+  "ats_safe": true,
+  "sidebar_sections": [],
+  "page_margin": "16mm"
+}

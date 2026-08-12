@@ -76,10 +76,13 @@
 {% endmacro %}
 
 
+{#- A language is a name and a proficiency, which is one fact, not two. Kept on
+    a single line: stacked, six languages cost twelve lines of a page that has
+    better uses for them. Narrow sidebars still wrap it naturally. -#}
 {% macro language_entry(item) %}
   <div class="vn-entry vn-entry--language">
-    <div class="vn-entry-title">{{ item.name }}</div>
-    {% if item.level %}<div class="vn-entry-org">{{ item.level }}</div>{% endif %}
+    <span class="vn-entry-title">{{ item.name }}</span>
+    {% if item.level %}<span class="vn-entry-org vn-entry-level">{{ item.level }}</span>{% endif %}
   </div>
 {% endmacro %}
 

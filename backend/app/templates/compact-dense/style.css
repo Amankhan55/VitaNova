@@ -1,0 +1,120 @@
+/* ==========================================================================
+   Compact Dense — maximum content per page, without crowding
+   --------------------------------------------------------------------------
+   Density here comes from the cheap axes — leading, section gaps, margins —
+   and not from shrinking the body text much: 9.5pt is about as small as a
+   resume can be set before a tired reader starts skipping lines. Everything
+   still scales from --vn-font-scale, so the density slider in the editor
+   composes with this rather than fighting it.
+   ========================================================================== */
+
+.vn-compact-dense {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: calc(9.5pt * var(--vn-font-scale, 1));
+  line-height: 1.32;
+  color: #22272e;
+}
+
+/* -------------------------------------------------- header */
+
+.vn-compact-dense .vn-header {
+  margin-bottom: calc(8px * var(--vn-density, 1));
+  padding-bottom: calc(6px * var(--vn-density, 1));
+  border-bottom: 1.5pt solid var(--vn-accent, #334155);
+}
+
+.vn-compact-dense .vn-name {
+  display: inline;
+  font-size: calc(17pt * var(--vn-font-scale, 1));
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: #0f172a;
+}
+
+/* The headline shares the nameplate's line instead of taking one of its own —
+   the single largest saving available in a header. */
+.vn-compact-dense .vn-headline {
+  display: inline;
+  font-size: calc(10.5pt * var(--vn-font-scale, 1));
+  font-weight: 600;
+  color: var(--vn-accent, #334155);
+}
+.vn-compact-dense .vn-headline::before {
+  content: "  ·  ";
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.vn-compact-dense .vn-contact-line {
+  margin-top: 3px;
+  font-size: calc(8.6pt * var(--vn-font-scale, 1));
+  line-height: 1.45;
+  color: #4b5563;
+}
+
+/* -------------------------------------------------- sections */
+
+.vn-compact-dense .vn-section { margin-bottom: calc(7px * var(--vn-density, 1)); }
+
+.vn-compact-dense .vn-section-title {
+  font-size: calc(9.4pt * var(--vn-font-scale, 1));
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--vn-accent, #334155);
+  padding-bottom: 1.5px;
+  margin-bottom: calc(4px * var(--vn-density, 1));
+  border-bottom: 0.6pt solid #cbd5e1;
+}
+
+/* -------------------------------------------------- entries */
+
+.vn-compact-dense .vn-entry + .vn-entry { margin-top: calc(5px * var(--vn-density, 1)); }
+
+.vn-compact-dense .vn-entry-title {
+  font-size: calc(10pt * var(--vn-font-scale, 1));
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.vn-compact-dense .vn-entry-dates,
+.vn-compact-dense .vn-entry-location {
+  font-size: calc(8.8pt * var(--vn-font-scale, 1));
+  color: #5b6472;
+}
+
+.vn-compact-dense .vn-entry-org { color: #333a44; }
+.vn-compact-dense .vn-entry-detail { color: #5b6472; }
+
+.vn-compact-dense .vn-bullets {
+  padding-left: 1.05em;
+  margin-top: 1px;
+}
+.vn-compact-dense .vn-bullets li { margin-bottom: 0.5px; }
+
+.vn-compact-dense .vn-tags {
+  font-size: calc(8.8pt * var(--vn-font-scale, 1));
+  color: #5b6472;
+}
+
+.vn-compact-dense .vn-project-tech { color: #5b6472; }
+
+/* -------------------------------------------------- skills */
+
+.vn-compact-dense .vn-skill-table { display: table; width: 100%; }
+.vn-compact-dense .vn-skill-row { display: table-row; }
+.vn-compact-dense .vn-skill-label,
+.vn-compact-dense .vn-skill-values {
+  display: table-cell;
+  padding-bottom: 1px;
+  vertical-align: top;
+}
+.vn-compact-dense .vn-skill-label {
+  width: 32mm;
+  padding-right: 3mm;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.vn-compact-dense .vn-language-line { line-height: 1.5; }

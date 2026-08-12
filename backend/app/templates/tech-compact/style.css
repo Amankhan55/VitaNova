@@ -31,11 +31,18 @@
   line-height: 1.4;
 }
 
-.vn-tech-compact .vn-contact-icon {
+/* Decorative glyphs, drawn rather than written — see the note in template.html.
+   Generated content is not part of the document's text, so a resume parser
+   reads the address and never the sigil in front of it. */
+.vn-tech-compact .vn-contact-row::before {
   color: var(--vn-accent, #0284c7);
   font-weight: 700;
   margin-right: 4px;
 }
+.vn-tech-compact .vn-contact-row--email::before { content: "@"; }
+.vn-tech-compact .vn-contact-row--phone::before { content: "#"; }
+.vn-tech-compact .vn-contact-row--location::before { content: "~"; }
+.vn-tech-compact .vn-contact-row--link::before { content: ">"; }
 
 .vn-tech-compact .vn-name {
   font-size: calc(22pt * var(--vn-font-scale, 1));
@@ -59,6 +66,11 @@
   margin-bottom: calc(8px * var(--vn-density, 1));
   padding-bottom: 2px;
   border-bottom: 1px dashed #cbd5e1;
+}
+
+.vn-tech-compact .vn-section-title::before {
+  content: "// ";
+  opacity: 0.55;
 }
 
 .vn-tech-compact .vn-entry-title {

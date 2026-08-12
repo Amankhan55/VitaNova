@@ -52,6 +52,10 @@
   font-size: 0.94em;
   color: var(--te-muted);
 }
+/* A middot rather than the base stylesheet's pipe — quieter, and in keeping
+   with a serif setting. */
+.vn-timeless-elegant .vn-contact-line .vn-inline-sep::after { content: "  ·  "; }
+.vn-timeless-elegant .vn-contact-line .vn-inline-sep:last-child::after { content: ""; }
 .vn-timeless-elegant .vn-diamond {
   margin: 9px 0 4px;
   font-size: 0.7em;
@@ -86,7 +90,10 @@
 
 /* -------------------------------------------------- entries */
 
-.vn-timeless-elegant .vn-summary { text-align: justify; }
+/* Left-aligned, never justified: with no hyphenation engine in play,
+   justification opens rivers of whitespace between words in narrow
+   measures. Ragged-right reads better and prints the same. */
+.vn-timeless-elegant .vn-summary { text-align: left; }
 
 .vn-timeless-elegant .vn-entry-title {
   font-family: var(--te-serif);

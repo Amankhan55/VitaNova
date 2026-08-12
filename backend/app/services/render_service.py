@@ -45,6 +45,7 @@ def _env() -> Environment:
     env.filters["visible"] = _visible_sections
     env.globals["find_section"] = _find_section
     env.globals["sections_of"] = _sections_of
+    env.globals["contact_entries"] = _contact_entries
     return env
 
 
@@ -113,6 +114,18 @@ def _find_section(sections, section_type: str):
         if section.type == section_type:
             return section
     return None
+
+
+def _contact_entries(basics) -> list[str]:
+    """The header contact run: location, phone, email, then labelled links.
+
+    A list rather than a Jinja macro because a macro can only return a string,
+    and every caller wants to iterate. Blank fields are dropped here so no
+    template has to guard against printing an empty separator.
+    """
+    entries = [basics.location, basics.phone, basics.email]
+    entries += [link.label for link in basics.links]
+    return [entry.strip() for entry in entries if entry and entry.strip()]
 
 
 # --------------------------------------------------------------------------- #

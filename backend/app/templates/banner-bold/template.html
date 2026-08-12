@@ -1,0 +1,26 @@
+{% import '_shared/ats.html' as ats %}
+{#
+  A full-bleed accent band, then the standard ATS body.
+
+  This is the one ats_safe design that writes its own header, because the band
+  has to run to the paper edge — hence page_margin "0" in meta.json, with the
+  inset restored by .vn-banner and .vn-body in style.css.
+
+  The band is a background colour on a block of ordinary text. A parser sees the
+  name, headline and contact details exactly as it would on a white page; only a
+  human sees the colour. That distinction is what keeps the design ats_safe, and
+  it is why the name is NOT set as an image or a background-image.
+#}
+<div class="vn-sheet">
+  <header class="vn-banner">
+    <h1 class="vn-name">{{ basics.full_name }}</h1>
+    {% if basics.headline %}<div class="vn-headline">{{ basics.headline }}</div>{% endif %}
+    {{ ats.contact_line(basics) }}
+  </header>
+
+  <div class="vn-body">
+    {% for section in sections %}
+      {{ ats.section(section) }}
+    {% endfor %}
+  </div>
+</div>
