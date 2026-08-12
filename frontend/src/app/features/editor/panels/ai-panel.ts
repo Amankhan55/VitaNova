@@ -329,7 +329,7 @@ export class AiPanel {
       this.store.openWriter({
         key: `summary:${section.id}`,
         title: 'Professional summary',
-        request: { kind: 'summary', current: section.content, context: item.detail },
+        request: { kind: 'summary', current: section.content },
         apply: ([text]) =>
           this.resume.updateSection(section.id, (current) => ({
             ...(current as SummarySection),
@@ -353,7 +353,6 @@ export class AiPanel {
           role: entry.role,
           organization: entry.organization,
           tech: entry.tech,
-          context: item.detail,
         },
         apply: (bullets) =>
           this.resume.updateSection(section.id, (current) => {
