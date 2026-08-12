@@ -4,14 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { GoogleButton } from '../../shared/ui/google-button/google-button';
 import { Icon } from '../../shared/ui/icon/icon';
 import { Logo } from '../../shared/ui/logo/logo';
 import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
+import { readError } from './read-error';
 
 @Component({
   selector: 'vn-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink, Icon, Logo, ThemeToggle],
+  imports: [FormsModule, RouterLink, GoogleButton, Icon, Logo, ThemeToggle],
   styleUrl: './auth-shell.scss',
   template: `
     <section class="pitch">
@@ -50,12 +52,35 @@ import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
         <h2>Welcome back</h2>
         <p class="form-lead">Sign in to pick up where you left off.</p>
 
-        @if (error(); as message) {
+        @if (resent()) {
+          <div class="form-note" role="status">
+            <vn-icon name="mail" [size]="15" />
+            <span>We have sent a fresh confirmation link to {{ email }}.</span>
+          </div>
+        } @else if (unverified()) {
+          <div class="form-error" role="alert">
+            <vn-icon name="mail" [size]="15" />
+            <span>
+              Confirm your email address before signing in.
+              <button class="inline-action" type="button" [disabled]="busy()" (click)="resend()">
+                Send the link again
+              </button>
+            </span>
+          </div>
+        } @else if (error(); as message) {
           <div class="form-error" role="alert">
             <vn-icon name="x" [size]="15" />
             <span>{{ message }}</span>
           </div>
         }
+
+        <vn-google-button
+          [busy]="busy()"
+          (credential)="signInWithGoogle($event)"
+          (failed)="error.set($event)"
+        />
+
+        <div class="or"><span>or</span></div>
 
         <form (ngSubmit)="submit()" #form="ngForm" novalidate>
           <label class="vn-field">
@@ -71,9 +96,13 @@ import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
             />
           </label>
 
-          <label class="vn-field">
-            <span class="vn-label">Password</span>
+          <div class="vn-field">
+            <div class="label-row">
+              <label class="vn-label" for="password">Password</label>
+              <a routerLink="/forgot-password">Forgot password?</a>
+            </div>
             <input
+              id="password"
               class="vn-input"
               type="password"
               name="password"
@@ -82,7 +111,7 @@ import { ThemeToggle } from '../../shared/ui/theme-toggle/theme-toggle';
               [(ngModel)]="password"
               placeholder="Your password"
             />
-          </label>
+          </div>
 
           <button
             class="vn-btn vn-btn--primary submit"
@@ -107,30 +136,70 @@ export class LoginPage {
   protected password = '';
   protected readonly busy = signal(false);
   protected readonly error = signal('');
+  /** The account exists but its address was never confirmed. */
+  protected readonly unverified = signal(false);
+  protected readonly resent = signal(false);
 
   protected submit(): void {
     if (this.busy()) return;
-    this.busy.set(true);
-    this.error.set('');
+    this.start();
 
     this.auth.login(this.email.trim(), this.password).subscribe({
-      next: () => {
-        const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/dashboard';
-        void this.router.navigateByUrl(redirect);
-      },
+      next: () => this.onSignedIn(),
       error: (err: HttpErrorResponse) => {
         this.busy.set(false);
+        // 403 is the one failure worth naming: the password was right, so
+        // saying so gives nothing away, and the fix is a button click.
+        if (err.status === 403) {
+          this.unverified.set(true);
+          return;
+        }
         this.error.set(readError(err, 'Could not sign you in. Please try again.'));
       },
     });
   }
-}
 
-export function readError(err: HttpErrorResponse, fallback: string): string {
-  const detail = err.error?.detail;
-  if (typeof detail === 'string') return detail;
-  // FastAPI validation errors arrive as a list of {loc, msg} objects.
-  if (Array.isArray(detail) && detail[0]?.msg) return String(detail[0].msg);
-  if (err.status === 0) return 'Cannot reach the VitaNova server. Is the API running?';
-  return fallback;
+  protected signInWithGoogle(credential: string): void {
+    if (this.busy()) return;
+    this.start();
+
+    this.auth.loginWithGoogle(credential).subscribe({
+      next: () => this.onSignedIn(),
+      error: (err: HttpErrorResponse) => {
+        this.busy.set(false);
+        this.error.set(readError(err, 'Could not sign you in with Google.'));
+      },
+    });
+  }
+
+  protected resend(): void {
+    if (this.busy()) return;
+    this.busy.set(true);
+
+    this.auth.resendVerification(this.email.trim()).subscribe({
+      // The response is the same whether or not anything was sent, so there is
+      // no error case worth distinguishing here.
+      next: () => {
+        this.busy.set(false);
+        this.unverified.set(false);
+        this.resent.set(true);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.busy.set(false);
+        this.error.set(readError(err, 'Could not send the email. Please try again.'));
+      },
+    });
+  }
+
+  private start(): void {
+    this.busy.set(true);
+    this.error.set('');
+    this.unverified.set(false);
+    this.resent.set(false);
+  }
+
+  private onSignedIn(): void {
+    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/dashboard';
+    void this.router.navigateByUrl(redirect);
+  }
 }

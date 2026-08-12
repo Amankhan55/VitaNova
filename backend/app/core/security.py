@@ -83,3 +83,9 @@ def fingerprint(token: str) -> str:
 
 def new_id() -> str:
     return secrets.token_hex(8)
+
+
+def new_token() -> str:
+    """An unguessable value for an emailed link. URL-safe so it survives being
+    pasted out of a mail client."""
+    return secrets.token_urlsafe(32)

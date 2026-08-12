@@ -87,12 +87,22 @@ its exact image add `--platform linux/amd64` to the build (slower, emulated).
 2. Render → **New** → **Blueprint** → select the repo. It reads `render.yaml`.
 3. When prompted, paste your Atlas string into **`VITANOVA_MONGO_URI`**.
    `VITANOVA_JWT_SECRET` is generated for you; leave it alone.
-4. Optionally set **`VITANOVA_GEMINI_API_KEY`** — a free key from
+4. Fill in the **SMTP** prompts — `VITANOVA_SMTP_HOST`, `_USER`, `_PASSWORD`,
+   `_FROM`. These are not optional: signing in requires a confirmed email
+   address, so with no way to send the confirmation the app refuses to start.
+   See [Mail](#mail) below for what to put there.
+5. Set **`VITANOVA_FRONTEND_BASE_URL`** to your Vercel URL (no trailing slash),
+   e.g. `https://vitanova.vercel.app`. Confirmation and reset links are built
+   from it, so a wrong value mails people a link that goes nowhere. You will not
+   know it until step 3, so come back and fix it then.
+6. Optionally set **`VITANOVA_GEMINI_API_KEY`** — a free key from
    <https://aistudio.google.com>, which powers "Import PDF" on the dashboard.
    Leave it empty and everything else works normally; only that one button
    fails, with a 503 saying import is not configured.
-5. Apply. The first Docker build takes roughly 3–5 minutes.
-6. Check it: `https://<your-service>.onrender.com/health` should return
+7. Optionally set **`VITANOVA_GOOGLE_CLIENT_ID`** to offer Google Sign-In — see
+   [Google Sign-In](#google-sign-in). Unset simply means no Google button.
+8. Apply. The first Docker build takes roughly 3–5 minutes.
+9. Check it: `https://<your-service>.onrender.com/health` should return
 
    ```json
    { "status": "ok", "app": "VitaNova", "templates": 9 }
@@ -148,9 +158,75 @@ URLs 404 on a hard refresh.
 2. Scroll to **Designs**. Live resume sheets there mean the rewrite and the API
    both work. Blank white cards mean the rewrite is wrong — check the Network tab
    for `/api/v1/templates`.
-3. Register an account (proves Atlas is connected and writable).
+3. Register an account (proves Atlas is connected and writable). You will be
+   told to check your inbox — the confirmation mail proves SMTP works, and
+   clicking its link proves `VITANOVA_FRONTEND_BASE_URL` is right. No mail
+   after a minute? Render's logs will have the reason; see [Mail](#mail).
 4. Pick a design, type a line, **Download PDF** (proves Pango is present in the
    image).
+
+---
+
+## Mail
+
+Sign-in requires a confirmed address, so mail is load-bearing here — not a
+nice-to-have. Any SMTP provider works. Two that need no DNS setup:
+
+**Gmail**, fine for a personal deployment and capped around 500 messages a day.
+Turn on 2-Step Verification, then Google Account → Security → **App passwords**
+and generate one. The 16-character result is `VITANOVA_SMTP_PASSWORD`; your
+normal password will be rejected.
+
+```ini
+VITANOVA_SMTP_HOST=smtp.gmail.com
+VITANOVA_SMTP_PORT=587
+VITANOVA_SMTP_USER=you@gmail.com
+VITANOVA_SMTP_PASSWORD=abcd efgh ijkl mnop
+VITANOVA_SMTP_FROM=VitaNova <you@gmail.com>
+```
+
+`SMTP_FROM` has to be the mailbox you authenticated as, or Gmail rewrites or
+rejects the message.
+
+**Brevo, Mailgun, SendGrid, Postmark** all have free tiers and give you a host,
+a username and an API-key-as-password that drop into the same four variables.
+Worth it over Gmail if mail is going to strangers: their deliverability is the
+product.
+
+Port **465** instead of 587 means implicit TLS — set
+`VITANOVA_SMTP_STARTTLS=false` as well. Render's free plan blocks outbound port
+**25** entirely, so do not use it.
+
+If mail never arrives, the log is the only place that says why: sending happens
+in a background task and failures are deliberately invisible to the caller, so
+that the API cannot be used to test which addresses have accounts. Look for
+`Failed to send` in the Render logs. A line reading `[mail:not-sent]` means
+`VITANOVA_SMTP_HOST` is empty and you are running in debug mode.
+
+---
+
+## Google Sign-In
+
+Optional. Without it, the button does not appear.
+
+1. <https://console.cloud.google.com/apis/credentials> → **Create credentials**
+   → **OAuth client ID** → application type **Web application**.
+2. Under **Authorised JavaScript origins**, add every origin the app is served
+   from — `https://vitanova.vercel.app`, and `http://localhost:4200` if you want
+   it working in development. Vercel preview deployments get a fresh hostname
+   each time and cannot be listed, so the button will not work there.
+3. Leave **Authorised redirect URIs** empty. The button uses Google Identity
+   Services, which hands the ID token to the page rather than redirecting.
+4. Put the client ID in `VITANOVA_GOOGLE_CLIENT_ID` on Render.
+
+The frontend reads it from `GET /api/v1/auth/providers` at runtime, so there is
+nothing to rebuild or redeploy on Vercel — set it on the API and the button
+appears. The client *secret* is not needed and should not be set anywhere: the
+browser never exchanges a code, and the server verifies the ID token's signature
+against Google's public keys.
+
+Signing in with Google using an address that already has a password account
+links the two; that account then works either way.
 
 ---
 

@@ -22,6 +22,25 @@ export const routes: Routes = [
     title: 'Create account — VitaNova',
   },
   {
+    // Reached from an emailed link, so no guard: a signed-in user confirming a
+    // second account must not be bounced to the dashboard instead.
+    path: 'verify-email',
+    loadComponent: () => import('./features/auth/verify-email').then((m) => m.VerifyEmailPage),
+    title: 'Confirm your email — VitaNova',
+  },
+  {
+    path: 'forgot-password',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/auth/forgot-password').then((m) => m.ForgotPasswordPage),
+    title: 'Reset your password — VitaNova',
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./features/auth/reset-password').then((m) => m.ResetPasswordPage),
+    title: 'Choose a new password — VitaNova',
+  },
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.DashboardPage),

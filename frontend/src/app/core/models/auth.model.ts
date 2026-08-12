@@ -2,6 +2,17 @@ export interface User {
   id: string;
   email: string;
   full_name: string;
+  email_verified: boolean;
+}
+
+/** A bare acknowledgement, used where the API deliberately says nothing more. */
+export interface MessageResponse {
+  message: string;
+}
+
+/** What the server supports, so the UI only offers what will actually work. */
+export interface AuthProviders {
+  google_client_id: string;
 }
 
 export interface TokenPair {

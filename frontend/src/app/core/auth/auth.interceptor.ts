@@ -10,8 +10,22 @@ import { Observable, catchError, switchMap, throwError } from 'rxjs';
 
 import { API_BASE, AuthService } from './auth.service';
 
-/** Requests that must never carry a token or trigger a refresh attempt. */
-const PUBLIC_PATHS = [`${API_BASE}/auth/login`, `${API_BASE}/auth/register`, `${API_BASE}/auth/refresh`];
+/**
+ * Requests that must never carry a token or trigger a refresh attempt. These
+ * are the endpoints reached *before* there is a session — a 401 from any of
+ * them is the answer, not a stale-token symptom to retry around.
+ */
+const PUBLIC_PATHS = [
+  'login',
+  'register',
+  'refresh',
+  'google',
+  'providers',
+  'verify-email',
+  'resend-verification',
+  'forgot-password',
+  'reset-password',
+].map((path) => `${API_BASE}/auth/${path}`);
 
 /**
  * Attaches the access token, and on a 401 transparently refreshes once and

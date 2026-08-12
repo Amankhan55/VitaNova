@@ -28,6 +28,30 @@ class Settings(BaseSettings):
     access_token_ttl_minutes: int = 30
     refresh_token_ttl_days: int = 7
 
+    # Where the browser app lives. Verification and password-reset links are
+    # built against this, so it must be the public URL in a deployment.
+    frontend_base_url: str = "http://localhost:4200"
+
+    email_verification_ttl_hours: int = 24
+    password_reset_ttl_minutes: int = 60
+    # Refuse to mint a second token of the same purpose within this window, so
+    # "resend" cannot be used to mailbomb an address.
+    email_resend_cooldown_seconds: int = 60
+
+    # SMTP. Leave smtp_host empty and mail is written to the log instead of
+    # sent -- local development works with no mail account at all.
+    #   Gmail: smtp.gmail.com:587 with an App Password (not the login password).
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_starttls: bool = True  # False when talking to an implicit-TLS port (465)
+    smtp_from: str = "VitaNova <no-reply@vitanova.app>"
+
+    # OAuth client ID from the Google Cloud console. Empty disables the Google
+    # button in the UI, which is how the app behaves when nobody set one up.
+    google_client_id: str = ""
+
     cors_origins: list[str] = [
         "http://localhost:4200",
         "http://127.0.0.1:4200",
@@ -57,19 +81,26 @@ settings = get_settings()
 
 
 def check_production_config() -> None:
-    """Refuse to start a non-debug deployment that is still signing with the
-    shipped secret.
+    """Refuse to start a non-debug deployment that cannot be used safely.
 
-    Every JWT this app issues would be forgeable by anyone who has read the
-    repository. Called from the app lifespan rather than at import time, so the
-    failure arrives as a clear startup error instead of a stack trace during
-    module loading.
+    Called from the app lifespan rather than at import time, so a failure
+    arrives as a clear startup error instead of a stack trace during module
+    loading.
     """
     if settings.debug:
         return
     if settings.jwt_secret == DEFAULT_JWT_SECRET:
+        # Every JWT this app issues would be forgeable by anyone who has read
+        # the repository.
         raise RuntimeError(
             "VITANOVA_JWT_SECRET is still the default value. Set a real secret "
             "before running with VITANOVA_DEBUG=false:\n"
             '  python -c "import secrets; print(secrets.token_urlsafe(48))"'
+        )
+    if not settings.smtp_host:
+        # Sign-in requires a verified address, so with nowhere to send the
+        # verification link every new account would be stranded at registration.
+        raise RuntimeError(
+            "VITANOVA_SMTP_HOST is not set. Accounts cannot be verified without "
+            "outbound mail, which leaves every new sign-up unable to log in."
         )

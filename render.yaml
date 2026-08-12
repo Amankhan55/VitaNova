@@ -38,6 +38,31 @@ services:
       - key: VITANOVA_GEMINI_API_KEY
         sync: false
 
+      # Where the Vercel frontend lives. Confirmation and password-reset links
+      # are built against it, so a wrong value mails people a dead link.
+      - key: VITANOVA_FRONTEND_BASE_URL
+        sync: false
+
+      # Outbound mail. Required: with VITANOVA_DEBUG=false the app refuses to
+      # start without a host, because sign-in needs a confirmed address and
+      # there would be no way to confirm one. Render's free plan blocks
+      # outbound port 25 but allows 587 and 465.
+      - key: VITANOVA_SMTP_HOST
+        sync: false
+      - key: VITANOVA_SMTP_PORT
+        value: "587"
+      - key: VITANOVA_SMTP_USER
+        sync: false
+      - key: VITANOVA_SMTP_PASSWORD
+        sync: false
+      - key: VITANOVA_SMTP_FROM
+        sync: false
+
+      # OAuth 2.0 Web application client ID, for Google Sign-In. Leave it unset
+      # and the frontend simply does not offer the button.
+      - key: VITANOVA_GOOGLE_CLIENT_ID
+        sync: false
+
       # No CORS entry on purpose: the deployed frontend reaches this API through
       # a Vercel rewrite, so requests arrive server-to-server and never trigger a
       # preflight. If you point the browser straight at this host instead, add

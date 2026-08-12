@@ -212,13 +212,37 @@ endpoint returns a 503 that says so.
 
 ### Auth
 
-Email + password (bcrypt), JWT access tokens (30 min) and rotating refresh tokens (7 days). Refresh
-tokens are stored hashed with a TTL index so they can be revoked and expire on their own; presenting
-a consumed one fails, which limits the damage from a stolen token. The HTTP interceptor refreshes and
-replays a request once on a 401, then gives up and clears the session.
+Email + password (bcrypt) or Google Sign-In, JWT access tokens (30 min) and rotating refresh tokens
+(7 days). Refresh tokens are stored hashed with a TTL index so they can be revoked and expire on
+their own; presenting a consumed one fails, which limits the damage from a stolen token. The HTTP
+interceptor refreshes and replays a request once on a 401, then gives up and clears the session.
 
 `passlib` is deliberately **not** used — it is unmaintained and breaks against bcrypt 4.x. `bcrypt`
 is called directly, and passwords over 72 bytes are rejected rather than silently truncated.
+
+**Email verification is required to sign in.** Registering creates the account but issues no tokens;
+the confirmation link does that, so the user lands in the app straight from their inbox. Google
+accounts skip it — Google has already verified the address, and we check the `email_verified` claim
+rather than taking the address on trust.
+
+**Password reset** mails a single-use link that expires in an hour. Completing one drops every
+refresh token for that account, so a session opened with the old password does not outlive it, and it
+also marks the address confirmed — reading the mail proves the same thing verification does.
+
+Both link types live in `email_tokens` as SHA-256 fingerprints with a TTL index, the same treatment
+refresh tokens get: what we mail out exists in plaintext only in the mail. Issuing is rate-limited
+per account, and `resend-verification` / `forgot-password` answer identically whether or not the
+address is registered — otherwise they would be a way to enumerate who has an account here.
+
+Signing in with Google when the address already has a password account **links** the two rather than
+creating a second one; the account keeps both ways in. An account created through Google has no
+password hash at all, and the reset flow is how it gains one.
+
+Set `VITANOVA_SMTP_*` to send mail and `VITANOVA_GOOGLE_CLIENT_ID` to offer the Google button — the
+frontend reads that client ID from `GET /auth/providers` at runtime, so one build works against any
+deployment. With SMTP unset, mail is written to the server log instead, which is enough to click
+through the whole flow locally. Anything running with `VITANOVA_DEBUG=false` refuses to start without
+SMTP configured, since without it no new account could ever sign in.
 
 ---
 
@@ -229,7 +253,9 @@ is called directly, and passwords over 72 bytes are rejected rather than silentl
   machines; today a Linux box without Helvetica will substitute. The *app chrome* is a separate
   question and does load Inter + Instrument Serif from Google Fonts, behind `display=swap` and a
   system fallback — offline, the UI simply renders in the system stack.
-- **No password reset or email verification** — there is no mail transport wired up.
+- **Mail is fire-and-forget.** Sending happens in a background task and a failure is logged, never
+  surfaced: telling the caller their mail bounced would also tell them the address is registered.
+  The cost is that a misconfigured SMTP host looks like a working sign-up until you read the log.
 - `POST /api/v1/render` is intentionally unauthenticated. It stores nothing and only echoes back the
   payload it was given, which keeps the live preview instant and decoupled from autosave.
 - The accent colour is interpolated into a `<style>` block, so it is validated as a hex colour and
