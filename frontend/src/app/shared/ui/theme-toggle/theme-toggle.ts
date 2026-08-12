@@ -73,35 +73,36 @@ const OPTIONS: ModeOption[] = [
     .single:hover {
       color: var(--vn-text);
       background: var(--vn-hover);
-      border-color: var(--vn-border);
+      border-color: var(--vn-border-strong);
     }
 
+    /* Three cells divided by rules rather than three pills in a track — the
+       same device the masthead nav uses to say "one of these is current". */
     .segmented {
       display: inline-flex;
-      padding: 3px;
-      gap: 2px;
-      background: var(--vn-surface-2);
-      border: 1px solid var(--vn-border);
-      border-radius: 999px;
+      border: 1px solid var(--vn-border-strong);
+      border-radius: var(--vn-radius-xs);
+      overflow: hidden;
     }
 
     .segmented button {
       display: grid;
       place-items: center;
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 30px;
       color: var(--vn-text-subtle);
-      background: transparent;
+      background: var(--vn-surface);
       border: 0;
-      border-radius: 50%;
+      border-left: 1px solid var(--vn-border);
+      border-radius: 0;
       cursor: pointer;
       transition: background 0.15s, color 0.15s;
     }
-    .segmented button:hover { color: var(--vn-text); }
+    .segmented button:first-child { border-left: 0; }
+    .segmented button:hover { color: var(--vn-text); background: var(--vn-surface-2); }
     .segmented button.is-active {
-      color: var(--vn-text);
-      background: var(--vn-surface);
-      box-shadow: var(--vn-shadow-sm);
+      color: var(--vn-on-ink);
+      background: var(--vn-ink);
     }
   `,
 })

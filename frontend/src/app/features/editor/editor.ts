@@ -95,7 +95,7 @@ type Tab = 'content' | 'design';
 
             <div class="panel-body">
               @if (tab() === 'content') {
-                <h2 class="panel-title">Your details</h2>
+                <h2 class="panel-title">Details</h2>
                 <vn-basics-panel />
                 <h2 class="panel-title spaced">Sections</h2>
                 <vn-section-list />

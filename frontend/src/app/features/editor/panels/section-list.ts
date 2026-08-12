@@ -30,7 +30,7 @@ const ADDABLE: SectionType[] = [
   template: `
     <div cdkDropList (cdkDropListDropped)="dropSection($event)" class="sections">
       @for (section of sections(); track section.id) {
-        <section class="vn-card section" cdkDrag [class.is-hidden]="!section.visible">
+        <section class="section" cdkDrag [class.is-hidden]="!section.visible">
           <header class="section-head">
             <button
               class="handle"

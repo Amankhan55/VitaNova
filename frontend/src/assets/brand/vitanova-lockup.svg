@@ -1,18 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 48" width="210" height="48" role="img" aria-label="VitaNova">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 226 48" width="226" height="48" role="img" aria-label="VitaNova">
   <title>VitaNova</title>
-  <defs>
-    <linearGradient id="l-leaf" x1="16" y1="26" x2="32" y2="4" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0D9488"/>
-      <stop offset="1" stop-color="#34D399"/>
-    </linearGradient>
-  </defs>
 
-  <path d="M24 4C32 11 32 19 24 26C16 19 16 11 24 4Z" fill="url(#l-leaf)"/>
-  <path d="M24 8.5V23.5" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
-  <path d="M9 18L24 43L39 18" fill="none" stroke="#0B1220" stroke-width="6"
-        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14.6 15.4 L24 35.8 L33.4 15.4" fill="none" stroke="#191510"
+        stroke-width="4.6" stroke-linejoin="miter"/>
+  <rect x="9.4" y="12.8" width="10.4" height="2.9" fill="#191510"/>
+  <rect x="28.2" y="12.8" width="10.4" height="2.9" fill="#191510"/>
+  <rect x="9.4" y="39.6" width="29.2" height="3" fill="#A83B21"/>
 
-  <!-- "Vita" in the ink colour, "Nova" in the brand teal -->
-  <text x="56" y="32" font-family="Georgia, 'Times New Roman', serif" font-size="25"
-        letter-spacing="0.5" fill="#0B1220">Vita<tspan fill="#0D9488" font-weight="700">Nova</tspan></text>
+  <!-- "Vita" light, "Nova" in the same weight — the wordmark is one voice. -->
+  <text x="58" y="32" font-family="Fraunces, 'Iowan Old Style', Georgia, serif" font-size="27"
+        font-weight="500" letter-spacing="-0.4" fill="#191510">Vita<tspan fill="#A83B21">Nova</tspan></text>
 </svg>

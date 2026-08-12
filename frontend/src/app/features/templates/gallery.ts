@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -11,17 +12,17 @@ type Filter = 'all' | 'ats';
 @Component({
   selector: 'vn-gallery',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon, TemplatePreview],
+  imports: [DecimalPipe, Icon, TemplatePreview],
   styleUrl: './gallery.scss',
   template: `
     <div class="page">
       <header class="page-head">
-        <div>
-          <span class="vn-eyebrow">The gallery</span>
+        <div class="page-title">
+          <span class="vn-eyebrow">Specimen sheets</span>
           <h1>Choose a design</h1>
           <p>
-            Every card below is a live render, not a picture — it is produced by the same engine that
-            writes your PDF. You can switch design at any time without retyping anything.
+            Every sheet below is a live render, not a picture — it is produced by the same engine
+            that writes your PDF. You can switch design at any time without retyping anything.
           </p>
         </div>
 
@@ -32,50 +33,53 @@ type Filter = 'all' | 'ats';
               [class.is-active]="filter() === 'all'"
               (click)="filter.set('all')"
             >
-              All {{ templates().length }}
+              All <span class="vn-mono">{{ templates().length }}</span>
             </button>
             <button
               type="button"
               [class.is-active]="filter() === 'ats'"
               (click)="filter.set('ats')"
             >
-              ATS safe {{ atsCount() }}
+              ATS safe <span class="vn-mono">{{ atsCount() }}</span>
             </button>
           </div>
         }
       </header>
 
       @if (error()) {
-        <div class="vn-card notice">
-          <vn-icon name="x" [size]="18" />
+        <div class="notice">
+          <vn-icon name="x" [size]="17" />
           <span>{{ error() }}</span>
         </div>
       }
 
-      <div class="grid">
-        @for (meta of visible(); track meta.id) {
-          <article class="vn-card card">
-            <div class="thumb vn-paper-sheet">
-              <vn-template-preview [templateId]="meta.id" />
+      <div class="plates">
+        @for (meta of visible(); track meta.id; let i = $index) {
+          <article class="plate">
+            <!-- The sheet is presented the way a specimen is: pinned on the
+                 gutter it will be printed against, with its own edge visible. -->
+            <div class="plate-mount vn-paper-gutter">
+              <div class="thumb vn-paper-sheet">
+                <vn-template-preview [templateId]="meta.id" />
+              </div>
             </div>
 
-            <div class="card-body">
-              <div class="card-head">
-                <h2>
-                  <span class="swatch" [style.background]="meta.accent"></span>
-                  {{ meta.name }}
-                </h2>
+            <div class="plate-caption">
+              <div class="caption-head">
+                <span class="plate-no vn-mono">{{ i + 1 | number: '2.0-0' }}</span>
+                <h2>{{ meta.name }}</h2>
+                <span class="swatch" [style.background]="meta.accent" aria-hidden="true"></span>
+              </div>
+
+              <p class="caption-desc">{{ meta.description }}</p>
+
+              <div class="tags">
                 @if (meta.ats_safe) {
                   <span class="vn-chip vn-chip--accent" title="Plain enough for resume parsers">
-                    <vn-icon name="shield" [size]="12" />
+                    <vn-icon name="shield" [size]="11" />
                     ATS safe
                   </span>
                 }
-              </div>
-
-              <p class="card-desc">{{ meta.description }}</p>
-
-              <div class="tags">
                 @for (tag of meta.tags; track tag) {
                   <span class="vn-chip">{{ tag }}</span>
                 }
@@ -90,8 +94,8 @@ type Filter = 'all' | 'ats';
                 @if (creatingId() === meta.id) {
                   Creating…
                 } @else {
-                  <vn-icon name="plus" [size]="16" />
                   Use this design
+                  <vn-icon name="arrow-right" [size]="15" />
                 }
               </button>
             </div>
@@ -99,7 +103,9 @@ type Filter = 'all' | 'ats';
         } @empty {
           @if (!error()) {
             @for (n of [0, 1, 2, 3, 5, 6]; track n) {
-              <div class="vn-skeleton skeleton"></div>
+              <div class="plate">
+                <div class="vn-skeleton skeleton"></div>
+              </div>
             }
           }
         }

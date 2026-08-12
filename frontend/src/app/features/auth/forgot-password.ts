@@ -22,7 +22,7 @@ import { readError } from './read-error';
       </a>
 
       <div class="pitch-brand">
-        <vn-logo [size]="32" />
+        <vn-logo [size]="32" rule="#e0785c" />
         <span class="pitch-name">Vita<strong>Nova</strong></span>
       </div>
 

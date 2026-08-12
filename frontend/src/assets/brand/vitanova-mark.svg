@@ -1,19 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="VitaNova">
   <title>VitaNova</title>
   <!--
-    The mark reads as a V (Vita) drawn as an open vessel, with a leaf growing out
-    of it (Nova — new life). The V uses currentColor so it inverts cleanly on
-    dark surfaces; only the leaf carries the brand gradient.
+    A serifed V standing on a spot-colour rule — a masthead and the rule that
+    separates it from the page. The letter is drawn, not set, so the mark does
+    not depend on a font being available. Keep in step with
+    src/app/shared/ui/logo/logo.ts, which is the version the app actually uses.
   -->
-  <defs>
-    <linearGradient id="vn-leaf" x1="16" y1="26" x2="32" y2="4" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0D9488"/>
-      <stop offset="1" stop-color="#34D399"/>
-    </linearGradient>
-  </defs>
-
-  <path d="M24 4C32 11 32 19 24 26C16 19 16 11 24 4Z" fill="url(#vn-leaf)"/>
-  <path d="M24 8.5V23.5" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
-  <path d="M9 18L24 43L39 18" fill="none" stroke="#0B1220" stroke-width="6"
-        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14.6 15.4 L24 35.8 L33.4 15.4" fill="none" stroke="#191510"
+        stroke-width="4.6" stroke-linejoin="miter"/>
+  <rect x="9.4" y="12.8" width="10.4" height="2.9" fill="#191510"/>
+  <rect x="28.2" y="12.8" width="10.4" height="2.9" fill="#191510"/>
+  <rect x="9.4" y="39.6" width="29.2" height="3" fill="#A83B21"/>
 </svg>

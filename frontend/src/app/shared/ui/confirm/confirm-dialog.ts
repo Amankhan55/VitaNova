@@ -67,12 +67,14 @@ import { Icon } from '../icon/icon';
   `,
   styles: `
     .sheet {
-      width: min(440px, calc(100vw - 32px));
+      width: min(452px, calc(100vw - 32px));
       padding: 0;
       color: var(--vn-text);
       background: var(--vn-surface);
-      border: 1px solid var(--vn-border);
-      border-radius: var(--vn-radius-lg);
+      /* Enclosed by the strong rule: a question is the one moment the interface
+         should feel bounded rather than continuous with the page. */
+      border: 1px solid var(--vn-border-strong);
+      border-radius: var(--vn-radius);
       box-shadow: var(--vn-shadow-lg);
     }
 
@@ -80,8 +82,9 @@ import { Icon } from '../icon/icon';
        without needing *ngIf around the dialog itself. */
     .sheet:not([open]) { display: none; }
 
+    /* Warm, not blue — the scrim is the same ink everything else is printed in. */
     .sheet::backdrop {
-      background: rgb(6 10 18 / 55%);
+      background: rgb(20 18 14 / 58%);
       backdrop-filter: blur(3px);
     }
 
@@ -106,13 +109,13 @@ import { Icon } from '../icon/icon';
     .glyph {
       display: grid;
       place-items: center;
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       flex: none;
       color: var(--vn-accent-text);
       background: var(--vn-accent-soft);
       border: 1px solid var(--vn-accent-line);
-      border-radius: 50%;
+      border-radius: var(--vn-radius-xs);
     }
     .is-danger .glyph {
       color: var(--vn-danger-text);
@@ -122,8 +125,8 @@ import { Icon } from '../icon/icon';
 
     .copy { min-width: 0; }
     .copy h2 {
-      margin-bottom: 7px;
-      font-size: 18px;
+      margin-bottom: 8px;
+      font-size: 21px;
       letter-spacing: -0.02em;
     }
     .copy p {
@@ -140,7 +143,7 @@ import { Icon } from '../icon/icon';
       padding: 15px 20px;
       background: var(--vn-surface-2);
       border-top: 1px solid var(--vn-border);
-      border-radius: 0 0 var(--vn-radius-lg) var(--vn-radius-lg);
+      border-radius: 0 0 var(--vn-radius) var(--vn-radius);
     }
     .actions .vn-btn { padding: 9px 18px; }
 

@@ -1,34 +1,39 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
- * The VitaNova mark, inlined so the "V" picks up `currentColor` and inverts
- * correctly on dark surfaces (an <img> could not do that). The leaf keeps the
- * brand gradient in every context.
+ * The VitaNova mark: a serifed V sitting on a spot-colour rule, the way a
+ * masthead sits on the rule that separates it from the page.
  *
- * The gradient id is per-instance: two inlined SVGs sharing one id would make
- * the second instance reference the first one's (possibly removed) gradient.
+ * The letter is drawn rather than set, so it does not shift while the display
+ * face loads and does not depend on a font being available at all. It is built
+ * from `currentColor`, which is what lets one mark work on bone and on ink —
+ * only the rule underneath keeps the accent, and it reads that accent from the
+ * theme rather than hard-coding it.
  */
 @Component({
   selector: 'vn-logo',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 48 48" role="img" aria-label="VitaNova">
-      <defs>
-        <linearGradient [attr.id]="gradientId" x1="16" y1="26" x2="32" y2="4" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#0D9488" />
-          <stop offset="1" stop-color="#34D399" />
-        </linearGradient>
-      </defs>
-      <path d="M24 4C32 11 32 19 24 26C16 19 16 11 24 4Z" [attr.fill]="'url(#' + gradientId + ')'" />
-      <path d="M24 8.5V23.5" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" opacity="0.65" />
+    <svg
+      [attr.width]="size()"
+      [attr.height]="size()"
+      viewBox="0 0 48 48"
+      role="img"
+      aria-label="VitaNova"
+    >
+      <!-- The two arms, mitred at the apex so the join stays a true point. -->
       <path
-        d="M9 18L24 43L39 18"
+        d="M14.6 15.4 L24 35.8 L33.4 15.4"
         fill="none"
         stroke="currentColor"
-        stroke-width="6"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        stroke-width="4.6"
+        stroke-linejoin="miter"
       />
+      <!-- Slab serifs on each arm. -->
+      <rect x="9.4" y="12.8" width="10.4" height="2.9" fill="currentColor" />
+      <rect x="28.2" y="12.8" width="10.4" height="2.9" fill="currentColor" />
+      <!-- The rule. -->
+      <rect x="9.4" y="39.6" width="29.2" height="3" [attr.fill]="rule()" />
     </svg>
   `,
   styles: `
@@ -38,6 +43,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export class Logo {
   readonly size = input(28);
 
-  private static nextId = 0;
-  protected readonly gradientId = `vn-leaf-${Logo.nextId++}`;
+  /**
+   * Overridable so the mark can be placed on a surface that is not themed —
+   * the auth poster, for instance, which is dark in both themes.
+   */
+  readonly rule = input('var(--vn-accent)');
 }

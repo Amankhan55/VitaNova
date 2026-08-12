@@ -1,119 +1,144 @@
-/* Shared layout for the sign-in and register screens: a brand panel on the left,
-   the form on the right, collapsing to a single column on small screens.
+/* Shared layout for the sign-in and register screens: a printed poster on the
+   left, the form on the right, collapsing to a single column on small screens.
 
-   The brand panel is deliberately dark in *both* themes — it is a poster, not a
-   working surface, so it does not need to invert. Everything on the form side
-   uses themed tokens and does. */
+   The poster is deliberately ink-stock in *both* themes — it is a printed
+   thing, not a working surface, so it does not invert. Everything on the form
+   side uses themed tokens and does. */
 
 :host {
   display: grid;
-  grid-template-columns: 1.02fr 1fr;
+  grid-template-columns: 1.05fr 1fr;
   min-height: 100vh;
 }
 
-/* ------------------------------------------------------------------- pitch */
+/* ------------------------------------------------------------------ poster */
 
 .pitch {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 24px;
-  padding: 48px clamp(32px, 4.5vw, 64px);
+  gap: 26px;
+  padding: 56px clamp(32px, 5vw, 76px);
   overflow: hidden;
-  color: #dce6f2;
-  /* Lifted off its own base rather than sitting at #0b1220: in the dark theme
-     the form panel beside it is nearly that colour, and the split disappeared. */
-  background:
-    radial-gradient(900px 460px at 8% -12%, rgb(13 148 136 / 42%), transparent 62%),
-    radial-gradient(620px 420px at 96% 108%, rgb(52 211 153 / 22%), transparent 60%),
-    linear-gradient(165deg, #14202f, #0a1120);
-  border-right: 1px solid rgb(255 255 255 / 8%);
+  color: #d9d1c2;
+  background: #14120e;
+  border-right: 1px solid rgb(250 247 241 / 10%);
 }
 
-/* A faint sheet of ruled lines behind the copy — paper, without being literal. */
-.pitch::after {
+/* Ruled stock behind the copy — a sheet waiting to be written on. The rules
+   run the full height and are masked at both ends so they read as texture
+   rather than as a table. */
+.pitch::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px);
-  background-size: 100% 34px;
-  mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  background-image: linear-gradient(rgb(250 247 241 / 5%) 1px, transparent 1px);
+  background-size: 100% 32px;
+  mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+  pointer-events: none;
+}
+
+/* One vertical rule, set at the measure a printed page would use for its
+   margin. It is the only thing on the poster that is not type. */
+.pitch::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: clamp(20px, 3vw, 44px);
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgb(224 120 92 / 45%) 20%,
+    rgb(224 120 92 / 45%) 80%,
+    transparent
+  );
   pointer-events: none;
 }
 
 .pitch > * { position: relative; z-index: 1; }
 
+/* In flow, directly above the brand, where it reads as the poster's own
+   standfirst rather than as chrome pinned to a corner. The negative margin
+   pulls it inside the column's 26px gap so the two belong together. */
 .pitch-back {
-  position: absolute;
-  top: 26px;
-  left: clamp(32px, 4.5vw, 64px);
-  z-index: 2;
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
-  gap: 7px;
-  font-size: 13.5px;
-  font-weight: 550;
-  color: rgb(220 230 242 / 72%);
+  gap: 8px;
+  margin-bottom: -14px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(217 209 194 / 62%);
 }
-.pitch-back:hover { color: #fff; text-decoration: none; }
+.pitch-back:hover { color: #faf7f1; text-decoration: none; }
 
 .pitch-brand {
   display: inline-flex;
   align-items: center;
-  gap: 11px;
-  color: #fff;
+  gap: 12px;
+  color: #faf7f1;
 }
 
 .pitch-name {
   font-family: var(--vn-font-display);
   font-size: 27px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
-.pitch-name strong { color: #5eead4; font-weight: 400; }
+.pitch-name strong { color: #e0785c; font-weight: 500; }
 
 .pitch h1 {
-  max-width: 13ch;
-  font-size: clamp(32px, 3.6vw, 46px);
-  line-height: 1.06;
-  letter-spacing: -0.032em;
-  color: #fff;
+  max-width: 12ch;
+  font-family: var(--vn-font-display);
+  font-size: clamp(38px, 4.6vw, 62px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: #faf7f1;
 }
 .pitch h1 em {
-  font-family: var(--vn-font-display);
   font-style: italic;
   font-weight: 400;
-  color: #5eead4;
+  color: #e0785c;
 }
 
 .pitch p {
-  max-width: 46ch;
-  color: rgb(220 230 242 / 70%);
+  max-width: 44ch;
+  color: rgb(217 209 194 / 72%);
   font-size: 15.5px;
-  line-height: 1.65;
+  line-height: 1.7;
 }
 
+/* The claims are set as a printed list: a rule and a mark, no bullets. */
 .pitch-list {
   display: grid;
-  gap: 12px;
+  gap: 0;
   margin: 6px 0 0;
   padding: 0;
   list-style: none;
+  border-top: 1px solid rgb(250 247 241 / 12%);
 }
 
 .pitch-list li {
   display: flex;
   align-items: flex-start;
-  gap: 11px;
+  gap: 12px;
+  padding: 13px 0;
   font-size: 14.5px;
-  color: rgb(220 230 242 / 86%);
+  line-height: 1.5;
+  color: rgb(217 209 194 / 88%);
+  border-bottom: 1px solid rgb(250 247 241 / 12%);
 }
 .pitch-list vn-icon {
   flex: none;
-  margin-top: 1px;
-  padding: 3px;
-  color: #5eead4;
-  background: rgb(94 234 212 / 12%);
-  border-radius: 50%;
+  margin-top: 2px;
+  color: #e0785c;
 }
 
 /* -------------------------------------------------------------------- form */
@@ -123,15 +148,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 72px 24px 48px;
-  background: var(--vn-surface);
+  padding: 80px 24px 56px;
+  background: var(--vn-bg);
 }
 
 .panel-top {
   position: absolute;
-  top: 18px;
-  right: 20px;
-  left: 20px;
+  top: 20px;
+  right: 22px;
+  left: 22px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -140,9 +165,12 @@
 .panel-home {
   display: none;
   align-items: center;
-  gap: 7px;
-  font-size: 13.5px;
-  font-weight: 550;
+  gap: 8px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--vn-text-muted);
 }
 .panel-home:hover { color: var(--vn-text); text-decoration: none; }
@@ -151,46 +179,55 @@
 
 .form-wrap {
   width: 100%;
-  max-width: 388px;
+  max-width: 392px;
 }
 
 .form-wrap h2 {
-  font-size: 27px;
-  letter-spacing: -0.026em;
-  margin-bottom: 6px;
+  font-family: var(--vn-font-display);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 8px;
 }
 
 .form-lead {
-  margin-bottom: 26px;
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--vn-border);
   color: var(--vn-text-muted);
   font-size: 14.5px;
 }
 
 .submit {
   width: 100%;
-  margin-top: 10px;
-  padding: 11px 16px;
+  margin-top: 12px;
+  padding: 12px 16px;
 }
 
 .alt {
-  margin-top: 22px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--vn-border);
   font-size: 14px;
   color: var(--vn-text-muted);
   text-align: center;
 }
 .alt a { font-weight: 600; }
 
+/* Notices are marked by a heavy rule down their leading edge, the way a
+   printed correction is marked in a margin. */
 .form-error {
   display: flex;
   align-items: flex-start;
-  gap: 9px;
-  margin-bottom: 16px;
-  padding: 11px 13px;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
   font-size: 13.5px;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--vn-danger-text);
   background: var(--vn-danger-soft);
   border: 1px solid var(--vn-danger-line);
+  border-left: 3px solid var(--vn-danger);
   border-radius: var(--vn-radius-xs);
 }
 .form-error vn-icon { flex: none; margin-top: 2px; }
@@ -199,14 +236,15 @@
 .form-note {
   display: flex;
   align-items: flex-start;
-  gap: 9px;
-  margin-bottom: 16px;
-  padding: 11px 13px;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
   font-size: 13.5px;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--vn-accent-text);
   background: var(--vn-accent-soft);
   border: 1px solid var(--vn-accent-line);
+  border-left: 3px solid var(--vn-accent);
   border-radius: var(--vn-radius-xs);
 }
 .form-note vn-icon { flex: none; margin-top: 2px; }
@@ -232,18 +270,26 @@
   justify-content: space-between;
   gap: 12px;
 }
-.label-row a { font-size: 13px; font-weight: 550; }
+.label-row a {
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
 /* ------------------------------------------------------------ third party */
 
 .or {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   margin: 22px 0;
+  font-family: var(--vn-font-mono);
   color: var(--vn-text-subtle);
-  font-size: 12.5px;
-  text-transform: lowercase;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 .or::before,
 .or::after {
@@ -262,32 +308,37 @@
 
 .status-icon {
   display: inline-flex;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   padding: 13px;
-  border-radius: 50%;
+  border-radius: var(--vn-radius-xs);
   color: var(--vn-accent-text);
   background: var(--vn-accent-soft);
+  border: 1px solid var(--vn-accent-line);
 }
 .status-icon--bad {
   color: var(--vn-danger-text);
   background: var(--vn-danger-soft);
+  border-color: var(--vn-danger-line);
 }
 
 .status p {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   color: var(--vn-text-muted);
   font-size: 14.5px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
+
+/* The rule under the lead belongs to a form; a status screen is one block. */
+.status .form-lead { border-bottom: 0; padding-bottom: 0; }
 
 .status .submit { margin-top: 26px; }
 /* A status screen can still carry a form (resend, retry) — fields read badly
    centred, so they opt back out. */
-.status form { margin-top: 22px; text-align: left; }
+.status form { margin-top: 24px; text-align: left; }
 
 @media (max-width: 900px) {
   :host { grid-template-columns: 1fr; }
   .pitch { display: none; }
-  .panel { align-items: flex-start; padding-top: 84px; }
+  .panel { align-items: flex-start; padding-top: 88px; }
   .panel-home { display: inline-flex; }
 }

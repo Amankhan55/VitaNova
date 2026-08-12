@@ -39,7 +39,7 @@ describe('App shell', () => {
   it('hides the navigation header while signed out', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    const header = (fixture.nativeElement as HTMLElement).querySelector('.shell-header');
+    const header = (fixture.nativeElement as HTMLElement).querySelector('.masthead');
     expect(header).toBeNull();
   });
 
@@ -50,7 +50,7 @@ describe('App shell', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    expect((fixture.nativeElement as HTMLElement).querySelector('.shell-header')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.masthead')).toBeNull();
   });
 
   it('shows the branded header on an app route once a session exists', async () => {
@@ -61,7 +61,7 @@ describe('App shell', () => {
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
 
-    expect(root.querySelector('.shell-header')).not.toBeNull();
+    expect(root.querySelector('.masthead')).not.toBeNull();
     // Initials are derived from the name, not stored.
     expect(root.querySelector('.avatar')?.textContent?.trim()).toBe('AM');
   });

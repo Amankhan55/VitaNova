@@ -20,6 +20,11 @@ import { TemplatePreview } from '../templates/template-preview';
 /**
  * Where "Contact us" points. Leave a handle empty and its card is not rendered
  * at all — better a short list than a link to a profile that does not exist.
+ *
+ * `email` is the one field that is never printed on the page: the contact form
+ * hands it to the visitor's own mail client, and nothing renders it as text.
+ * It still ships to the browser inside the bundle, so treat it as unlisted
+ * rather than as private — anyone reading the source can still find it.
  */
 const CONTACT = {
   email: 'amann.khan58@gmail.com',
@@ -143,7 +148,7 @@ const STEPS: Step[] = [
       </div>
 
       @if (navOpen()) {
-        <div class="nav-sheet vn-card">
+        <div class="nav-sheet">
           <a href="#how">How it works</a>
           <a href="#designs">Designs</a>
           <a href="#about">About</a>
@@ -162,62 +167,61 @@ const STEPS: Step[] = [
 
     <main id="main">
       <!-- ======================================================== hero -->
+      <!-- Set as the front page of a broadsheet: a dateline, then the headline
+           running the full measure, then the story and the plate beneath it. -->
       <section class="hero">
-        <div class="hero-copy">
-          <span class="badge">
-            <vn-icon name="sparkle" [size]="14" />
-            Nine designs · one source of truth
-          </span>
-
-          <h1>Your career, <em>beautifully</em> set.</h1>
-
-          <p class="lede">
-            VitaNova is a resume builder that refuses to lie to you. The page in the editor and the
-            PDF in your downloads folder are the very same document — so what you approve is exactly
-            what an employer opens.
-          </p>
-
-          <div class="hero-cta">
-            @if (signedIn()) {
-              <a class="vn-btn vn-btn--primary vn-btn--lg" routerLink="/dashboard">
-                <vn-icon name="file" [size]="17" />
-                Open your dashboard
-              </a>
-              <a class="vn-btn vn-btn--lg" routerLink="/templates">
-                <vn-icon name="layers" [size]="17" />
-                Browse designs
-              </a>
-            } @else {
-              <a class="vn-btn vn-btn--primary vn-btn--lg" routerLink="/register">
-                <vn-icon name="sparkle" [size]="17" />
-                Register — it's free
-              </a>
-              <a class="vn-btn vn-btn--lg" routerLink="/login">
-                <vn-icon name="logout" [size]="17" />
-                Log in
-              </a>
-            }
-          </div>
-
-          <ul class="hero-points">
-            <li><vn-icon name="check" [size]="16" /> No credit card, no trial clock</li>
-            <li><vn-icon name="check" [size]="16" /> Export as often as you like</li>
-            <li><vn-icon name="check" [size]="16" /> Your draft is yours alone</li>
-          </ul>
+        <div class="dateline">
+          <span>VitaNova</span>
+          <span>Nine designs</span>
+          <span>One source of truth</span>
+          <span class="dateline-end">Free to use</span>
         </div>
 
-        <!-- Real renders from the template API — the same endpoint the gallery
-             uses, so this stage can never show a design that no longer exists. -->
-        <div class="hero-stage" aria-hidden="true">
-          <div class="stage-glow"></div>
-          @for (meta of heroTemplates(); track meta.id; let i = $index) {
-            <div class="stage-sheet vn-paper-sheet" [class]="'stage-sheet--' + i">
-              <vn-template-preview [templateId]="meta.id" />
+        <h1>Your career, <em>beautifully</em> set.</h1>
+
+        <div class="hero-body">
+          <div class="hero-copy">
+            <p class="lede">
+              VitaNova is a resume builder that refuses to lie to you. The page in the editor and
+              the PDF in your downloads folder are the very same document — so what you approve is
+              exactly what an employer opens.
+            </p>
+
+            <div class="hero-cta">
+              @if (signedIn()) {
+                <a class="vn-btn vn-btn--primary vn-btn--lg" routerLink="/dashboard">
+                  Open your dashboard
+                  <vn-icon name="arrow-right" [size]="16" />
+                </a>
+                <a class="vn-btn vn-btn--lg" routerLink="/templates">Browse designs</a>
+              } @else {
+                <a class="vn-btn vn-btn--primary vn-btn--lg" routerLink="/register">
+                  Register — it's free
+                  <vn-icon name="arrow-right" [size]="16" />
+                </a>
+                <a class="vn-btn vn-btn--lg" routerLink="/login">Log in</a>
+              }
             </div>
-          }
-          @if (heroTemplates().length === 0) {
-            <div class="stage-sheet stage-sheet--0 vn-paper-sheet"></div>
-          }
+
+            <ul class="hero-points">
+              <li><vn-icon name="check" [size]="15" /> No credit card, no trial clock</li>
+              <li><vn-icon name="check" [size]="15" /> Export as often as you like</li>
+              <li><vn-icon name="check" [size]="15" /> Your draft is yours alone</li>
+            </ul>
+          </div>
+
+          <!-- Real renders from the template API — the same endpoint the gallery
+               uses, so this stage can never show a design that no longer exists. -->
+          <div class="hero-stage" aria-hidden="true">
+            @for (meta of heroTemplates(); track meta.id; let i = $index) {
+              <div class="stage-sheet vn-paper-sheet" [class]="'stage-sheet--' + i">
+                <vn-template-preview [templateId]="meta.id" />
+              </div>
+            }
+            @if (heroTemplates().length === 0) {
+              <div class="stage-sheet stage-sheet--0 vn-paper-sheet"></div>
+            }
+          </div>
         </div>
       </section>
 
@@ -234,8 +238,8 @@ const STEPS: Step[] = [
 
         <ol class="steps">
           @for (step of steps; track step.number) {
-            <li class="step vn-card">
-              <span class="step-number">{{ step.number }}</span>
+            <li class="step">
+              <span class="step-number vn-mono">{{ step.number }}</span>
               <h3>{{ step.title }}</h3>
               <p>{{ step.body }}</p>
             </li>
@@ -256,8 +260,8 @@ const STEPS: Step[] = [
 
         <div class="features">
           @for (feature of features; track feature.title) {
-            <article class="feature vn-card">
-              <span class="feature-icon"><vn-icon [name]="feature.icon" [size]="19" /></span>
+            <article class="feature">
+              <span class="feature-icon"><vn-icon [name]="feature.icon" [size]="18" /></span>
               <h3>{{ feature.title }}</h3>
               <p>{{ feature.body }}</p>
             </article>
@@ -277,7 +281,7 @@ const STEPS: Step[] = [
         </header>
 
         @if (templatesError()) {
-          <p class="notice vn-card">
+          <p class="notice">
             <vn-icon name="x" [size]="17" />
             {{ templatesError() }}
           </p>
@@ -285,9 +289,11 @@ const STEPS: Step[] = [
 
         <div class="designs">
           @for (meta of galleryTemplates(); track meta.id) {
-            <figure class="design vn-card">
-              <div class="design-paper vn-paper-sheet">
-                <vn-template-preview [templateId]="meta.id" />
+            <figure class="design">
+              <div class="design-mount vn-paper-gutter">
+                <div class="design-paper vn-paper-sheet">
+                  <vn-template-preview [templateId]="meta.id" />
+                </div>
               </div>
               <figcaption>
                 <span class="design-name">{{ meta.name }}</span>
@@ -302,8 +308,8 @@ const STEPS: Step[] = [
           } @empty {
             @if (!templatesError()) {
               @for (n of [0, 1, 2, 3]; track n) {
-                <div class="design vn-card">
-                  <div class="design-paper vn-skeleton"></div>
+                <div class="design">
+                  <div class="design-mount vn-skeleton"></div>
                 </div>
               }
             }
@@ -318,55 +324,54 @@ const STEPS: Step[] = [
 
       <!-- ======================================================== about -->
       <section class="section about" id="about">
-        <div class="about-aside">
-          <div class="about-portrait">
-            <span class="about-monogram">AK</span>
-          </div>
-          <div class="about-meta">
-            <span class="about-name">Amanulla Khan</span>
-            <span class="about-role">Software &amp; UI developer</span>
-          </div>
+        <!-- A colophon: what the thing is made of, set the way a book records
+             its own typesetting on the last page. -->
+        <aside class="about-aside">
+          <span class="colophon-title">Colophon</span>
+          <p class="colophon-note">
+            Rendered by WeasyPrint from Jinja templates, served by FastAPI, edited in Angular.
+          </p>
           <div class="about-stack">
             @for (item of stack; track item) {
               <span class="vn-chip">{{ item }}</span>
             }
           </div>
-        </div>
+        </aside>
 
         <div class="about-copy">
-          <span class="vn-eyebrow">About me</span>
-          <h2>I built VitaNova because I got tired of surprises.</h2>
+          <span class="vn-eyebrow">About the project</span>
+          <h2>Built to end an old, familiar surprise.</h2>
           <p>
-            I write software for a living, and like everyone else I have sat at midnight watching a
-            resume builder's tidy preview turn into a PDF with a heading orphaned at the bottom of
-            page one. The preview had never been the document. It was a drawing of one.
+            Anyone who has written a resume at midnight knows the moment: a builder's tidy preview
+            turns into a PDF with a heading orphaned at the foot of page one. The preview had never
+            been the document. It was a drawing of one.
           </p>
           <p>
-            So VitaNova starts from the opposite end. A single Jinja template and stylesheet produce
+            VitaNova starts from the opposite end. A single Jinja template and stylesheet produce
             one self-contained HTML document; the editor shows it in an iframe and WeasyPrint turns
             the same bytes into a PDF. A test in the repository asserts the two endpoints return
             identical output — if they ever diverge, the build fails rather than your application.
           </p>
           <p>
-            The trade-off is real and I would make it again: templates are written in the CSS subset
-            both engines agree on. No grid, no exotic flexbox. Columns are tables, right-aligned
-            dates are floats. Slightly old-fashioned, entirely predictable.
+            The trade-off is real and deliberate: templates are written in the CSS subset both
+            engines agree on. No grid, no exotic flexbox. Columns are tables, right-aligned dates
+            are floats. Slightly old-fashioned, entirely predictable.
           </p>
 
-          <div class="about-facts">
+          <dl class="about-facts">
             <div class="fact">
-              <span class="fact-value">9</span>
-              <span class="fact-label">designs, all live-rendered</span>
+              <dt class="fact-value">9</dt>
+              <dd class="fact-label">designs, all live-rendered</dd>
             </div>
             <div class="fact">
-              <span class="fact-value">1</span>
-              <span class="fact-label">document behind preview &amp; PDF</span>
+              <dt class="fact-value">1</dt>
+              <dd class="fact-label">document behind preview &amp; PDF</dd>
             </div>
             <div class="fact">
-              <span class="fact-value">0</span>
-              <span class="fact-label">words retyped when you switch</span>
+              <dt class="fact-value">0</dt>
+              <dd class="fact-label">words retyped when you switch</dd>
             </div>
-          </div>
+          </dl>
         </div>
       </section>
 
@@ -381,13 +386,15 @@ const STEPS: Step[] = [
           </p>
 
           <div class="contact-cards">
-            <a class="contact-card" [href]="'mailto:' + contact.email">
+            <!-- The address itself is deliberately not printed here; the form
+                 alongside is the way in. See the CONTACT constant. -->
+            <div class="contact-card is-static">
               <span class="contact-icon"><vn-icon name="mail" [size]="18" /></span>
               <span class="contact-text">
                 <span class="contact-label">Email</span>
-                <span class="contact-value">{{ contact.email }}</span>
+                <span class="contact-value">Use the form — it composes the message for you</span>
               </span>
-            </a>
+            </div>
 
             @if (contact.github) {
               <a class="contact-card" [href]="contact.github" target="_blank" rel="noreferrer">
@@ -419,7 +426,7 @@ const STEPS: Step[] = [
           </div>
         </div>
 
-        <form class="contact-form vn-card" (ngSubmit)="sendMessage()" #form="ngForm" novalidate>
+        <form class="contact-form" (ngSubmit)="sendMessage()" #form="ngForm" novalidate>
           <h3>Send a message</h3>
 
           <div class="pair">
@@ -469,7 +476,7 @@ const STEPS: Step[] = [
               name="message"
               required
               [(ngModel)]="message"
-              placeholder="Tell me what happened, or what you wish VitaNova did…"
+              placeholder="Tell us what happened, or what you wish VitaNova did…"
             ></textarea>
           </label>
 
@@ -486,8 +493,11 @@ const STEPS: Step[] = [
       </section>
 
       <!-- ========================================================== cta -->
+      <!-- The one full-bleed ink band on the page: the last word, set the way a
+           colophon is, on the darkest stock available. -->
       <section class="cta">
         <div class="cta-inner">
+          <span class="cta-eyebrow">Ready when you are</span>
           <h2>Ready to write the good version?</h2>
           <p>Create an account, pick a design, and have a PDF before your coffee goes cold.</p>
           <div class="cta-buttons">

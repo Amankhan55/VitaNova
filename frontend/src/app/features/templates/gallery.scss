@@ -2,7 +2,7 @@
   width: 100%;
   max-width: var(--vn-page-max);
   margin: 0 auto;
-  padding: clamp(24px, 4vw, 44px) clamp(16px, 3vw, 28px) 72px;
+  padding: clamp(30px, 4.5vw, 56px) clamp(16px, 3vw, 28px) 96px;
 }
 
 /* -------------------------------------------------------------------- head */
@@ -11,85 +11,112 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 26px;
+  gap: 24px;
+  padding-bottom: 22px;
+  margin-bottom: 34px;
+  border-bottom: 2px solid var(--vn-text);
 }
 
 .page-head h1 {
-  margin: 6px 0 6px;
-  font-size: clamp(26px, 3vw, 34px);
-  letter-spacing: -0.028em;
+  margin: 12px 0 8px;
+  font-size: clamp(34px, 4.4vw, 50px);
+  letter-spacing: -0.03em;
 }
 .page-head p {
-  max-width: 66ch;
+  max-width: var(--vn-measure);
   font-size: 14.5px;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--vn-text-muted);
 }
 
+/* Two settings of the same list, one of which is current — marked by a rule,
+   like everything else in this system that is current. */
 .filters {
   display: flex;
   flex: none;
-  gap: 3px;
-  padding: 3px;
-  background: var(--vn-surface-2);
-  border: 1px solid var(--vn-border);
-  border-radius: 999px;
+  gap: 22px;
+  padding-bottom: 4px;
 }
 .filters button {
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--vn-text-muted);
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 4px 0;
+  font-family: var(--vn-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vn-text-subtle);
   background: transparent;
   border: 0;
-  border-radius: 999px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: color 0.15s var(--vn-ease);
+}
+.filters button::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -4px;
+  height: 2px;
+  background: var(--vn-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.18s var(--vn-ease);
 }
 .filters button:hover { color: var(--vn-text); }
-.filters button.is-active {
-  color: var(--vn-text);
-  background: var(--vn-surface);
-  box-shadow: var(--vn-shadow-sm);
+.filters button.is-active { color: var(--vn-text); }
+.filters button.is-active::after { transform: scaleX(1); }
+
+.filters .vn-mono {
+  font-size: 11px;
+  color: var(--vn-text-subtle);
 }
+.filters button.is-active .vn-mono { color: var(--vn-accent-text); }
 
 .notice {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   padding: 13px 15px;
   font-size: 14px;
   color: var(--vn-danger-text);
   background: var(--vn-danger-soft);
-  border-color: var(--vn-danger-line);
+  border: 1px solid var(--vn-danger-line);
+  border-left: 3px solid var(--vn-danger);
+  border-radius: var(--vn-radius-xs);
 }
 
-/* ------------------------------------------------------------------- cards */
+/* ============================================================== the plates */
 
-.grid {
+.plates {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(266px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
+  column-gap: 32px;
+  row-gap: 52px;
 }
 
-.card {
+.plate {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  transition:
-    box-shadow 0.2s var(--vn-ease),
-    border-color 0.2s var(--vn-ease),
-    transform 0.2s var(--vn-ease);
-}
-.card:hover {
-  border-color: var(--vn-border-strong);
-  box-shadow: var(--vn-shadow-lg);
-  transform: translateY(-3px);
+  min-width: 0;
 }
 
-/* A4 aspect ratio so the card shows one whole page.
+/* The mount is the gutter the sheet would be printed against, so a design's
+   own margins are visible as margins rather than as the edge of a card. Its
+   colour comes from the --vn-paper-* family and never inverts. */
+.plate-mount {
+  padding: 14px 14px 0;
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-xs) var(--vn-radius-xs) 0 0;
+  border-bottom: 0;
+  transition: box-shadow 0.22s var(--vn-ease);
+}
+
+.plate:hover .plate-mount { box-shadow: var(--vn-shadow); }
+
+/* A4 aspect ratio so the plate shows one whole page.
    No max-height here: combined with aspect-ratio it sized the box from the
    height cap instead of the column, leaving it narrower than the scaled iframe
    and clipping the right edge of every design. The scale itself is measured at
@@ -101,39 +128,56 @@
   width: 100%;
   aspect-ratio: 794 / 1123;
   overflow: hidden;
-  border-bottom: 1px solid var(--vn-border);
+  /* The sheet's own edge, in the paper's ink rather than the theme's — this
+     line belongs to the printed page, not to the application. */
+  box-shadow: 0 0 0 1px var(--vn-paper-edge);
+  transition: transform 0.22s var(--vn-ease);
 }
 
-.card-body {
+.plate:hover .thumb { transform: translateY(-4px); }
+
+/* ----------------------------------------------------------------- caption */
+
+.plate-caption {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 16px 17px 17px;
+  gap: 11px;
+  flex: 1;
+  padding: 15px 15px 17px;
+  border: 1px solid var(--vn-border-strong);
+  border-top: 0;
+  border-radius: 0 0 var(--vn-radius-xs) var(--vn-radius-xs);
 }
 
-.card-head {
+.caption-head {
   display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.card-head h2 {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-right: auto;
-  font-size: 17.5px;
-  letter-spacing: -0.018em;
+  align-items: baseline;
+  gap: 10px;
 }
 
-.swatch {
-  width: 11px;
-  height: 11px;
+.plate-no {
   flex: none;
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px var(--vn-surface-2);
+  font-size: 11px;
+  color: var(--vn-text-subtle);
 }
 
-.card-desc {
+.caption-head h2 {
+  flex: 1;
+  min-width: 0;
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -0.022em;
+}
+
+/* The design's accent, as a square mark aligned to the baseline of its name. */
+.swatch {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 1px;
+}
+
+.caption-desc {
   font-size: 13.5px;
   line-height: 1.6;
   color: var(--vn-text-muted);
@@ -146,17 +190,19 @@
 }
 
 .use {
-  margin-top: 4px;
+  margin-top: auto;
+  padding-top: 13px;
+  padding-bottom: 13px;
   justify-content: center;
-  padding: 10px 16px;
 }
 
 .skeleton {
   aspect-ratio: 794 / 1123;
-  border-radius: var(--vn-radius);
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-xs);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .page-head { flex-direction: column; align-items: stretch; }
   .filters { align-self: flex-start; }
 }

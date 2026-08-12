@@ -6,8 +6,8 @@ const STORAGE_KEY = 'vitanova.theme';
 
 /** Kept in step with the pre-paint script in `index.html`. */
 const META_THEME_COLOUR: Record<'light' | 'dark', string> = {
-  light: '#f4f7fa',
-  dark: '#070b13',
+  light: '#faf7f1',
+  dark: '#14120e',
 };
 
 /**

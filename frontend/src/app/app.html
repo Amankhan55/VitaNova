@@ -1,26 +1,26 @@
 @if (showHeader()) {
-  <header class="shell-header">
+  <header class="masthead">
     <a class="brand" routerLink="/dashboard" aria-label="VitaNova home">
-      <vn-logo [size]="26" />
+      <vn-logo [size]="28" />
       <span class="brand-name">Vita<strong>Nova</strong></span>
     </a>
 
-    <nav class="shell-nav" aria-label="Main">
+    <nav class="masthead-nav" aria-label="Main">
       <a routerLink="/dashboard" routerLinkActive="is-active">
-        <vn-icon name="file" [size]="16" />
+        <vn-icon name="file" [size]="15" />
         <span>Resumes</span>
       </a>
       <a routerLink="/templates" routerLinkActive="is-active">
-        <vn-icon name="layers" [size]="16" />
+        <vn-icon name="layers" [size]="15" />
         <span>Designs</span>
       </a>
       <a routerLink="/" class="nav-home">
-        <vn-icon name="globe" [size]="16" />
+        <vn-icon name="globe" [size]="15" />
         <span>Home</span>
       </a>
     </nav>
 
-    <div class="shell-actions">
+    <div class="masthead-actions">
       <vn-theme-toggle [compact]="true" />
 
       <div class="user-menu">
@@ -33,21 +33,21 @@
           (click)="toggleMenu($event)"
         >
           <span class="avatar">{{ initials() }}</span>
-          <vn-icon [name]="menuOpen() ? 'chevron-up' : 'chevron-down'" [size]="14" />
+          <vn-icon [name]="menuOpen() ? 'chevron-up' : 'chevron-down'" [size]="13" />
         </button>
 
         @if (menuOpen()) {
-          <div class="menu vn-card" role="menu">
+          <div class="menu" role="menu">
             <div class="menu-head">
               <span class="menu-name">{{ user()?.full_name || 'Your account' }}</span>
               <span class="menu-email">{{ user()?.email }}</span>
             </div>
             <a class="menu-item" routerLink="/templates" role="menuitem">
-              <vn-icon name="sparkle" [size]="16" />
+              <vn-icon name="sparkle" [size]="15" />
               Start a new resume
             </a>
             <button class="menu-item" type="button" role="menuitem" (click)="signOut()">
-              <vn-icon name="logout" [size]="16" />
+              <vn-icon name="logout" [size]="15" />
               Sign out
             </button>
           </div>
@@ -63,4 +63,3 @@
 
 <!-- Mounted once, outside the header, so every route can ask a question. -->
 <vn-confirm-dialog />
-

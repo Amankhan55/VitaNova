@@ -8,13 +8,15 @@
 
 /* ---------------------------------------------------------------- toolbar */
 
+/* The job ticket: what is being set, whether it is committed, and the one
+   button that pulls a proof. */
 .toolbar {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
   background: var(--vn-surface);
-  border-bottom: 1px solid var(--vn-border);
+  border-bottom: 1px solid var(--vn-border-strong);
   flex: none;
 }
 
@@ -23,19 +25,20 @@
 .title-input {
   flex: 1;
   min-width: 0;
-  max-width: 420px;
-  padding: 7px 10px;
+  max-width: 440px;
+  padding: 6px 10px;
   font: inherit;
-  font-size: 15.5px;
-  font-weight: 650;
-  letter-spacing: -0.015em;
+  font-family: var(--vn-font-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.022em;
   color: var(--vn-text);
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--vn-radius-xs);
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
-.title-input:hover { border-color: var(--vn-border); }
+.title-input:hover { border-color: var(--vn-border-strong); }
 .title-input:focus {
   outline: none;
   background: var(--vn-surface);
@@ -45,13 +48,18 @@
 
 .design-chip { flex: none; }
 
+/* Set in the mono face: this is a machine reporting, not the product talking. */
 .status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   margin-left: auto;
-  font-size: 12.5px;
-  font-weight: 600;
+  padding-right: 4px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--vn-text-subtle);
 }
 .status--saved { color: var(--vn-accent-text); }
@@ -61,7 +69,7 @@
 
 .split {
   display: grid;
-  grid-template-columns: minmax(348px, 31%) 1fr;
+  grid-template-columns: minmax(360px, 32%) 1fr;
   flex: 1;
   min-height: 0;
 }
@@ -71,14 +79,13 @@
   flex-direction: column;
   min-height: 0;
   background: var(--vn-surface);
-  border-right: 1px solid var(--vn-border);
+  border-right: 1px solid var(--vn-border-strong);
 }
 
 .tabs {
   display: flex;
   flex: none;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--vn-border);
+  border-bottom: 1px solid var(--vn-border-strong);
 }
 .tabs button {
   display: inline-flex;
@@ -86,19 +93,24 @@
   justify-content: center;
   gap: 8px;
   flex: 1;
-  padding: 12px 8px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--vn-text-muted);
+  padding: 13px 8px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vn-text-subtle);
   background: none;
   border: 0;
   border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
-.tabs button:hover { color: var(--vn-text); }
+.tabs button + button { border-left: 1px solid var(--vn-border); }
+.tabs button:hover { color: var(--vn-text); background: var(--vn-surface-2); }
 .tabs button.is-active {
-  color: var(--vn-accent-text);
+  color: var(--vn-text);
   border-bottom-color: var(--vn-accent);
 }
 
@@ -106,23 +118,30 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 18px 16px 72px;
+  padding: 20px 16px 80px;
   scrollbar-gutter: stable;
 }
 
+/* A section break: the label, then a rule running out to the margin. */
 .panel-title {
-  margin-bottom: 12px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--vn-text-subtle);
 }
-.panel-title.spaced {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid var(--vn-border);
+.panel-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--vn-border);
 }
+.panel-title.spaced { margin-top: 34px; }
 
 /* ---------------------------------------------------------------- preview */
 
@@ -151,8 +170,11 @@
   display: grid;
   place-items: center;
   height: 100%;
+  font-family: var(--vn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--vn-paper-ink-muted);
-  font-size: 14px;
 }
 
 /* Sits on the paper, so it uses paper ink rather than themed text colours. */
@@ -163,13 +185,16 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  font-size: 11.5px;
-  font-weight: 600;
+  padding: 4px 9px;
+  font-family: var(--vn-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--vn-paper-ink-muted);
   background: var(--vn-paper);
   border: 1px solid var(--vn-paper-edge);
-  border-radius: 999px;
+  border-radius: var(--vn-radius-xs);
   box-shadow: 0 2px 6px rgb(15 23 42 / 10%);
   pointer-events: none;
 }
@@ -186,7 +211,13 @@
 @media (max-width: 940px) {
   .editor { height: auto; }
   .split { grid-template-columns: 1fr; }
-  .panel { border-right: 0; border-bottom: 1px solid var(--vn-border); }
+  .panel { border-right: 0; border-bottom: 1px solid var(--vn-border-strong); }
   .panel-body { max-height: 60vh; }
   .preview { height: 80vh; }
+}
+
+@media (max-width: 620px) {
+  .toolbar { flex-wrap: wrap; }
+  .design-chip { display: none; }
+  .title-input { max-width: none; }
 }

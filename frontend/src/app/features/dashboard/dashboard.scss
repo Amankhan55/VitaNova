@@ -2,7 +2,7 @@
   width: 100%;
   max-width: var(--vn-page-max);
   margin: 0 auto;
-  padding: clamp(24px, 4vw, 44px) clamp(16px, 3vw, 28px) 72px;
+  padding: clamp(30px, 4.5vw, 56px) clamp(16px, 3vw, 28px) 96px;
 }
 
 /* -------------------------------------------------------------------- head */
@@ -11,21 +11,29 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 28px;
+  gap: 24px;
+  padding-bottom: 22px;
+  margin-bottom: 34px;
+  /* The masthead rule of the page itself: heavy, and the only heavy rule here. */
+  border-bottom: 2px solid var(--vn-text);
 }
 
 .page-title h1 {
-  margin: 6px 0 4px;
-  font-size: clamp(26px, 3vw, 34px);
-  letter-spacing: -0.028em;
+  margin: 12px 0 6px;
+  font-size: clamp(34px, 4.4vw, 50px);
+  letter-spacing: -0.03em;
 }
-.page-title p { font-size: 14.5px; }
+
+.page-lead {
+  font-size: 14.5px;
+  color: var(--vn-text-muted);
+}
 
 .page-tools {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding-bottom: 4px;
 }
 
 .search {
@@ -33,7 +41,7 @@
   align-items: center;
   gap: 8px;
   padding: 0 12px;
-  height: 38px;
+  height: 36px;
   color: var(--vn-text-subtle);
   background: var(--vn-surface);
   border: 1px solid var(--vn-border-strong);
@@ -45,7 +53,7 @@
   box-shadow: 0 0 0 3px var(--vn-accent-ring);
 }
 .search input {
-  width: 210px;
+  width: 200px;
   font: inherit;
   font-size: 14px;
   color: var(--vn-text);
@@ -58,9 +66,12 @@
 /* ---------------------------------------------------------- import progress */
 
 .import-progress {
-  margin-bottom: 20px;
-  padding: 15px 18px 16px;
-  border-color: var(--vn-accent-line);
+  margin-bottom: 26px;
+  padding: 16px 18px 17px;
+  background: var(--vn-surface);
+  border: 1px solid var(--vn-border-strong);
+  border-left: 3px solid var(--vn-accent);
+  border-radius: var(--vn-radius-xs);
   animation: import-in 0.25s var(--vn-ease);
 }
 
@@ -72,8 +83,8 @@
 .import-progress-head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 11px;
+  gap: 11px;
+  margin-bottom: 13px;
 }
 
 .import-spinner {
@@ -84,13 +95,15 @@
   flex: none;
   color: var(--vn-accent-text);
   background: var(--vn-accent-soft);
-  border-radius: 50%;
+  border: 1px solid var(--vn-accent-line);
+  border-radius: var(--vn-radius-xs);
   animation: import-pulse 1.6s ease-in-out infinite;
 }
 .import-spinner.is-done {
   animation: none;
   color: var(--vn-on-accent);
   background: var(--vn-accent);
+  border-color: var(--vn-accent);
 }
 
 @keyframes import-pulse {
@@ -110,28 +123,28 @@
 
 .import-percent {
   flex: none;
-  font-size: 19px;
-  font-weight: 650;
+  font-family: var(--vn-font-mono);
+  font-size: 18px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums; /* stops the width jittering as digits change */
   letter-spacing: -0.02em;
   color: var(--vn-accent-text);
 }
-.import-percent small { font-size: 12px; font-weight: 600; margin-left: 1px; }
+.import-percent small { font-size: 11px; margin-left: 1px; }
 
 .import-track {
   position: relative;
-  height: 7px;
+  height: 6px;
   overflow: hidden;
   background: var(--vn-surface-3);
-  border-radius: 999px;
+  border-radius: 1px;
 }
 
 .import-fill {
   position: relative; /* so the sheen below is clipped to the fill, not the track */
   overflow: hidden;
   height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--vn-accent), var(--vn-accent-hover));
+  background: var(--vn-accent);
   /* Matches the ~120ms tick so the bar glides between samples instead of
      stepping. Slightly longer than the tick to keep motion continuous. */
   transition: width 0.18s linear;
@@ -158,7 +171,7 @@
 }
 
 .import-note {
-  margin-top: 9px;
+  margin-top: 10px;
   font-size: 12.5px;
   color: var(--vn-text-muted);
 }
@@ -175,11 +188,13 @@
   display: flex;
   align-items: flex-start;
   gap: 11px;
-  margin-bottom: 20px;
+  margin-bottom: 26px;
   padding: 13px 12px 13px 15px;
   color: var(--vn-danger-text);
   background: var(--vn-danger-soft);
-  border-color: var(--vn-danger-line);
+  border: 1px solid var(--vn-danger-line);
+  border-left: 3px solid var(--vn-danger);
+  border-radius: var(--vn-radius-xs);
 }
 
 .import-error p {
@@ -192,108 +207,178 @@
 .import-error-icon {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   flex: none;
   background: var(--vn-danger-line);
-  border-radius: 50%;
+  border-radius: var(--vn-radius-xs);
 }
 
 .import-error .vn-btn { flex: none; color: var(--vn-danger-text); }
 
-/* ------------------------------------------------------------------- cards */
+/* ======================================================================
+   The index
+   ----------------------------------------------------------------------
+   One grid, shared by the column headings and every row, so a title in
+   row nine sits under the word "Title" and every date lines up. Actions
+   live in their own full-width cell on the second grid line, which keeps
+   them out of the way of the reading column until the row is hovered.
+   ====================================================================== */
 
-.grid {
+.index-head,
+.index-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 18px;
+  /* The last column is the actions', reserved at every row whether or not the
+     row is hovered — revealing them by opacity rather than by insertion means
+     the list never reflows under the pointer. */
+  grid-template-columns: 34px minmax(0, 1fr) 150px 104px minmax(0, auto);
+  align-items: baseline;
+  column-gap: 20px;
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition:
-    box-shadow 0.2s var(--vn-ease),
-    border-color 0.2s var(--vn-ease),
-    transform 0.2s var(--vn-ease);
-}
-.card:hover {
-  border-color: var(--vn-border-strong);
-  box-shadow: var(--vn-shadow);
-  transform: translateY(-2px);
+.index-head {
+  padding-bottom: 9px;
+  font-family: var(--vn-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vn-text-subtle);
+  border-bottom: 1px solid var(--vn-border-strong);
 }
 
-.card-body {
-  display: block;
+.index {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.index-row {
   position: relative;
-  flex: 1;
-  padding: 20px 18px 16px;
+  padding: 15px 0 16px;
+  border-bottom: 1px solid var(--vn-border);
+  transition: background 0.15s var(--vn-ease);
+}
+
+/* The tint bleeds a little past the text column so the row reads as one
+   object without needing a box drawn around it. */
+.index-row:hover {
+  background: var(--vn-hover);
+  box-shadow: -12px 0 0 var(--vn-hover), 12px 0 0 var(--vn-hover);
+}
+
+.row-number {
+  font-size: 12px;
+  color: var(--vn-text-subtle);
+  transition: color 0.15s var(--vn-ease);
+}
+.index-row:hover .row-number { color: var(--vn-accent-text); }
+
+.row-main {
+  min-width: 0;
   color: inherit;
   text-decoration: none;
 }
-.card-body:hover { text-decoration: none; }
+.row-main:hover { text-decoration: none; }
 
-/* The design's own accent, as a hairline along the top edge of the card. */
-.card-swatch {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 3px;
+.row-main h2 {
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  overflow-wrap: anywhere;
+}
+.row-main:hover h2 { color: var(--vn-accent-text); }
+
+.row-person {
+  margin-top: 3px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--vn-text-muted);
 }
 
-.card-body h2 {
-  margin: 11px 0 4px;
-  font-size: 17.5px;
-  letter-spacing: -0.018em;
-}
-
-.card-person {
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.card-date {
+.row-design {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  font-size: 12.5px;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--vn-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The design's own accent, kept as a small solid mark rather than tinting the
+   whole row — nine of these across a list would be noise. */
+.row-swatch {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
+}
+
+.row-date {
+  font-size: 12px;
   color: var(--vn-text-subtle);
+  white-space: nowrap;
 }
 
-.card-actions {
+/* Actions sit on the row's own line, at its right edge. They fade in on hover
+   but keep their space in the layout at all times, so nothing reflows and they
+   stay reachable by keyboard. */
+.row-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  align-self: center;
   gap: 6px;
-  padding: 11px 12px;
-  border-top: 1px solid var(--vn-border);
-  background: var(--vn-surface-2);
+  opacity: 0;
+  transition: opacity 0.15s var(--vn-ease);
 }
-.card-actions > :nth-last-child(2) { margin-left: auto; }
+.index-row:hover .row-actions,
+.index-row:focus-within .row-actions { opacity: 1; }
+
+/* Touch has no hover, so there is nothing to reveal — show them always. */
+@media (hover: none) {
+  .row-actions { opacity: 1; }
+}
+
+.index-row.is-skeleton {
+  display: block;
+  padding: 22px 0;
+}
+.skeleton-line {
+  display: block;
+  height: 13px;
+  border-radius: 1px;
+}
+.skeleton-line + .skeleton-line { margin-top: 10px; }
 
 /* ------------------------------------------------------------------- empty */
 
 .empty {
   display: grid;
   justify-items: center;
-  gap: 10px;
-  padding: clamp(48px, 8vw, 76px) 24px;
+  gap: 12px;
+  padding: clamp(56px, 9vw, 96px) 24px;
   text-align: center;
+  border: 1px dashed var(--vn-border-strong);
+  border-radius: var(--vn-radius);
 }
-.empty h2 { font-size: 19px; }
-.empty p { max-width: 44ch; font-size: 14.5px; }
-.empty > :last-child { margin-top: 12px; }
+.empty h2 { font-size: 25px; }
+.empty p { max-width: 46ch; font-size: 14.5px; color: var(--vn-text-muted); }
+.empty > :last-child { margin-top: 14px; }
 
 .empty-icon {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   margin-bottom: 4px;
   color: var(--vn-accent-text);
   background: var(--vn-accent-soft);
   border: 1px solid var(--vn-accent-line);
-  border-radius: 50%;
+  border-radius: var(--vn-radius-xs);
 }
 .empty-icon.is-danger {
   color: var(--vn-danger-text);
@@ -301,14 +386,44 @@
   border-color: var(--vn-danger-line);
 }
 
-.skeleton {
-  height: 186px;
-  border: 0;
+/* ------------------------------------------------------------- narrow view */
+
+@media (max-width: 1000px) {
+  /* Design and date lose their columns and stack under the title, which is the
+     only part worth keeping in a column of its own. Actions drop to a line of
+     their own and stop hiding — there is room for them once they are alone. */
+  .index-head { display: none; }
+
+  .index-row {
+    grid-template-columns: 30px minmax(0, 1fr);
+    column-gap: 14px;
+  }
+
+  .col-design,
+  .col-date {
+    grid-column: 2;
+    margin-top: 7px;
+  }
+
+  .row-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+    align-self: start;
+    margin-top: 12px;
+    opacity: 1;
+  }
 }
 
-@media (max-width: 620px) {
-  .page-head { flex-direction: column; align-items: stretch; }
+@media (max-width: 700px) {
+  .page-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .page-tools { flex-wrap: wrap; }
-  .search { flex: 1; }
+  /* The search takes the whole first line rather than fighting two buttons for
+     it — squeezed onto their row it collapsed to just its icon. */
+  .search { flex: 1 0 100%; }
   .search input { width: 100%; }
+  .page-tools > .vn-btn,
+  .page-tools > a.vn-btn { flex: 1; }
 }

@@ -1,15 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <defs>
-    <linearGradient id="f-leaf" x1="16" y1="26" x2="32" y2="4" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0D9488"/>
-      <stop offset="1" stop-color="#34D399"/>
-    </linearGradient>
-  </defs>
-  <rect width="48" height="48" rx="11" fill="#0B1220"/>
-  <g transform="translate(24 25) scale(0.78) translate(-24 -25)">
-    <path d="M24 4C32 11 32 19 24 26C16 19 16 11 24 4Z" fill="url(#f-leaf)"/>
-    <path d="M24 8.5V23.5" stroke="#0B1220" stroke-width="1.6" stroke-linecap="round" opacity="0.45"/>
-    <path d="M9 18L24 43L39 18" fill="none" stroke="#FFFFFF" stroke-width="6"
-          stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="48" height="48" rx="4" fill="#191510"/>
+  <g transform="translate(24 24) scale(0.86) translate(-24 -24)">
+    <path d="M14.6 15.4 L24 35.8 L33.4 15.4" fill="none" stroke="#FAF7F1"
+          stroke-width="4.6" stroke-linejoin="miter"/>
+    <rect x="9.4" y="12.8" width="10.4" height="2.9" fill="#FAF7F1"/>
+    <rect x="28.2" y="12.8" width="10.4" height="2.9" fill="#FAF7F1"/>
+    <rect x="9.4" y="39.6" width="29.2" height="3" fill="#E0785C"/>
   </g>
 </svg>

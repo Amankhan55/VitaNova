@@ -1,6 +1,13 @@
 /* ==========================================================================
    VitaNova — global styles and design tokens
    --------------------------------------------------------------------------
+   The system is "editorial press": the application chrome is set like printed
+   matter, because printed matter is what it makes. Warm bone paper and ink in
+   the light theme, warm ink and bone in the dark one. Structure comes from
+   hairline rules and typographic hierarchy rather than from stacked cards and
+   shadows, and there is exactly one spot colour — a press red — reserved for
+   things the reader is meant to act on.
+
    Two themes live here, selected by `data-theme` on <html> (set before first
    paint by the inline script in index.html, then owned by ThemeService).
 
@@ -20,119 +27,151 @@
   --vn-paper-ink-muted: #5b6675;
 
   /* --- geometry --------------------------------------------------------- */
-  --vn-radius-xs: 6px;
-  --vn-radius-sm: 9px;
-  --vn-radius: 13px;
-  --vn-radius-lg: 20px;
-  --vn-radius-xl: 28px;
+  /* Press geometry: near-square. A radius large enough to notice would read as
+     software, and the whole point is that this reads as print. */
+  --vn-radius-xs: 2px;
+  --vn-radius-sm: 3px;
+  --vn-radius: 4px;
+  --vn-radius-lg: 6px;
+  --vn-radius-xl: 10px;
 
-  --vn-header-height: 62px;
-  --vn-page-max: 1180px;
+  --vn-header-height: 66px;
+  --vn-page-max: 1240px;
+  /* The measure a column of running text is allowed to reach: ~68 characters. */
+  --vn-measure: 66ch;
 
-  /* --- type ------------------------------------------------------------- */
+  /* --- type -------------------------------------------------------------
+     Fraunces sets anything that carries voice; Public Sans does the work of
+     the interface; JetBrains Mono is the compositor's pencil — eyebrows,
+     dates, counts, anything that wants to look measured rather than written. */
   --vn-font:
-    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  --vn-font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-  --vn-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+    'Public Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --vn-font-display:
+    'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --vn-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
 
   --vn-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* --- vertical rhythm --------------------------------------------------- */
+  --vn-gap-xs: 4px;
+  --vn-gap-sm: 8px;
+  --vn-gap: 16px;
+  --vn-gap-lg: 28px;
+  --vn-gap-xl: 48px;
+  --vn-gap-2xl: 80px;
 }
 
 /* -------------------------------------------------------------------------
-   Light theme (also the fallback when no data-theme is set)
+   Light theme — bone stock, ink impression. Also the fallback when no
+   data-theme is set.
    ------------------------------------------------------------------------- */
 
 :root,
 :root[data-theme='light'] {
   color-scheme: light;
 
-  --vn-bg: #f4f7fa;
-  --vn-bg-tint: radial-gradient(1200px 620px at 88% -12%, rgb(13 148 136 / 9%), transparent 60%);
-  --vn-surface: #ffffff;
-  --vn-surface-2: #f2f5f9;
-  --vn-surface-3: #e8edf4;
-  --vn-surface-inset: #f8fafc;
+  --vn-bg: #faf7f1;
+  --vn-surface: #fffdf9;
+  --vn-surface-2: #f4efe5;
+  --vn-surface-3: #ebe4d6;
+  --vn-surface-inset: #f7f3ec;
 
-  --vn-border: #e4eaf1;
-  --vn-border-strong: #cdd7e3;
-  --vn-hover: rgb(15 23 42 / 5%);
+  /* Two weights of rule and nothing in between: a hairline that separates, and
+     a stronger one that encloses. */
+  --vn-border: #e6dfd1;
+  --vn-border-strong: #cdc3b0;
+  --vn-hover: rgb(26 23 18 / 5%);
 
-  --vn-text: #0c1424;
-  --vn-text-muted: #57687f;
-  --vn-text-subtle: #8695a9;
+  --vn-text: #191510;
+  --vn-text-muted: #5d5548;
+  --vn-text-subtle: #8b8171;
 
-  --vn-accent: #0d9488;
-  --vn-accent-hover: #0f766e;
-  --vn-accent-text: #0f766e;
-  --vn-accent-soft: #e7f7f4;
-  --vn-accent-line: #99e6da;
-  --vn-on-accent: #ffffff;
-  --vn-accent-ring: rgb(13 148 136 / 22%);
+  /* Press red: the single spot ink. 5.6:1 on bone, so it is safe as text. */
+  --vn-accent: #a83b21;
+  --vn-accent-hover: #8c2f19;
+  --vn-accent-text: #97331c;
+  --vn-accent-soft: #f7ece6;
+  --vn-accent-line: #e2c2b4;
+  --vn-on-accent: #fffdf9;
+  --vn-accent-ring: rgb(168 59 33 / 26%);
 
-  --vn-amber: #b45309;
-  --vn-amber-soft: #fef4e6;
+  /* Ink is what a primary button is made of — the heaviest impression on the
+     sheet. The spot colour stays reserved for emphasis, never bulk fill. */
+  --vn-ink: #191510;
+  --vn-ink-hover: #322a1f;
+  --vn-on-ink: #faf7f1;
 
-  --vn-danger: #dc2626;
-  --vn-danger-text: #b91c1c;
-  --vn-danger-soft: #fef2f2;
-  --vn-danger-line: #fecaca;
-  --vn-on-danger: #ffffff;
+  --vn-amber: #8a5a10;
+  --vn-amber-soft: #f8f0dd;
 
-  --vn-ink: #0b1220;
-  --vn-on-ink: #e9eff7;
+  --vn-danger: #b3261e;
+  --vn-danger-text: #9c2019;
+  --vn-danger-soft: #fbeceb;
+  --vn-danger-line: #eec5c2;
+  --vn-on-danger: #fffdf9;
 
-  --vn-shadow-sm: 0 1px 2px rgb(15 23 42 / 6%), 0 1px 3px rgb(15 23 42 / 7%);
-  --vn-shadow: 0 2px 6px -2px rgb(15 23 42 / 8%), 0 14px 28px -12px rgb(15 23 42 / 16%);
-  --vn-shadow-lg: 0 8px 18px -8px rgb(15 23 42 / 14%), 0 34px 64px -20px rgb(15 23 42 / 24%);
+  /* Warm-tinted and shallow. Paper does not float; it rests. */
+  --vn-shadow-sm: 0 1px 1px rgb(48 38 24 / 5%);
+  --vn-shadow: 0 1px 2px rgb(48 38 24 / 6%), 0 10px 22px -14px rgb(48 38 24 / 24%);
+  --vn-shadow-lg: 0 2px 4px rgb(48 38 24 / 7%), 0 26px 50px -22px rgb(48 38 24 / 30%);
+
+  /* Very fine tooth on the canvas, so a large empty area still reads as stock
+     rather than as an unpainted div. */
+  --vn-grain-opacity: 0.5;
 }
 
 /* -------------------------------------------------------------------------
-   Dark theme
+   Dark theme — the same press run pulled on black stock.
    ------------------------------------------------------------------------- */
 
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --vn-bg: #070b13;
-  --vn-bg-tint: radial-gradient(1200px 620px at 88% -12%, rgb(45 212 191 / 11%), transparent 60%);
-  --vn-surface: #0e1521;
-  --vn-surface-2: #141d2c;
-  --vn-surface-3: #1c2636;
-  --vn-surface-inset: #0a111b;
+  --vn-bg: #14120e;
+  --vn-surface: #1c1915;
+  --vn-surface-2: #24201a;
+  --vn-surface-3: #2e2921;
+  --vn-surface-inset: #100e0b;
 
-  --vn-border: #1e2938;
-  --vn-border-strong: #33445c;
-  --vn-hover: rgb(255 255 255 / 6%);
+  --vn-border: #2f2a22;
+  --vn-border-strong: #4a4235;
+  --vn-hover: rgb(250 247 241 / 7%);
 
-  --vn-text: #e7eef8;
-  --vn-text-muted: #94a5bd;
-  --vn-text-subtle: #67798f;
+  --vn-text: #f2ede3;
+  --vn-text-muted: #a89f8e;
+  --vn-text-subtle: #7d7466;
 
-  --vn-accent: #2dd4bf;
-  --vn-accent-hover: #5eead4;
-  --vn-accent-text: #5eead4;
-  --vn-accent-soft: rgb(45 212 191 / 13%);
-  --vn-accent-line: rgb(45 212 191 / 38%);
-  --vn-on-accent: #04231f;
-  --vn-accent-ring: rgb(45 212 191 / 26%);
+  /* The same ink, opened up to survive on a dark ground: #e0785c reads 6.1:1
+     against --vn-bg, where the light theme's #a83b21 would be 2.4:1. */
+  --vn-accent: #e0785c;
+  --vn-accent-hover: #eb9075;
+  --vn-accent-text: #eb9075;
+  --vn-accent-soft: rgb(224 120 92 / 14%);
+  --vn-accent-line: rgb(224 120 92 / 36%);
+  /* --vn-accent is a *light* red here, so text sitting on it must be dark:
+     bone on #e0785c is about 2.6:1, which fails at any size. */
+  --vn-on-accent: #26100a;
+  --vn-accent-ring: rgb(224 120 92 / 30%);
 
-  --vn-amber: #fbbf24;
-  --vn-amber-soft: rgb(251 191 36 / 13%);
+  /* Inverted with the stock: the heaviest impression on black paper is bone. */
+  --vn-ink: #f2ede3;
+  --vn-ink-hover: #ffffff;
+  --vn-on-ink: #14120e;
 
-  --vn-danger: #f87171;
-  --vn-danger-text: #fca5a5;
-  --vn-danger-soft: rgb(248 113 113 / 12%);
-  --vn-danger-line: rgb(248 113 113 / 34%);
-  /* --vn-danger is a *light* red here, so text sitting on it must be dark:
-     white on #f87171 is about 2.4:1, which fails at any size. */
-  --vn-on-danger: #2c0707;
+  --vn-amber: #e8b45e;
+  --vn-amber-soft: rgb(232 180 94 / 14%);
 
-  --vn-ink: #060a12;
-  --vn-on-ink: #e7eef8;
+  --vn-danger: #e26a62;
+  --vn-danger-text: #ef8d86;
+  --vn-danger-soft: rgb(226 106 98 / 13%);
+  --vn-danger-line: rgb(226 106 98 / 34%);
+  --vn-on-danger: #2a0806;
 
-  --vn-shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
-  --vn-shadow: 0 2px 8px -2px rgb(0 0 0 / 50%), 0 16px 32px -14px rgb(0 0 0 / 65%);
-  --vn-shadow-lg: 0 10px 24px -10px rgb(0 0 0 / 60%), 0 40px 70px -24px rgb(0 0 0 / 80%);
+  --vn-shadow-sm: 0 1px 2px rgb(0 0 0 / 45%);
+  --vn-shadow: 0 1px 3px rgb(0 0 0 / 50%), 0 14px 30px -16px rgb(0 0 0 / 70%);
+  --vn-shadow-lg: 0 4px 8px rgb(0 0 0 / 55%), 0 34px 62px -26px rgb(0 0 0 / 85%);
+
+  --vn-grain-opacity: 0.85;
 }
 
 /* Theme swap is animated only for the ~240ms the toggle marks it, so ordinary
@@ -167,22 +206,49 @@ body {
   margin: 0;
   font-family: var(--vn-font);
   font-size: 15px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--vn-text);
   background-color: var(--vn-bg);
-  background-image: var(--vn-bg-tint);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: proportional-nums;
 }
+
+/* The tooth of the stock. A single inlined turbulence tile, fixed to the
+   viewport so it never scrolls with content and never repaints during scroll.
+   Pointer events off — it is a finish, not a surface. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--vn-grain-opacity);
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+:root[data-theme='dark'] body::before { mix-blend-mode: screen; }
+
+/* Everything the app renders sits above the finish. */
+app-root { position: relative; z-index: 1; }
 
 h1, h2, h3, h4, h5 {
   margin: 0;
-  line-height: 1.2;
-  font-weight: 650;
-  letter-spacing: -0.018em;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   text-wrap: balance;
+}
+
+/* Anything with a voice is set in the display face. Fraunces' optical size
+   axis is driven from the font-size, so large headings tighten and small ones
+   open up without a second declaration. */
+h1, h2 {
+  font-family: var(--vn-font-display);
+  font-weight: 500;
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
 }
 
 p { margin: 0; }
@@ -190,6 +256,8 @@ p { margin: 0; }
 a {
   color: var(--vn-accent-text);
   text-decoration: none;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: from-font;
 }
 a:hover { text-decoration: underline; }
 
@@ -206,7 +274,7 @@ img, svg { display: block; max-width: 100%; }
 :focus-visible {
   outline: 2px solid var(--vn-accent);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 /* ==========================================================================
@@ -215,16 +283,20 @@ img, svg { display: block; max-width: 100%; }
 
 .vn-field {
   display: block;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
+/* Field labels are set like a compositor's marks: mono, small, tracked. They
+   never compete with the value the reader typed. */
 .vn-label {
   display: block;
-  margin-bottom: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.015em;
-  color: var(--vn-text-muted);
+  margin-bottom: 6px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vn-text-subtle);
 }
 
 .vn-input,
@@ -232,9 +304,9 @@ img, svg { display: block; max-width: 100%; }
 .vn-select {
   display: block;
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 12px;
   font: inherit;
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--vn-text);
   background: var(--vn-surface);
   border: 1px solid var(--vn-border-strong);
@@ -265,9 +337,9 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .vn-textarea {
-  min-height: 80px;
+  min-height: 84px;
   resize: vertical;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .vn-input::placeholder,
@@ -275,19 +347,23 @@ img, svg { display: block; max-width: 100%; }
 
 .vn-hint {
   display: block;
-  margin-top: 5px;
-  font-size: 12px;
+  margin-top: 6px;
+  font-size: 12.5px;
   color: var(--vn-text-subtle);
 }
 
 .vn-error {
-  margin-top: 5px;
+  margin-top: 6px;
   font-size: 12.5px;
   color: var(--vn-danger-text);
 }
 
 /* ==========================================================================
    Buttons
+   --------------------------------------------------------------------------
+   The default is a ruled outline. `--primary` is solid ink, which is the
+   heaviest thing on any screen and therefore appears at most once per view.
+   The spot colour is spent on `--soft` and on links, not on bulk fill.
    ========================================================================== */
 
 .vn-btn {
@@ -298,7 +374,7 @@ img, svg { display: block; max-width: 100%; }
   padding: 9px 16px;
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.003em;
   color: var(--vn-text);
   background: var(--vn-surface);
   border: 1px solid var(--vn-border-strong);
@@ -320,29 +396,28 @@ img, svg { display: block; max-width: 100%; }
   text-decoration: none;
 }
 .vn-btn:active:not(:disabled) { transform: translateY(1px); }
-.vn-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.vn-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .vn-btn--primary {
-  color: var(--vn-on-accent);
-  background: var(--vn-accent);
-  border-color: var(--vn-accent);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
+  color: var(--vn-on-ink);
+  background: var(--vn-ink);
+  border-color: var(--vn-ink);
 }
 .vn-btn--primary:hover:not(:disabled) {
-  color: var(--vn-on-accent);
-  background: var(--vn-accent-hover);
-  border-color: var(--vn-accent-hover);
+  color: var(--vn-on-ink);
+  background: var(--vn-ink-hover);
+  border-color: var(--vn-ink-hover);
 }
 
 .vn-btn--soft {
   color: var(--vn-accent-text);
   background: var(--vn-accent-soft);
-  border-color: transparent;
+  border-color: var(--vn-accent-line);
 }
 .vn-btn--soft:hover:not(:disabled) {
-  color: var(--vn-accent-text);
-  background: var(--vn-accent-soft);
-  border-color: var(--vn-accent-line);
+  color: var(--vn-on-accent);
+  background: var(--vn-accent);
+  border-color: var(--vn-accent);
 }
 
 .vn-btn--ghost {
@@ -363,34 +438,50 @@ img, svg { display: block; max-width: 100%; }
   color: var(--vn-danger-text);
 }
 
-.vn-btn--lg { padding: 12px 22px; font-size: 15px; border-radius: var(--vn-radius-sm); }
+.vn-btn--lg { padding: 12px 22px; font-size: 15px; }
 .vn-btn--sm { padding: 6px 11px; font-size: 13px; }
 .vn-btn--icon { padding: 7px; }
 .vn-btn--block { width: 100%; }
 
 /* ==========================================================================
-   Cards, chips, utilities
+   Surfaces, rules, chips, utilities
    ========================================================================== */
 
+/* A card here is a sheet with a rule around it, not a floating panel. Depth is
+   added deliberately by the component that needs it, never by default. */
 .vn-card {
   background: var(--vn-surface);
   border: 1px solid var(--vn-border);
   border-radius: var(--vn-radius);
-  box-shadow: var(--vn-shadow-sm);
 }
+
+/* The horizontal rule that does most of the structural work in this system. */
+.vn-rule {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--vn-border);
+}
+
+/* A rule that carries a label at its left end — the press equivalent of a
+   section break. */
+.vn-rule--heavy { background: var(--vn-text); height: 2px; }
 
 .vn-chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 9px;
-  font-size: 11.5px;
-  font-weight: 600;
-  line-height: 1.5;
+  padding: 3px 8px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.6;
   color: var(--vn-text-muted);
-  background: var(--vn-surface-2);
-  border: 1px solid var(--vn-border);
-  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-xs);
   white-space: nowrap;
 }
 
@@ -400,17 +491,39 @@ img, svg { display: block; max-width: 100%; }
   border-color: var(--vn-accent-line);
 }
 
-/* Small uppercase heading that labels a group without competing with it. */
+/* Small tracked heading that labels a group without competing with it. The
+   short rule in front of it is the tell that this is a press setting. */
 .vn-eyebrow {
-  display: block;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.11em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--vn-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--vn-text-subtle);
+  color: var(--vn-accent-text);
+}
+
+.vn-eyebrow::before {
+  content: '';
+  flex: none;
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* Tabular figures wherever numbers are read as data rather than as prose:
+   dates in a list, counts, percentages, anything that must not jitter. */
+.vn-mono {
+  font-family: var(--vn-font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 .vn-muted { color: var(--vn-text-muted); }
+
+.vn-measure { max-width: var(--vn-measure); }
 
 .vn-sr-only {
   position: absolute;
@@ -426,7 +539,7 @@ img, svg { display: block; max-width: 100%; }
 /* A skeleton block that shimmers while real content loads. */
 .vn-skeleton {
   background:
-    linear-gradient(100deg, var(--vn-surface) 30%, var(--vn-surface-2) 50%, var(--vn-surface) 70%);
+    linear-gradient(100deg, var(--vn-surface-2) 30%, var(--vn-surface-3) 50%, var(--vn-surface-2) 70%);
   background-size: 220% 100%;
   animation: vn-shimmer 1.4s ease-in-out infinite;
 }

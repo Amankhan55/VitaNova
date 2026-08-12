@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -91,7 +91,7 @@ function readImportError(err: HttpErrorResponse): string {
 @Component({
   selector: 'vn-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DatePipe, FormsModule, Icon],
+  imports: [RouterLink, DatePipe, DecimalPipe, FormsModule, Icon],
   styleUrl: './dashboard.scss',
   template: `
     <div class="page">
@@ -99,13 +99,13 @@ function readImportError(err: HttpErrorResponse): string {
         <div class="page-title">
           <span class="vn-eyebrow">{{ greeting() }}</span>
           <h1>Your resumes</h1>
-          <p class="vn-muted">{{ subtitle() }}</p>
+          <p class="page-lead">{{ subtitle() }}</p>
         </div>
 
         <div class="page-tools">
           @if (resumes().length > 2) {
             <label class="search">
-              <vn-icon name="search" [size]="16" />
+              <vn-icon name="search" [size]="15" />
               <input
                 type="search"
                 [(ngModel)]="query"
@@ -116,12 +116,12 @@ function readImportError(err: HttpErrorResponse): string {
             </label>
           }
           <button
-            class="vn-btn vn-btn--ghost"
+            class="vn-btn"
             type="button"
             (click)="fileInput.click()"
             [disabled]="importing()"
           >
-            <vn-icon name="upload" [size]="16" />
+            <vn-icon name="upload" [size]="15" />
             {{ importing() ? 'Importing…' : 'Import PDF' }}
           </button>
           <input
@@ -132,7 +132,7 @@ function readImportError(err: HttpErrorResponse): string {
             (change)="onFileSelected($event)"
           />
           <a class="vn-btn vn-btn--primary" routerLink="/templates">
-            <vn-icon name="plus" [size]="16" />
+            <vn-icon name="plus" [size]="15" />
             New resume
           </a>
         </div>
@@ -179,64 +179,82 @@ function readImportError(err: HttpErrorResponse): string {
       }
 
       @if (loading()) {
-        <div class="grid">
+        <div class="index">
           @for (n of [1, 2, 3]; track n) {
-            <div class="vn-card vn-skeleton skeleton"></div>
+            <div class="index-row is-skeleton">
+              <span class="vn-skeleton skeleton-line" style="width: 34%"></span>
+              <span class="vn-skeleton skeleton-line" style="width: 22%"></span>
+            </div>
           }
         </div>
       } @else if (error()) {
-        <div class="empty vn-card">
-          <span class="empty-icon is-danger"><vn-icon name="x" [size]="22" /></span>
+        <div class="empty">
+          <span class="empty-icon is-danger"><vn-icon name="x" [size]="20" /></span>
           <h2>Could not load your resumes</h2>
-          <p class="vn-muted">{{ error() }}</p>
+          <p>{{ error() }}</p>
           <button class="vn-btn" type="button" (click)="load()">
-            <vn-icon name="refresh" [size]="16" />
+            <vn-icon name="refresh" [size]="15" />
             Try again
           </button>
         </div>
       } @else if (resumes().length === 0) {
-        <div class="empty vn-card">
-          <span class="empty-icon"><vn-icon name="file" [size]="22" /></span>
+        <div class="empty">
+          <span class="empty-icon"><vn-icon name="file" [size]="20" /></span>
           <h2>Nothing written yet</h2>
-          <p class="vn-muted">
+          <p>
             Pick a design and VitaNova sets up the sections for you — summary, experience, education
             and the rest, ready to fill in.
           </p>
           <a class="vn-btn vn-btn--primary" routerLink="/templates">
-            <vn-icon name="sparkle" [size]="16" />
+            <vn-icon name="sparkle" [size]="15" />
             Browse designs
           </a>
         </div>
       } @else if (visible().length === 0) {
-        <div class="empty vn-card">
-          <span class="empty-icon"><vn-icon name="search" [size]="22" /></span>
+        <div class="empty">
+          <span class="empty-icon"><vn-icon name="search" [size]="20" /></span>
           <h2>No match for “{{ search() }}”</h2>
-          <p class="vn-muted">Try a shorter search, or clear it to see everything.</p>
+          <p>Try a shorter search, or clear it to see everything.</p>
           <button class="vn-btn" type="button" (click)="clearSearch()">Clear search</button>
         </div>
       } @else {
-        <div class="grid">
-          @for (resume of visible(); track resume.id) {
-            <article class="vn-card card">
-              <a class="card-body" [routerLink]="['/editor', resume.id]">
-                <span class="card-swatch" [style.background]="accentFor(resume.template_id)"></span>
-                <span class="vn-chip">{{ templateName(resume.template_id) }}</span>
+        <!-- An index, not a card grid: the resumes are entries in a table of
+             contents, ruled apart and numbered, and the whole list stays
+             scannable down a single column of titles. -->
+        <div class="index-head" aria-hidden="true">
+          <span>№</span>
+          <span>Title</span>
+          <span class="col-design">Design</span>
+          <span class="col-date">Edited</span>
+        </div>
+
+        <ol class="index">
+          @for (resume of visible(); track resume.id; let i = $index) {
+            <li class="index-row">
+              <span class="row-number vn-mono">{{ i + 1 | number: '2.0-0' }}</span>
+
+              <a class="row-main" [routerLink]="['/editor', resume.id]">
                 <h2>{{ resume.title }}</h2>
-                <p class="card-person">
+                <p class="row-person">
                   {{ resume.full_name || 'Unnamed' }}
                   @if (resume.headline) {
                     <span class="vn-muted"> — {{ resume.headline }}</span>
                   }
                 </p>
-                <p class="card-date">
-                  <vn-icon name="clock" [size]="13" />
-                  Edited {{ resume.updated_at | date: 'mediumDate' }}
-                </p>
               </a>
 
-              <footer class="card-actions">
+              <span class="row-design col-design">
+                <span class="row-swatch" [style.background]="accentFor(resume.template_id)"></span>
+                {{ templateName(resume.template_id) }}
+              </span>
+
+              <span class="row-date col-date vn-mono">
+                {{ resume.updated_at | date: 'dd MMM yyyy' }}
+              </span>
+
+              <span class="row-actions">
                 <a class="vn-btn vn-btn--sm" [routerLink]="['/editor', resume.id]">
-                  <vn-icon name="edit" [size]="15" />
+                  <vn-icon name="edit" [size]="14" />
                   Edit
                 </a>
                 <button
@@ -245,7 +263,7 @@ function readImportError(err: HttpErrorResponse): string {
                   (click)="download(resume)"
                   [disabled]="busyId() === resume.id"
                 >
-                  <vn-icon name="download" [size]="15" />
+                  <vn-icon name="download" [size]="14" />
                   {{ busyId() === resume.id ? 'Preparing…' : 'PDF' }}
                 </button>
                 <button
@@ -255,7 +273,7 @@ function readImportError(err: HttpErrorResponse): string {
                   aria-label="Duplicate resume"
                   (click)="duplicate(resume)"
                 >
-                  <vn-icon name="copy" [size]="15" />
+                  <vn-icon name="copy" [size]="14" />
                 </button>
                 <button
                   class="vn-btn vn-btn--sm vn-btn--icon vn-btn--ghost vn-btn--danger"
@@ -264,12 +282,12 @@ function readImportError(err: HttpErrorResponse): string {
                   aria-label="Delete resume"
                   (click)="remove(resume)"
                 >
-                  <vn-icon name="trash" [size]="15" />
+                  <vn-icon name="trash" [size]="14" />
                 </button>
-              </footer>
-            </article>
+              </span>
+            </li>
           }
-        </div>
+        </ol>
       }
     </div>
   `,

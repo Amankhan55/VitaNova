@@ -103,9 +103,19 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
     </div>
   `,
   styles: `
-    .group { margin-bottom: 22px; }
+    .group { margin-bottom: 26px; }
 
-    .templates { display: grid; gap: 6px; margin-top: 7px; }
+    /* The designs read as a stacked list of choices with rules between them,
+       and the chosen one is filled with ink — the same "this one" language the
+       masthead and the filters use. */
+    .templates {
+      display: grid;
+      gap: 0;
+      margin-top: 8px;
+      border: 1px solid var(--vn-border-strong);
+      border-radius: var(--vn-radius-xs);
+      overflow: hidden;
+    }
 
     .template {
       display: flex;
@@ -117,45 +127,53 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
       text-align: left;
       color: var(--vn-text);
       background: var(--vn-surface);
-      border: 1px solid var(--vn-border);
-      border-radius: var(--vn-radius-xs);
+      border: 0;
+      border-top: 1px solid var(--vn-border);
       cursor: pointer;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      transition: background 0.15s, color 0.15s;
     }
-    .template:hover { border-color: var(--vn-border-strong); background: var(--vn-surface-2); }
+    .template:first-child { border-top: 0; }
+    .template:hover:not(.is-active) { background: var(--vn-surface-2); }
     .template.is-active {
-      border-color: var(--vn-accent);
-      background: var(--vn-accent-soft);
-      color: var(--vn-accent-text);
+      color: var(--vn-on-ink);
+      background: var(--vn-ink);
     }
+    .template.is-active .template-note { color: inherit; opacity: 0.72; }
 
+    /* Square, and ringed in the paper's own edge colour: these swatches belong
+       to the printed page, not to the interface. */
     .swatch {
-      width: 15px;
-      height: 15px;
-      border-radius: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 1px;
       flex: none;
       box-shadow: inset 0 0 0 1px var(--vn-paper-edge);
     }
     .template-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .template-name { font-weight: 600; }
-    .template-note { font-size: 11.5px; color: var(--vn-text-muted); }
+    .template-note {
+      font-family: var(--vn-font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--vn-text-muted);
+    }
 
-    .swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 7px; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
 
     .dot {
-      width: 27px;
-      height: 27px;
+      width: 26px;
+      height: 26px;
       padding: 0;
-      border: 2px solid transparent;
-      border-radius: 50%;
-      box-shadow: inset 0 0 0 1px var(--vn-border-strong);
+      border: 0;
+      border-radius: var(--vn-radius-xs);
+      box-shadow: inset 0 0 0 1px var(--vn-paper-edge);
       cursor: pointer;
-      transition: transform 0.12s var(--vn-ease);
+      transition: box-shadow 0.12s var(--vn-ease);
     }
-    .dot:hover { transform: scale(1.08); }
+    .dot:hover { box-shadow: inset 0 0 0 1px var(--vn-paper-edge), 0 0 0 2px var(--vn-border-strong); }
     .dot.is-active {
-      border-color: var(--vn-text);
-      box-shadow: inset 0 0 0 1px var(--vn-surface);
+      box-shadow: inset 0 0 0 1px var(--vn-paper-edge), 0 0 0 2px var(--vn-text);
     }
     .dot--custom {
       display: grid;
@@ -167,17 +185,19 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
 
     .segmented {
       display: flex;
-      margin-top: 7px;
+      margin-top: 8px;
       border: 1px solid var(--vn-border-strong);
       border-radius: var(--vn-radius-xs);
       overflow: hidden;
     }
     .segmented button {
       flex: 1;
-      padding: 7px 8px;
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: capitalize;
+      padding: 8px;
+      font-family: var(--vn-font-mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       color: var(--vn-text-muted);
       background: var(--vn-surface);
       border: 0;
@@ -187,9 +207,9 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
     }
     .segmented button:first-child { border-left: 0; }
     .segmented button:hover:not(.is-active) { background: var(--vn-surface-2); color: var(--vn-text); }
-    .segmented button.is-active { color: var(--vn-on-accent); background: var(--vn-accent); }
+    .segmented button.is-active { color: var(--vn-on-ink); background: var(--vn-ink); }
 
-    .slider { width: 100%; margin-top: 10px; accent-color: var(--vn-accent); }
+    .slider { width: 100%; margin-top: 12px; accent-color: var(--vn-accent); }
   `,
 })
 export class DesignPanel {

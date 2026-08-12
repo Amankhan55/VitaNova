@@ -4,26 +4,36 @@
   min-height: 100%;
 }
 
-/* ------------------------------------------------------------------ header */
+/* ---------------------------------------------------------------- masthead */
 
-.shell-header {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  height: var(--vn-header-height);
-  padding: 0 20px;
-  background: color-mix(in srgb, var(--vn-surface) 82%, transparent);
-  backdrop-filter: saturate(180%) blur(14px);
-  border-bottom: 1px solid var(--vn-border);
+.masthead {
   position: sticky;
   top: 0;
   z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: var(--vn-header-height);
+  padding: 0 clamp(16px, 3vw, 28px);
+  background: color-mix(in srgb, var(--vn-bg) 88%, transparent);
+  backdrop-filter: saturate(150%) blur(12px);
+  /* A double rule, the way a masthead is separated from the page below it:
+     one hairline on the element, a second drawn 3px under it. */
+  border-bottom: 1px solid var(--vn-border-strong);
+}
+
+.masthead::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -4px;
+  height: 1px;
+  background: var(--vn-border);
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   color: var(--vn-text);
   text-decoration: none;
 }
@@ -31,51 +41,65 @@
 
 .brand-name {
   font-family: var(--vn-font-display);
-  font-size: 22px;
-  font-weight: 400;
-  letter-spacing: 0.005em;
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
-.brand-name strong { color: var(--vn-accent-text); font-weight: 400; }
+.brand-name strong { color: var(--vn-accent-text); font-weight: 500; }
 
 /* --------------------------------------------------------------------- nav */
 
-.shell-nav {
+.masthead-nav {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 26px;
   margin-right: auto;
 }
 
-.shell-nav a {
+/* Nav items are set as compositor's marks, and the current one is marked by a
+   rule beneath it rather than by a filled pill — the same device the rest of
+   the system uses to say "this one". */
+.masthead-nav a {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 13px;
-  font-size: 14px;
-  font-weight: 550;
+  gap: 7px;
+  padding: 6px 0;
+  font-family: var(--vn-font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--vn-text-muted);
-  border-radius: 999px;
   text-decoration: none;
-  transition: background 0.15s, color 0.15s;
+  transition: color 0.15s var(--vn-ease);
 }
-.shell-nav a:hover {
-  background: var(--vn-hover);
-  color: var(--vn-text);
-  text-decoration: none;
+
+.masthead-nav a::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -2px;
+  height: 2px;
+  background: var(--vn-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.18s var(--vn-ease);
 }
-.shell-nav a.is-active {
-  color: var(--vn-accent-text);
-  background: var(--vn-accent-soft);
-}
+
+.masthead-nav a:hover { color: var(--vn-text); text-decoration: none; }
+.masthead-nav a:hover::after { transform: scaleX(1); }
+
+.masthead-nav a.is-active { color: var(--vn-text); }
+.masthead-nav a.is-active::after { transform: scaleX(1); }
 
 .nav-home { display: none; }
 
 /* ----------------------------------------------------------------- account */
 
-.shell-actions {
+.masthead-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .user-menu { position: relative; }
@@ -83,37 +107,42 @@
 .avatar-button {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 7px 3px 3px;
+  gap: 6px;
+  padding: 3px 6px 3px 3px;
   color: var(--vn-text-subtle);
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--vn-radius-xs);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
-.avatar-button:hover { background: var(--vn-hover); border-color: var(--vn-border); }
+.avatar-button:hover { background: var(--vn-hover); border-color: var(--vn-border-strong); }
 
+/* Square, not round: this is a sort of type, not a profile photo. */
 .avatar {
   display: grid;
   place-items: center;
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--vn-on-accent);
-  background: linear-gradient(140deg, var(--vn-accent), var(--vn-accent-hover));
+  font-family: var(--vn-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--vn-on-ink);
+  background: var(--vn-ink);
+  border-radius: var(--vn-radius-xs);
 }
 
 .menu {
   position: absolute;
-  top: calc(100% + 9px);
+  top: calc(100% + 10px);
   right: 0;
   z-index: 40;
-  min-width: 232px;
+  min-width: 244px;
   padding: 5px;
+  background: var(--vn-surface);
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius);
   box-shadow: var(--vn-shadow-lg);
   animation: menu-in 0.14s var(--vn-ease);
 }
@@ -125,15 +154,21 @@
 
 .menu-head {
   display: grid;
-  gap: 1px;
-  padding: 9px 11px 11px;
+  gap: 2px;
+  padding: 10px 11px 12px;
   margin-bottom: 4px;
   border-bottom: 1px solid var(--vn-border);
 }
-.menu-name { font-size: 14px; font-weight: 650; }
+.menu-name {
+  font-family: var(--vn-font-display);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
 .menu-email {
-  font-size: 12.5px;
-  color: var(--vn-text-muted);
+  font-family: var(--vn-font-mono);
+  font-size: 11px;
+  color: var(--vn-text-subtle);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -145,7 +180,7 @@
   width: 100%;
   padding: 9px 11px;
   font-size: 14px;
-  font-weight: 550;
+  font-weight: 500;
   text-align: left;
   color: var(--vn-text);
   background: none;
@@ -166,10 +201,10 @@
   flex-direction: column;
 }
 
-@media (max-width: 720px) {
-  .shell-header { gap: 10px; padding: 0 12px; }
+@media (max-width: 760px) {
+  .masthead { gap: 14px; padding: 0 14px; }
   .brand-name { display: none; }
-  .shell-nav a { padding: 7px 10px; }
-  .shell-nav a span { display: none; }
+  .masthead-nav { gap: 16px; }
+  .masthead-nav a span { display: none; }
   .nav-home { display: inline-flex; }
 }
