@@ -15,7 +15,9 @@ import { emptyItemFor, emptySection, isItemSection } from '../../../core/models/
 import { ConfirmService } from '../../../shared/ui/confirm/confirm.service';
 import { IconName } from '../../../shared/ui/icon/icons';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { AiStore } from '../ai-store';
 import { ResumeStore } from '../resume-store';
+import { AiSuggestions } from './ai-suggestions';
 import { ItemEditor } from './item-editor';
 
 const ADDABLE: SectionType[] = [
@@ -25,7 +27,7 @@ const ADDABLE: SectionType[] = [
 @Component({
   selector: 'vn-section-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, CdkDropList, CdkDrag, CdkDragHandle, Icon, ItemEditor],
+  imports: [FormsModule, CdkDropList, CdkDrag, CdkDragHandle, Icon, ItemEditor, AiSuggestions],
   styleUrl: './section-list.scss',
   template: `
     <div cdkDropList (cdkDropListDropped)="dropSection($event)" class="sections">
@@ -88,8 +90,19 @@ const ADDABLE: SectionType[] = [
               </label>
 
               @if (section.type === 'summary') {
-                <label class="vn-field">
-                  <span class="vn-label">Summary</span>
+                <div class="vn-field">
+                  <div class="label-row">
+                    <span class="vn-label">Summary</span>
+                    <button
+                      class="vn-btn vn-btn--sm vn-btn--ghost improve"
+                      type="button"
+                      [disabled]="ai.busy()"
+                      (click)="improveSummary(section)"
+                    >
+                      <vn-icon name="sparkle" [size]="13" />
+                      Improve with AI
+                    </button>
+                  </div>
                   <textarea
                     class="vn-textarea"
                     rows="7"
@@ -98,7 +111,8 @@ const ADDABLE: SectionType[] = [
                     placeholder="Two or three sentences on who you are and the value you bring…"
                   ></textarea>
                   <span class="vn-hint">Leave a blank line to start a new paragraph.</span>
-                </label>
+                </div>
+                @if (ai.isOpenFor('summary:' + section.id)) { <vn-ai-suggestions /> }
               } @else {
                 @for (item of itemsOf(section); track item.id; let i = $index) {
                   <div class="item">
@@ -148,6 +162,7 @@ const ADDABLE: SectionType[] = [
 export class SectionList {
   private readonly store = inject(ResumeStore);
   private readonly confirm = inject(ConfirmService);
+  protected readonly ai = inject(AiStore);
 
   protected readonly addable = ADDABLE;
   protected readonly sections = computed(() => this.store.resume()?.sections ?? []);
@@ -238,6 +253,29 @@ export class SectionList {
 
   protected setSummary(section: ResumeSection, content: string): void {
     this.store.updateSection(section.id, (current) => ({ ...(current as SummarySection), content }));
+  }
+
+  /**
+   * Improve the professional summary.
+   *
+   * The user's headline goes along as context because a summary written
+   * without it reads like anyone's. Nothing else does: the summary is prose
+   * about the person, and the rest of the resume is not evidence the model
+   * needs in order to say it better.
+   */
+  protected improveSummary(section: ResumeSection): void {
+    const summary = section as SummarySection;
+    const basics = this.store.resume()?.basics;
+    this.ai.openWriter({
+      key: `summary:${section.id}`,
+      title: section.title || 'Professional summary',
+      request: {
+        kind: 'summary',
+        current: summary.content,
+        role: basics?.headline ?? '',
+      },
+      apply: ([content]) => this.setSummary(section, content),
+    });
   }
 
   protected addSection(type: SectionType): void {

@@ -13,6 +13,7 @@ import pytest
 from app.core.config import settings
 from app.services import import_service
 from app.services.import_service import BadDocument, UpstreamUnavailable
+from tests.conftest import api_error
 
 
 # --------------------------------------------------------------------------- #
@@ -144,59 +145,16 @@ async def test_parse_resume_text_without_a_key_is_an_upstream_failure(monkeypatc
 # Retry and failure classification
 #
 # Gemini is faked here rather than called: these tests are about what we do with
-# each kind of failure, and a real 503 cannot be summoned on demand.
+# each kind of failure, and a real 503 cannot be summoned on demand. The
+# `fake_gemini` fixture and `api_error` helper live in conftest, because
+# tests/test_ai.py scripts the same client.
 # --------------------------------------------------------------------------- #
-
-
-class _FakeResponse:
-    def __init__(self, text):
-        self.text = text
-
-
-class _FakeClient:
-    """Replays a scripted list of outcomes, one per generate_content call."""
-
-    def __init__(self, outcomes):
-        self.outcomes = list(outcomes)
-        self.calls = 0
-        client = self
-
-        class _Models:
-            async def generate_content(self, **kwargs):
-                client.calls += 1
-                outcome = client.outcomes.pop(0)
-                if isinstance(outcome, Exception):
-                    raise outcome
-                return _FakeResponse(outcome)
-
-        self.aio = type("_Aio", (), {"models": _Models()})()
-
-
-@pytest.fixture
-def fake_gemini(monkeypatch):
-    """Installs a scripted Gemini and removes the retry delay."""
-    monkeypatch.setattr(settings, "gemini_api_key", "test-key")
-    monkeypatch.setattr(import_service, "RETRY_DELAY_SECONDS", 0)
-
-    def install(*outcomes):
-        client = _FakeClient(outcomes)
-        monkeypatch.setattr(import_service.genai, "Client", lambda **_: client)
-        return client
-
-    return install
-
-
-def _api_error(code):
-    from google.genai import errors
-
-    cls = errors.ServerError if code >= 500 else errors.ClientError
-    return cls(code, {"error": {"code": code, "message": "boom"}}, None)
 
 
 @pytest.mark.asyncio
 async def test_a_transient_failure_is_retried_and_can_succeed(fake_gemini):
     """The 503 'high demand' that a free-tier key hits regularly."""
-    client = fake_gemini(_api_error(503), '{"basics": {"full_name": "Ada"}}')
+    client = fake_gemini(api_error(503), '{"basics": {"full_name": "Ada"}}')
     data = await import_service.parse_resume_text("Long enough resume text here.")
     assert data.basics.full_name == "Ada"
     assert client.calls == 2
@@ -204,7 +162,7 @@ async def test_a_transient_failure_is_retried_and_can_succeed(fake_gemini):
 
 @pytest.mark.asyncio
 async def test_a_persistent_transient_failure_gives_up_as_upstream(fake_gemini):
-    client = fake_gemini(_api_error(503), _api_error(503))
+    client = fake_gemini(api_error(503), api_error(503))
     with pytest.raises(UpstreamUnavailable, match="busy"):
         await import_service.parse_resume_text("Long enough resume text here.")
     assert client.calls == import_service.MAX_ATTEMPTS
@@ -213,7 +171,7 @@ async def test_a_persistent_transient_failure_gives_up_as_upstream(fake_gemini):
 @pytest.mark.asyncio
 async def test_a_rejected_request_is_not_retried(fake_gemini):
     """A 400 is our key or our prompt. Retrying it just wastes the user's time."""
-    client = fake_gemini(_api_error(400))
+    client = fake_gemini(api_error(400))
     with pytest.raises(UpstreamUnavailable):
         await import_service.parse_resume_text("Long enough resume text here.")
     assert client.calls == 1

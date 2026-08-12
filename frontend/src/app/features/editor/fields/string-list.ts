@@ -35,6 +35,19 @@ import { Icon } from '../../../shared/ui/icon/icon';
               [placeholder]="placeholder()"
             />
           }
+          @if (rewritable()) {
+            <button
+              class="vn-btn vn-btn--sm vn-btn--icon vn-btn--ghost rewrite"
+              type="button"
+              [class.is-active]="activeIndex() === $index"
+              [disabled]="busy() || !value.trim()"
+              [attr.aria-label]="'Rewrite this ' + itemNoun() + ' with AI'"
+              [title]="value.trim() ? 'Rewrite with AI' : 'Write something first'"
+              (click)="rewrite.emit($index)"
+            >
+              <vn-icon name="sparkle" [size]="15" />
+            </button>
+          }
           <button
             class="vn-btn vn-btn--sm vn-btn--icon vn-btn--ghost"
             type="button"
@@ -58,6 +71,20 @@ import { Icon } from '../../../shared/ui/icon/icon';
     .row > :first-child { flex: 1; min-width: 0; }
     .row .vn-btn { margin-top: 3px; color: var(--vn-text-subtle); }
     .add { margin-top: 6px; padding-left: 4px; }
+
+    /* The ✨ stays quiet until the row is worth acting on — an always-lit
+       button on every bullet turns the form into a wall of invitations. */
+    .rewrite { opacity: 0.55; transition: opacity 0.15s var(--vn-ease), color 0.15s; }
+    .row:hover .rewrite,
+    .rewrite:focus-visible,
+    .rewrite.is-active { opacity: 1; }
+    .rewrite:hover:not(:disabled),
+    .rewrite.is-active { color: var(--vn-accent-text); }
+    .rewrite:disabled { opacity: 0.3; }
+
+    @media (hover: none) {
+      .rewrite { opacity: 1; }
+    }
   `,
 })
 export class StringList {
@@ -66,7 +93,17 @@ export class StringList {
   readonly placeholder = input('');
   readonly multiline = input(false);
 
+  /** Adds a per-row ✨ action. Off by default, so skill and tech lists — where
+   *  a one-word value has nothing to rewrite — are unchanged. */
+  readonly rewritable = input(false);
+  /** Row whose suggestion panel is open, so its ✨ can stay lit while the panel
+   *  — rendered by the parent, just below this list — is being read. */
+  readonly activeIndex = input<number | null>(null);
+  /** Disables the action while any AI request is running. */
+  readonly busy = input(false);
+
   readonly valuesChange = output<string[]>();
+  readonly rewrite = output<number>();
 
   protected change(index: number, value: string): void {
     const next = [...this.values()];

@@ -13,19 +13,24 @@ import { RouterLink } from '@angular/router';
 import { RenderApi, TemplateApi } from '../../core/api/resume.api';
 import { downloadBlob } from '../../core/download';
 import { TemplateMeta } from '../../core/models/auth.model';
+import { IconName } from '../../shared/ui/icon/icons';
 import { Icon } from '../../shared/ui/icon/icon';
+import { AiStore } from './ai-store';
 import { BasicsPanel } from './panels/basics-panel';
 import { DesignPanel } from './panels/design-panel';
+import { AiPanel } from './panels/ai-panel';
 import { SectionList } from './panels/section-list';
 import { ResumeStore } from './resume-store';
 
-type Tab = 'content' | 'design';
+type Tab = 'content' | 'design' | 'ai';
 
 @Component({
   selector: 'vn-editor',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink, Icon, BasicsPanel, SectionList, DesignPanel],
-  providers: [ResumeStore],
+  imports: [FormsModule, RouterLink, Icon, BasicsPanel, SectionList, DesignPanel, AiPanel],
+  // AiStore reads the document from ResumeStore, so both are scoped to one
+  // editor: leaving the page disposes the state and cancels anything in flight.
+  providers: [ResumeStore, AiStore],
   styleUrl: './editor.scss',
   template: `
     <div class="editor">
@@ -87,20 +92,27 @@ type Tab = 'content' | 'design';
                   [class.is-active]="tab() === item.id"
                   (click)="tab.set(item.id)"
                 >
-                  <vn-icon [name]="item.id === 'content' ? 'file' : 'palette'" [size]="15" />
+                  <vn-icon [name]="item.icon" [size]="15" />
                   {{ item.label }}
                 </button>
               }
             </div>
 
             <div class="panel-body">
-              @if (tab() === 'content') {
-                <h2 class="panel-title">Details</h2>
-                <vn-basics-panel />
-                <h2 class="panel-title spaced">Sections</h2>
-                <vn-section-list />
-              } @else {
-                <vn-design-panel [templates]="templates()" />
+              @switch (tab()) {
+                @case ('content') {
+                  <h2 class="panel-title">Details</h2>
+                  <vn-basics-panel />
+                  <h2 class="panel-title spaced">Sections</h2>
+                  <vn-section-list />
+                }
+                @case ('design') {
+                  <vn-design-panel [templates]="templates()" />
+                }
+                @case ('ai') {
+                  <h2 class="panel-title">AI tools</h2>
+                  <vn-ai-panel />
+                }
               }
             </div>
           </aside>
@@ -143,9 +155,10 @@ export class EditorPage {
   protected readonly templates = signal<TemplateMeta[]>([]);
   protected readonly exporting = signal(false);
 
-  protected readonly tabs: { id: Tab; label: string }[] = [
-    { id: 'content', label: 'Content' },
-    { id: 'design', label: 'Design' },
+  protected readonly tabs: { id: Tab; label: string; icon: IconName }[] = [
+    { id: 'content', label: 'Content', icon: 'file' },
+    { id: 'design', label: 'Design', icon: 'palette' },
+    { id: 'ai', label: 'AI', icon: 'sparkle' },
   ];
 
   /** Blank until the template list arrives, which hides the chip rather than

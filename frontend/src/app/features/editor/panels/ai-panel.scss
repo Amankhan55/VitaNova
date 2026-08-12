@@ -1,0 +1,289 @@
+/* The analyses are findings about a document, so they are set as a report:
+   ruled headings, a measured column, no cards. The only ornament is the score
+   itself, which earns it by being the one number the user came for. */
+
+.tools {
+  display: flex;
+  margin-bottom: 18px;
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-xs);
+  overflow: hidden;
+}
+
+.tools button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--vn-text-muted);
+  background: var(--vn-surface);
+  border: 0;
+  cursor: pointer;
+  transition: color 0.15s var(--vn-ease), background 0.15s var(--vn-ease);
+}
+.tools button + button { border-left: 1px solid var(--vn-border); }
+.tools button:hover { color: var(--vn-text); background: var(--vn-surface-2); }
+.tools button.is-active {
+  color: var(--vn-accent-text);
+  background: var(--vn-accent-soft);
+}
+
+.lede {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--vn-text-muted);
+}
+
+.run { width: 100%; justify-content: center; }
+
+.failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  font-size: 12.5px;
+  color: var(--vn-danger-text);
+  background: var(--vn-danger-soft);
+  border: 1px solid var(--vn-danger-line);
+  border-radius: var(--vn-radius-xs);
+}
+
+/* --- the score ------------------------------------------------------------- */
+
+.score-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 22px 0 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--vn-border-strong);
+}
+
+/* A conic gradient rather than an SVG arc: one element, no viewBox to keep in
+   step with the type, and it inherits the band colour like everything else. */
+.score-ring {
+  display: grid;
+  flex: none;
+  place-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background:
+    conic-gradient(var(--band) calc(var(--fill) * 1%), var(--vn-surface-3) 0);
+  position: relative;
+}
+.score-ring::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  background: var(--vn-surface);
+  border-radius: 50%;
+}
+
+.score-value {
+  position: relative;
+  z-index: 1;
+  font-family: var(--vn-font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--vn-text);
+  text-align: center;
+}
+.score-value small { font-size: 14px; }
+
+.score-of {
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--vn-text-subtle);
+  text-align: center;
+}
+
+.score-copy p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--vn-text-muted);
+}
+
+/* Bands are defined once and used by the ring and every bar, so a 72 is the
+   same colour wherever it is drawn. */
+.band--strong { --band: var(--vn-accent); }
+.band--fair { --band: var(--vn-amber); }
+.band--weak { --band: var(--vn-danger); }
+
+/* --- category bars --------------------------------------------------------- */
+
+.bars {
+  display: grid;
+  gap: 9px;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+}
+
+.bars li {
+  display: grid;
+  grid-template-columns: 116px 1fr 30px;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-label { font-size: 12.5px; color: var(--vn-text-muted); }
+
+.bar-track {
+  height: 6px;
+  background: var(--vn-surface-3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--band);
+  border-radius: 3px;
+  transition: width 0.5s var(--vn-ease);
+}
+
+.bar-value {
+  font-family: var(--vn-font-mono);
+  font-size: 11.5px;
+  color: var(--vn-text);
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill { transition: none; }
+}
+
+/* --- findings -------------------------------------------------------------- */
+
+.finding-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 22px 0 9px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vn-text-muted);
+}
+.finding-head vn-icon { color: var(--vn-text-subtle); }
+.finding-head--good vn-icon { color: var(--vn-accent); }
+.finding-head--warn vn-icon { color: var(--vn-amber); }
+.finding-head .vn-chip { margin-left: auto; text-transform: none; letter-spacing: 0; }
+
+.findings {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 17px;
+}
+.findings li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--vn-text);
+}
+
+.recommendations {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.recommendations li {
+  padding: 11px 12px;
+  background: var(--vn-surface-inset);
+  border: 1px solid var(--vn-border);
+  border-radius: var(--vn-radius-xs);
+}
+.recommendations strong { font-size: 13px; }
+.recommendations p {
+  margin: 4px 0 9px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--vn-text-muted);
+}
+
+/* --- job match ------------------------------------------------------------- */
+
+.skills {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 10px;
+  padding: 8px 10px;
+  background: var(--vn-surface-inset);
+  border: 1px solid var(--vn-border);
+  border-left-width: 3px;
+  border-radius: var(--vn-radius-xs);
+}
+
+.skill--strong { border-left-color: var(--vn-accent); }
+.skill--partial { border-left-color: var(--vn-amber); }
+.skill--missing { border-left-color: var(--vn-danger); }
+
+.skill-name { font-size: 13px; font-weight: 600; }
+
+.skill-state {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.skill--strong .skill-state { color: var(--vn-accent-text); }
+.skill--partial .skill-state { color: var(--vn-amber); }
+.skill--missing .skill-state { color: var(--vn-danger-text); }
+
+.skill-why {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--vn-text-muted);
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.keyword--missing {
+  color: var(--vn-amber);
+  background: var(--vn-amber-soft);
+  border-color: transparent;
+}
+
+.caveat {
+  margin: 9px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--vn-text-subtle);
+}
+
+.alignment {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--vn-text);
+}

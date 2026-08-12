@@ -103,6 +103,24 @@
   padding: 4px 14px 18px 16px;
 }
 
+/* The AI action sits on the field's own label line rather than below the box:
+   it belongs to that field, and a button under the textarea would read as an
+   action on the form. */
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.label-row .vn-label { margin-bottom: 0; }
+
+.improve {
+  padding: 2px 7px;
+  font-size: 11.5px;
+  color: var(--vn-accent-text);
+}
+.improve:disabled { color: var(--vn-text-subtle); }
+
 /* Entries inside a section: numbered and ruled, matching the index on the
    dashboard so the same idea looks the same wherever it appears. */
 .item {

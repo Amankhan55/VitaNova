@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import auth, render, resumes, templates
+from app.api.v1 import ai, auth, render, resumes, templates
 from app.core import config, db
 from app.core.config import settings
 from app.services import template_registry
@@ -39,7 +39,7 @@ app.add_middleware(
     expose_headers=["Content-Disposition"],
 )
 
-for router in (auth.router, resumes.router, templates.router, render.router):
+for router in (auth.router, resumes.router, templates.router, render.router, ai.router):
     app.include_router(router, prefix=settings.api_v1_prefix)
 
 

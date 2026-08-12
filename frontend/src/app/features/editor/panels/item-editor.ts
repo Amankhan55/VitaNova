@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { Icon } from '../../../shared/ui/icon/icon';
+import { AiStore } from '../ai-store';
+import { AiSuggestions } from './ai-suggestions';
 import {
   CertificationItem,
   CustomItem,
@@ -25,7 +28,7 @@ import { StringList } from '../fields/string-list';
 @Component({
   selector: 'vn-item-editor',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, StringList, DateRange],
+  imports: [FormsModule, StringList, DateRange, Icon, AiSuggestions],
   template: `
     @switch (sectionType()) {
       @case ('experience') {
@@ -47,14 +50,30 @@ import { StringList } from '../fields/string-list';
           </label>
         </div>
         <vn-date-range [value]="dateRange()" (valueChange)="patch($event)" />
-        <span class="vn-label">Highlights</span>
+        <div class="label-row">
+          <span class="vn-label">Highlights</span>
+          <button
+            class="vn-btn vn-btn--sm vn-btn--ghost improve"
+            type="button"
+            [disabled]="ai.busy()"
+            (click)="improveBullets()"
+          >
+            <vn-icon name="sparkle" [size]="13" />
+            Improve with AI
+          </button>
+        </div>
         <vn-string-list
           [values]="experience().bullets"
           (valuesChange)="patch({ bullets: $event })"
           itemNoun="highlight"
           [multiline]="true"
+          [rewritable]="true"
+          [busy]="ai.busy()"
+          [activeIndex]="activeBullet()"
+          (rewrite)="rewriteBullet($event)"
           placeholder="Spearheaded the redesign of…"
         />
+        @if (panelBelongsHere()) { <vn-ai-suggestions /> }
         <span class="vn-label spaced">Technologies</span>
         <vn-string-list
           [values]="experience().tech"
@@ -136,14 +155,30 @@ import { StringList } from '../fields/string-list';
           itemNoun="technology"
           placeholder="React"
         />
-        <span class="vn-label spaced">Highlights</span>
+        <div class="label-row spaced">
+          <span class="vn-label">Highlights</span>
+          <button
+            class="vn-btn vn-btn--sm vn-btn--ghost improve"
+            type="button"
+            [disabled]="ai.busy()"
+            (click)="improveBullets()"
+          >
+            <vn-icon name="sparkle" [size]="13" />
+            Improve with AI
+          </button>
+        </div>
         <vn-string-list
           [values]="project().bullets"
           (valuesChange)="patch({ bullets: $event })"
           itemNoun="highlight"
           [multiline]="true"
+          [rewritable]="true"
+          [busy]="ai.busy()"
+          [activeIndex]="activeBullet()"
+          (rewrite)="rewriteBullet($event)"
           placeholder="Created an open-source UI system with…"
         />
+        @if (panelBelongsHere()) { <vn-ai-suggestions /> }
       }
 
       @case ('certifications') {
@@ -217,13 +252,52 @@ import { StringList } from '../fields/string-list';
   styles: `
     .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .vn-label.spaced { margin-top: 12px; }
+
+    .label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .label-row.spaced { margin-top: 12px; }
+    .label-row .vn-label { margin-bottom: 0; }
+
+    .improve {
+      padding: 2px 7px;
+      font-size: 11.5px;
+      color: var(--vn-accent-text);
+    }
+    .improve:disabled { color: var(--vn-text-subtle); }
   `,
 })
 export class ItemEditor {
+  protected readonly ai = inject(AiStore);
+
   readonly sectionType = input.required<ItemSection['type']>();
   readonly item = input.required<ResumeItem>();
 
   readonly itemChange = output<ResumeItem>();
+
+  /**
+   * Which bullet's panel is open on *this* entry, or null.
+   *
+   * Keyed by item id and index rather than by index alone: a resume has many
+   * entries with a bullet 0, and without the id every one of them would light
+   * up when any single bullet was being rewritten.
+   */
+  protected readonly activeBullet = computed(() => {
+    const key = this.ai.panel()?.key ?? '';
+    const prefix = `bullet:${this.item().id}:`;
+    if (!key.startsWith(prefix)) return null;
+    const index = Number(key.slice(prefix.length));
+    return Number.isInteger(index) ? index : null;
+  });
+
+  /** True when the open panel is for this entry at all — a bullet or the set. */
+  protected readonly panelBelongsHere = computed(() => {
+    const key = this.ai.panel()?.key ?? '';
+    return key.startsWith(`bullet:${this.item().id}:`) || key === `entry:${this.item().id}`;
+  });
 
   protected readonly experience = computed(() => this.item() as ExperienceItem);
   protected readonly education = computed(() => this.item() as EducationItem);
@@ -240,5 +314,67 @@ export class ItemEditor {
 
   protected patch(changes: Partial<Record<string, unknown>> | DateRangeValue): void {
     this.itemChange.emit({ ...this.item(), ...changes } as ResumeItem);
+  }
+
+  /**
+   * The context a single-entry AI call is allowed to see.
+   *
+   * Only this entry — never the resume. Two reasons, and they point the same
+   * way: on a free-tier key the unused tokens are pure cost, and a model shown
+   * three jobs at once will borrow a detail from one to decorate another, which
+   * is precisely the fabrication the whole feature is built to avoid.
+   */
+  private aiContext(): { role: string; organization: string; tech: string[] } {
+    if (this.sectionType() === 'projects') {
+      const project = this.project();
+      return { role: project.name, organization: '', tech: project.tech };
+    }
+    const experience = this.experience();
+    return {
+      role: experience.role,
+      organization: experience.organization,
+      tech: experience.tech,
+    };
+  }
+
+  private bullets(): string[] {
+    return this.sectionType() === 'projects' ? this.project().bullets : this.experience().bullets;
+  }
+
+  /** Rewrite one bullet, offering several phrasings to choose between. */
+  protected rewriteBullet(index: number): void {
+    const bullet = this.bullets()[index];
+    if (!bullet?.trim()) return;
+
+    const context = this.aiContext();
+    this.ai.openRewriter({
+      key: `bullet:${this.item().id}:${index}`,
+      title: 'Rewrite this highlight',
+      request: {
+        bullet,
+        styles: ['professional', 'impactful', 'concise'],
+        ...context,
+      },
+      apply: ([text]) => {
+        const next = [...this.bullets()];
+        next[index] = text;
+        this.patch({ bullets: next });
+      },
+    });
+  }
+
+  /** Draft or improve the entry's highlights as a set. */
+  protected improveBullets(): void {
+    const context = this.aiContext();
+    this.ai.openWriter({
+      key: `entry:${this.item().id}`,
+      title: `${context.role || 'This entry'} — highlights`,
+      request: {
+        kind: this.sectionType() === 'projects' ? 'project' : 'experience',
+        current: this.bullets().filter(Boolean).join('\n'),
+        ...context,
+      },
+      apply: (bullets) => this.patch({ bullets }),
+    });
   }
 }
