@@ -66,6 +66,9 @@ class Settings(BaseSettings):
 
     # Maximum resumes a single account may hold, a cheap guard against runaway writes.
     max_resumes_per_user: int = 50
+    # Same guard for user-designed templates. Lower, because a design is a thing
+    # you keep and reuse rather than one you make per application.
+    max_custom_templates_per_user: int = 20
 
     # Google Gemini API key for resume import (free tier: 15 req/min, 1M tokens/day).
     # Get one at https://aistudio.google.com

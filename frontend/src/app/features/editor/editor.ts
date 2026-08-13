@@ -152,8 +152,16 @@ export class EditorPage {
   readonly id = input.required<string>();
 
   protected readonly tab = signal<Tab>('content');
-  protected readonly templates = signal<TemplateMeta[]>([]);
+  protected readonly builtIns = signal<TemplateMeta[]>([]);
   protected readonly exporting = signal(false);
+
+  /** The user's own designs first, then the built-ins. Both arrive as
+   *  TemplateMeta, so the design panel and the toolbar chip need no special case
+   *  for a custom one. */
+  protected readonly templates = computed(() => [
+    ...this.store.customMetas(),
+    ...this.builtIns(),
+  ]);
 
   protected readonly tabs: { id: Tab; label: string; icon: IconName }[] = [
     { id: 'content', label: 'Content', icon: 'file' },
@@ -173,7 +181,7 @@ export class EditorPage {
       const id = this.id();
       if (id) this.store.load(id);
     });
-    this.templateApi.list().subscribe((metas) => this.templates.set(metas));
+    this.templateApi.list().subscribe((metas) => this.builtIns.set(metas));
   }
 
   protected rename(title: string): void {
@@ -187,15 +195,11 @@ export class EditorPage {
    */
   protected exportPdf(): void {
     const resume = this.store.resume();
-    if (!resume || this.exporting()) return;
+    const request = this.store.renderRequest();
+    if (!resume || !request || this.exporting()) return;
     this.exporting.set(true);
     this.renderApi
-      .pdf({
-        template_id: resume.template_id,
-        theme: resume.theme,
-        basics: resume.basics,
-        sections: resume.sections,
-      })
+      .pdf(request)
       .subscribe({
         next: (blob) => {
           this.exporting.set(false);

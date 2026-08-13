@@ -53,6 +53,16 @@ export const routes: Routes = [
     title: 'Templates — VitaNova',
   },
   {
+    // Declared before `templates` would matter only if that route had children;
+    // it is kept adjacent so the pair reads as one section of the app. `new` is
+    // handled by the same page — an id of 'new' simply means "not saved yet".
+    path: 'templates/custom/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/templates/template-editor').then((m) => m.TemplateEditorPage),
+    title: 'Design a template — VitaNova',
+  },
+  {
     path: 'editor/:id',
     canActivate: [authGuard],
     loadComponent: () => import('./features/editor/editor').then((m) => m.EditorPage),

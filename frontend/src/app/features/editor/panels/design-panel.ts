@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { TemplateMeta } from '../../../core/models/auth.model';
+import { isCustomTemplateId } from '../../../core/models/custom-template.model';
 import { Theme } from '../../../core/models/resume.model';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { ResumeStore } from '../resume-store';
@@ -11,12 +13,44 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
 @Component({
   selector: 'vn-design-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, Icon],
+  imports: [FormsModule, RouterLink, Icon],
   template: `
+    @if (customs().length > 0) {
+      <div class="group">
+        <span class="vn-label">Your designs</span>
+        <div class="templates">
+          @for (meta of customs(); track meta.id) {
+            <div class="template-row" [class.is-active]="meta.id === current()?.template_id">
+              <button class="template" type="button" (click)="chooseTemplate(meta)">
+                <span class="swatch" [style.background]="meta.accent"></span>
+                <span class="template-text">
+                  <span class="template-name">{{ meta.name }}</span>
+                  <span class="template-note">
+                    {{ meta.ats_safe ? 'ATS safe' : 'Custom' }}
+                  </span>
+                </span>
+                @if (meta.id === current()?.template_id) {
+                  <vn-icon name="check" [size]="15" />
+                }
+              </button>
+              <a
+                class="template-edit"
+                [routerLink]="['/templates/custom', designId(meta)]"
+                title="Edit this design"
+                aria-label="Edit this design"
+              >
+                <vn-icon name="edit" [size]="14" />
+              </a>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
     <div class="group">
       <span class="vn-label">Design</span>
       <div class="templates">
-        @for (meta of templates(); track meta.id) {
+        @for (meta of builtIns(); track meta.id) {
           <button
             class="template"
             type="button"
@@ -34,6 +68,11 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
           </button>
         }
       </div>
+
+      <a class="vn-btn vn-btn--sm build" routerLink="/templates/custom/new">
+        <vn-icon name="plus" [size]="15" />
+        Build your own design
+      </a>
     </div>
 
     <div class="group">
@@ -134,11 +173,48 @@ const DENSITIES: Theme['density'][] = ['compact', 'normal', 'relaxed'];
     }
     .template:first-child { border-top: 0; }
     .template:hover:not(.is-active) { background: var(--vn-surface-2); }
-    .template.is-active {
+    .template.is-active,
+    .template-row.is-active .template {
       color: var(--vn-on-ink);
       background: var(--vn-ink);
     }
-    .template.is-active .template-note { color: inherit; opacity: 0.72; }
+    .template.is-active .template-note,
+    .template-row.is-active .template-note { color: inherit; opacity: 0.72; }
+
+    /* A design of your own carries a second control, so its row is a strip with
+       the choice on the left and the way into the builder on the right. */
+    .template-row {
+      display: flex;
+      align-items: stretch;
+      border-top: 1px solid var(--vn-border);
+      background: var(--vn-surface);
+    }
+    .template-row:first-child { border-top: 0; }
+    .template-row .template { flex: 1; min-width: 0; border-top: 0; }
+
+    .template-edit {
+      display: grid;
+      place-items: center;
+      flex: none;
+      width: 38px;
+      color: var(--vn-text-subtle);
+      border-left: 1px solid var(--vn-border);
+      transition: color 0.15s, background 0.15s;
+    }
+    .template-edit:hover { color: var(--vn-text); background: var(--vn-surface-2); }
+    .template-row.is-active .template-edit {
+      color: var(--vn-on-ink);
+      background: var(--vn-ink);
+      border-left-color: color-mix(in srgb, var(--vn-on-ink) 22%, transparent);
+    }
+    .template-row.is-active .template-edit:hover { background: var(--vn-ink-hover); }
+
+    .build {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-top: 10px;
+    }
 
     /* Square, and ringed in the paper's own edge colour: these swatches belong
        to the printed page, not to the interface. */
@@ -222,6 +298,20 @@ export class DesignPanel {
 
   protected readonly current = this.store.resume;
   protected readonly theme = computed(() => this.current()?.theme ?? null);
+
+  // The two lists are presented apart because they behave differently: a design
+  // of your own can be opened and changed, a built-in can only be chosen.
+  protected readonly customs = computed(() =>
+    this.templates().filter((meta) => isCustomTemplateId(meta.id)),
+  );
+  protected readonly builtIns = computed(() =>
+    this.templates().filter((meta) => !isCustomTemplateId(meta.id)),
+  );
+
+  /** The bare document id, for the template editor's route. */
+  protected designId(meta: TemplateMeta): string {
+    return meta.id.replace(/^custom:/, '');
+  }
 
   protected readonly percent = computed(
     () => `${Math.round((this.theme()?.font_scale ?? 1) * 100)}%`,

@@ -1,0 +1,270 @@
+<!--
+  The design builder.
+
+  Same split as the resume editor — controls on the left, the live page on the
+  right — because it is the same promise: the sheet you are looking at is
+  produced by the engine that writes the PDF, so nothing here can flatter a
+  design that will not print.
+-->
+<div class="builder">
+  <header class="toolbar">
+    <a
+      class="vn-btn vn-btn--ghost vn-btn--sm back"
+      routerLink="/templates"
+      aria-label="Back to the gallery"
+    >
+      <vn-icon name="arrow-left" [size]="16" />
+    </a>
+
+    <input
+      class="title-input"
+      type="text"
+      maxlength="60"
+      [ngModel]="name()"
+      (ngModelChange)="rename($event)"
+      aria-label="Design name"
+      placeholder="Untitled design"
+    />
+
+    <span class="vn-chip" [class.vn-chip--accent]="atsSafe()">
+      <vn-icon [name]="atsSafe() ? 'shield' : 'layers'" [size]="12" />
+      {{ atsSafe() ? 'ATS safe' : 'Two column' }}
+    </span>
+
+    @if (saved()) {
+      <span class="status" [class]="'status--' + status()" aria-live="polite">
+        @switch (status()) {
+          @case ('saving') { <vn-icon name="refresh" [size]="14" /> Saving… }
+          @case ('saved') { <vn-icon name="check" [size]="14" /> Saved }
+          @case ('error') { <vn-icon name="x" [size]="14" /> Not saved }
+          @default { <span class="vn-sr-only">No changes</span> }
+        }
+      </span>
+    } @else {
+      <span class="status">Unsaved design</span>
+    }
+
+    @if (saved()) {
+      <button
+        class="vn-btn vn-btn--sm"
+        type="button"
+        [disabled]="busy() !== ''"
+        (click)="duplicate()"
+        title="Duplicate this design"
+      >
+        <vn-icon name="copy" [size]="15" />
+      </button>
+      <button
+        class="vn-btn vn-btn--sm danger"
+        type="button"
+        [disabled]="busy() !== ''"
+        (click)="remove()"
+        title="Delete this design"
+      >
+        <vn-icon name="trash" [size]="15" />
+      </button>
+      <button
+        class="vn-btn vn-btn--primary vn-btn--sm"
+        type="button"
+        [disabled]="busy() !== ''"
+        (click)="useDesign()"
+      >
+        {{ busy() === 'use' ? 'Creating…' : 'Use this design' }}
+        <vn-icon name="arrow-right" [size]="15" />
+      </button>
+    } @else {
+      <button
+        class="vn-btn vn-btn--primary vn-btn--sm"
+        type="button"
+        [disabled]="busy() !== ''"
+        (click)="save()"
+      >
+        <vn-icon name="save" [size]="15" />
+        {{ busy() === 'save' ? 'Saving…' : 'Save design' }}
+      </button>
+    }
+  </header>
+
+  @if (loadError(); as message) {
+    <div class="notice">
+      <vn-icon name="x" [size]="17" />
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <div class="split">
+    <aside class="panel">
+      <div class="panel-body">
+        <!-- Identity first: the two fields that are about the design rather
+             than about the page. -->
+        <section class="group">
+          <span class="vn-label">About this design</span>
+          <textarea
+            class="desc"
+            rows="2"
+            maxlength="400"
+            [ngModel]="description()"
+            (ngModelChange)="describe($event)"
+            placeholder="A note to yourself about when to reach for it."
+          ></textarea>
+
+          <span class="vn-label spaced">Accent colour</span>
+          <div class="swatches">
+            @for (colour of accentPresets; track colour) {
+              <button
+                type="button"
+                class="dot"
+                [class.is-active]="colour.toLowerCase() === accent().toLowerCase()"
+                [style.background]="colour"
+                [attr.aria-label]="'Use accent ' + colour"
+                (click)="recolour(colour)"
+              ></button>
+            }
+            <label class="dot dot--custom" title="Pick any colour">
+              <input type="color" [ngModel]="accent()" (ngModelChange)="recolour($event)" />
+            </label>
+          </div>
+
+          <span class="vn-label spaced">Palette</span>
+          <div class="palettes">
+            @for (palette of palettes; track palette.name) {
+              <button type="button" class="palette" (click)="applyPalette(palette.colours)">
+                <span class="palette-chips">
+                  <span [style.background]="palette.colours.paper"></span>
+                  <span [style.background]="palette.colours.ink"></span>
+                  <span [style.background]="palette.colours.muted_colour"></span>
+                  <span [style.background]="palette.colours.sidebar_bg"></span>
+                </span>
+                {{ palette.name }}
+              </button>
+            }
+          </div>
+        </section>
+
+        <!-- Accordion rather than a single long scroll: seven groups of controls
+             open at once is a wall, and the preview is the thing worth looking
+             at while any one of them is being changed. -->
+        @for (group of groups; track group.id) {
+          <section class="group group--fold">
+            <button
+              type="button"
+              class="fold-head"
+              [class.is-open]="openGroup() === group.id"
+              [attr.aria-expanded]="openGroup() === group.id"
+              (click)="openGroup.set(openGroup() === group.id ? '' : group.id)"
+            >
+              {{ group.label }}
+              <vn-icon
+                [name]="openGroup() === group.id ? 'chevron-up' : 'chevron-down'"
+                [size]="15"
+              />
+            </button>
+
+            @if (openGroup() === group.id) {
+              <div class="fold-body">
+                @for (control of shown(group.controls); track control.field) {
+                  @switch (control.kind) {
+                    @case ('enum') {
+                      <div class="control">
+                        <span class="vn-label">{{ control.label }}</span>
+                        <div class="chips">
+                          @for (option of control.options; track option.value) {
+                            <button
+                              type="button"
+                              class="chip"
+                              [class.is-active]="value(control.field) === option.value"
+                              (click)="set(control.field, option.value)"
+                            >
+                              {{ option.label }}
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    @case ('slider') {
+                      <div class="control">
+                        <span class="vn-label">
+                          {{ control.label }}
+                          <span class="reading vn-mono">{{ reading(control) }}</span>
+                        </span>
+                        <input
+                          class="slider"
+                          type="range"
+                          [min]="control.min"
+                          [max]="control.max"
+                          [step]="control.step"
+                          [ngModel]="value(control.field)"
+                          (ngModelChange)="setNumber(control.field, $event)"
+                          [attr.aria-label]="control.label"
+                        />
+                      </div>
+                    }
+
+                    @case ('toggle') {
+                      <label class="control toggle">
+                        <input
+                          type="checkbox"
+                          [ngModel]="value(control.field)"
+                          (ngModelChange)="set(control.field, $event)"
+                        />
+                        <span>{{ control.label }}</span>
+                      </label>
+                    }
+
+                    @case ('colour') {
+                      <label class="control colour">
+                        <span>{{ control.label }}</span>
+                        <input
+                          type="color"
+                          [ngModel]="value(control.field)"
+                          (ngModelChange)="set(control.field, $event)"
+                          [attr.aria-label]="control.label"
+                        />
+                      </label>
+                    }
+
+                    @case ('sections') {
+                      <div class="control">
+                        <span class="vn-label">{{ control.label }}</span>
+                        <div class="chips">
+                          @for (type of sectionCandidates; track type) {
+                            <button
+                              type="button"
+                              class="chip"
+                              [class.is-active]="inSidebar(type)"
+                              (click)="toggleSidebarSection(type)"
+                            >
+                              {{ sectionLabels[type] }}
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  }
+                }
+              </div>
+            }
+          </section>
+        }
+      </div>
+    </aside>
+
+    <!-- .vn-paper-gutter, never a themed surface: the preview is printed
+         matter, so paper and its backdrop look the same in either theme. -->
+    <section class="preview vn-paper-gutter" [class.is-stale]="previewPending()">
+      @if (previewHtml(); as doc) {
+        <iframe class="preview-frame" [srcdoc]="doc" sandbox="" title="Design preview"></iframe>
+      } @else {
+        <div class="preview-loading">Setting your page…</div>
+      }
+
+      @if (previewPending()) {
+        <span class="preview-badge">
+          <vn-icon name="refresh" [size]="13" />
+          Updating
+        </span>
+      }
+    </section>
+  </div>
+</div>

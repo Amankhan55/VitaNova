@@ -114,6 +114,10 @@ async def _ensure_indexes(db: AsyncDatabase) -> None:
     await db.resumes.create_index([("owner_id", ASCENDING)])
     # Backs the dashboard listing: a user's resumes, most recently edited first.
     await db.resumes.create_index([("owner_id", ASCENDING), ("updated_at", DESCENDING)])
+    # Backs the gallery's "your designs" list: one user's templates, newest first.
+    await db.custom_templates.create_index(
+        [("owner_id", ASCENDING), ("updated_at", DESCENDING)]
+    )
     # Refresh tokens expire on their own so revoked/stale sessions self-clean.
     await db.refresh_tokens.create_index([("token_hash", ASCENDING)], unique=True)
     await db.refresh_tokens.create_index("expires_at", expireAfterSeconds=0)

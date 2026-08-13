@@ -21,6 +21,7 @@ async def render_draft(payload: RenderRequest) -> HTMLResponse:
         ResumeData(basics=payload.basics, sections=payload.sections),
         payload.template_id,
         payload.theme,
+        payload.custom_template,
     )
     return HTMLResponse(html)
 
@@ -31,6 +32,7 @@ async def render_draft_pdf(payload: RenderRequest) -> Response:
         ResumeData(basics=payload.basics, sections=payload.sections),
         payload.template_id,
         payload.theme,
+        payload.custom_template,
     )
     filename = render_service.pdf_filename(payload.basics.full_name, payload.template_id)
     return Response(

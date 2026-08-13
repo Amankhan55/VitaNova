@@ -19,8 +19,10 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup, escape
 
 from app.core.config import TEMPLATES_DIR
+from app.models import custom_template
+from app.models.custom_template import CustomTemplateSpec
 from app.models.resume import ResumeData, Theme
-from app.services import template_registry
+from app.services import custom_css, template_registry
 
 logger = logging.getLogger(__name__)
 
@@ -169,11 +171,43 @@ def _theme_css(theme: Theme, page_margin: str) -> str:
 
 
 def render_html(
-    data: ResumeData, template_id: str | None = None, theme: Theme | None = None
+    data: ResumeData,
+    template_id: str | None = None,
+    theme: Theme | None = None,
+    custom: CustomTemplateSpec | None = None,
 ) -> str:
-    """Render a complete, self-contained HTML document for a resume."""
-    template_id = template_registry.resolve_template_id(template_id)
+    """Render a complete, self-contained HTML document for a resume.
+
+    `custom` carries a user-designed template's spec. When it is present the
+    document is laid out by ``_custom/template.html`` against a stylesheet
+    generated from that spec, and `template_id` is ignored -- the caller has
+    already resolved the ``custom:<id>`` reference into the spec itself, because
+    that lookup needs the database and this function stays synchronous so
+    WeasyPrint can be handed the identical string.
+    """
     theme = theme or Theme()
+
+    if custom is not None:
+        body = _env().get_template("_custom/template.html").render(
+            basics=data.basics,
+            sections=_visible_sections(data.sections),
+            all_sections=data.sections,
+            theme=theme,
+            meta=None,
+            custom=custom,
+            monogram=data.basics.monogram(),
+        )
+        base = (TEMPLATES_DIR / "_shared" / "base.css").read_text("utf-8")
+        return _document(
+            body,
+            data.basics.full_name,
+            f"{base}\n\n{custom_css.compile_spec(custom)}",
+            theme,
+            custom.page_margin(),
+            "vn-custom",
+        )
+
+    template_id = template_registry.resolve_template_id(template_id)
     meta = template_registry.get_template(template_id)
 
     body = _env().get_template(f"{template_id}/template.html").render(
@@ -182,10 +216,26 @@ def render_html(
         all_sections=data.sections,
         theme=theme,
         meta=meta,
+        custom=None,
         monogram=data.basics.monogram(),
     )
+    return _document(
+        body,
+        data.basics.full_name,
+        _read_css(template_id),
+        theme,
+        meta.page_margin if meta else "14mm",
+        f"vn-{template_id}",
+    )
 
-    title = data.basics.full_name or "Resume"
+
+def _document(
+    body: str, full_name: str, css: str, theme: Theme, page_margin: str, body_class: str
+) -> str:
+    """The wrapper both paths share, so the two can never drift in what they
+    inline or in the order they inline it: base rules, then the design, then the
+    theme -- which must come last to win."""
+    title = full_name or "Resume"
     return (
         "<!DOCTYPE html>\n"
         '<html lang="en">\n<head>\n'
@@ -194,9 +244,8 @@ def render_html(
         f"<title>{escape(title)} — Resume</title>\n"
         f'<meta name="author" content="{escape(title)}">\n'
         '<meta name="generator" content="VitaNova">\n'
-        f"<style>\n{_read_css(template_id)}\n"
-        f"{_theme_css(theme, meta.page_margin if meta else '14mm')}\n</style>\n"
-        f"</head>\n<body class=\"vn-doc vn-{template_id}\">\n{body}\n</body>\n</html>\n"
+        f"<style>\n{css}\n{_theme_css(theme, page_margin)}\n</style>\n"
+        f'</head>\n<body class="vn-doc {body_class}">\n{body}\n</body>\n</html>\n'
     )
 
 
@@ -207,13 +256,20 @@ def _html_to_pdf(html: str) -> bytes:
 
 
 async def render_pdf(
-    data: ResumeData, template_id: str | None = None, theme: Theme | None = None
+    data: ResumeData,
+    template_id: str | None = None,
+    theme: Theme | None = None,
+    custom: CustomTemplateSpec | None = None,
 ) -> bytes:
     """Render to PDF off the event loop -- WeasyPrint is CPU-bound and blocking."""
-    html = render_html(data, template_id, theme)
+    html = render_html(data, template_id, theme, custom)
     return await anyio.to_thread.run_sync(_html_to_pdf, html)
 
 
 def pdf_filename(full_name: str, template_id: str) -> str:
     stem = re.sub(r"[^A-Za-z0-9]+", "_", full_name).strip("_") or "resume"
-    return f"{stem}_{template_id}.pdf"
+    # A custom id is "custom:<opaque id>" -- a colon is not legal in a filename
+    # on every platform, and the id would tell the user nothing anyway.
+    design = "custom" if custom_template.is_custom_id(template_id) else template_id
+    design = re.sub(r"[^A-Za-z0-9-]+", "_", design).strip("_") or "resume"
+    return f"{stem}_{design}.pdf"

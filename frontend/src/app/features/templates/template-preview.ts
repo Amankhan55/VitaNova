@@ -11,7 +11,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
 
+import { CustomTemplateApi } from '../../core/api/custom-template.api';
 import { TemplateApi } from '../../core/api/resume.api';
+import { isCustomTemplateId } from '../../core/models/custom-template.model';
 
 /** Width of an A4 page in CSS pixels at 96dpi — the width the iframe renders at. */
 const PAGE_WIDTH_PX = 794;
@@ -78,6 +80,7 @@ const PAGE_WIDTH_PX = 794;
 })
 export class TemplatePreview implements OnDestroy {
   private readonly api = inject(TemplateApi);
+  private readonly customApi = inject(CustomTemplateApi);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly host = inject(ElementRef<HTMLElement>);
 
@@ -98,8 +101,17 @@ export class TemplatePreview implements OnDestroy {
   constructor() {
     this.resize.observe(this.host.nativeElement);
 
+    // A `custom:<id>` design is a document rather than a folder on disk, so it
+    // is sampled through its own endpoint — which is authenticated, since a
+    // design belongs to one account.
     toObservable(this.templateId)
-      .pipe(switchMap((id) => this.api.sampleHtml(id)))
+      .pipe(
+        switchMap((id) =>
+          isCustomTemplateId(id)
+            ? this.customApi.sampleHtml(id.replace(/^custom:/, ''))
+            : this.api.sampleHtml(id),
+        ),
+      )
       .subscribe({
         // The document comes from our own render endpoint and the iframe is fully
         // sandboxed (no scripts, no same-origin), so bypassing here is safe.

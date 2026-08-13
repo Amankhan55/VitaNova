@@ -189,11 +189,69 @@
   gap: 5px;
 }
 
-.use {
+.plate-actions {
+  display: flex;
+  gap: 8px;
   margin-top: auto;
+}
+
+.use {
+  flex: 1;
   padding-top: 13px;
   padding-bottom: 13px;
   justify-content: center;
+}
+
+.edit {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  padding: 0;
+}
+
+/* ------------------------------------------------------- build your own */
+
+/* Not a specimen — there is no sheet to show yet — so it is drawn as the empty
+   frame the others are printed into, dashed to say "nothing here until you
+   make it". */
+.plate--build {
+  text-decoration: none;
+  color: inherit;
+}
+
+.build-mount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  min-height: 260px;
+  padding: 28px 24px;
+  color: var(--vn-text-muted);
+  border: 1px dashed var(--vn-border-strong);
+  border-radius: var(--vn-radius-xs);
+  transition: border-color 0.2s var(--vn-ease), background 0.2s var(--vn-ease),
+    color 0.2s var(--vn-ease);
+}
+
+.plate--build:hover .build-mount {
+  color: var(--vn-text);
+  background: var(--vn-surface-2);
+  border-color: var(--vn-accent);
+}
+
+.build-mount h2 {
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  color: var(--vn-text);
+}
+
+.build-mount p {
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 
 .skeleton {

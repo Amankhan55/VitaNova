@@ -10,9 +10,10 @@ from pymongo import DESCENDING
 from pymongo.asynchronous.database import AsyncDatabase
 
 from app.core.security import new_id
+from app.models.custom_template import is_custom_id
 from app.models.resume import ResumeDoc
 from app.schemas.resume import ResumeCreate, ResumeSummary, ResumeUpdate
-from app.services import template_registry
+from app.services import custom_template_service, template_registry
 from app.services.seed import starter_resume_data
 
 
@@ -30,6 +31,25 @@ def _from_doc(doc: dict) -> ResumeDoc:
 
 async def count_for_owner(db: AsyncDatabase, owner_id: str) -> int:
     return await db.resumes.count_documents({"owner_id": owner_id})
+
+
+async def _resolve_template_id(
+    db: AsyncDatabase, owner_id: str, template_id: str | None
+) -> str:
+    """`template_registry.resolve_template_id`, extended to the user's own designs.
+
+    A ``custom:<id>`` reference is only accepted when that design exists *and*
+    belongs to this account -- the registry cannot check either, since it knows
+    nothing about the database. Anything else falls back to the default design,
+    which is the same forgiving behaviour built-in ids already get: a stale
+    template reference must not cost somebody their resume.
+    """
+    if is_custom_id(template_id):
+        template = await custom_template_service.get(db, owner_id, template_id)
+        if template is not None:
+            return template.template_id
+        return template_registry.resolve_template_id(None)
+    return template_registry.resolve_template_id(template_id)
 
 
 async def list_resumes(db: AsyncDatabase, owner_id: str) -> list[ResumeSummary]:
@@ -61,8 +81,12 @@ async def create_resume(
     db: AsyncDatabase, owner_id: str, payload: ResumeCreate, owner_name: str = "",
     owner_email: str = "",
 ) -> ResumeDoc:
-    template_id = template_registry.resolve_template_id(payload.template_id)
+    template_id = await _resolve_template_id(db, owner_id, payload.template_id)
     meta = template_registry.get_template(template_id)
+    custom = None
+    if meta is None and is_custom_id(template_id):
+        custom = await custom_template_service.get(db, owner_id, template_id)
+        meta = custom.to_meta() if custom else None
 
     if payload.sections is not None or payload.basics is not None:
         starter = starter_resume_data(owner_name, owner_email)
@@ -76,9 +100,16 @@ async def create_resume(
 
     theme = payload.theme
     if theme is None:
-        theme = ResumeDoc.model_fields["theme"].default_factory()
-        if meta:
-            theme.accent = meta.accent
+        if custom is not None:
+            # A user's own design was authored against a page: its size, spacing
+            # and text scale are part of what they approved in the builder, so
+            # taking only the colour would hand them a resume that does not look
+            # like the one they signed off on.
+            theme = custom.theme.model_copy(update={"accent": custom.accent})
+        else:
+            theme = ResumeDoc.model_fields["theme"].default_factory()
+            if meta:
+                theme.accent = meta.accent
 
     resume = ResumeDoc(
         owner_id=owner_id,
@@ -102,8 +133,8 @@ async def update_resume(
 ) -> ResumeDoc | None:
     changes = payload.model_dump(exclude_unset=True, mode="python")
     if "template_id" in changes:
-        changes["template_id"] = template_registry.resolve_template_id(
-            changes["template_id"]
+        changes["template_id"] = await _resolve_template_id(
+            db, owner_id, changes["template_id"]
         )
     changes["updated_at"] = datetime.now(UTC)
 

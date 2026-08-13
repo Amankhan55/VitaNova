@@ -5,7 +5,12 @@ from app.api.deps import CurrentUser, DbDep
 from app.core.config import settings
 from app.models.resume import ResumeData
 from app.schemas.resume import ResumeCreate, ResumeRead, ResumeSummary, ResumeUpdate
-from app.services import import_service, render_service, resume_service
+from app.services import (
+    custom_template_service,
+    import_service,
+    render_service,
+    resume_service,
+)
 
 router = APIRouter(prefix="/resumes", tags=["resumes"])
 
@@ -73,10 +78,14 @@ async def preview_resume(resume_id: str, user: CurrentUser, db: DbDep) -> HTMLRe
     resume = await resume_service.get_resume(db, user.id, resume_id)
     if resume is None:
         raise NOT_FOUND
+    # None for every built-in design; the spec itself when the resume is set in
+    # one of this user's own. Resolved here because the renderer is synchronous.
+    custom = await custom_template_service.spec_for(db, user.id, resume.template_id)
     html = render_service.render_html(
         ResumeData(basics=resume.basics, sections=resume.sections),
         resume.template_id,
         resume.theme,
+        custom,
     )
     return HTMLResponse(html)
 
@@ -86,10 +95,12 @@ async def export_pdf(resume_id: str, user: CurrentUser, db: DbDep) -> Response:
     resume = await resume_service.get_resume(db, user.id, resume_id)
     if resume is None:
         raise NOT_FOUND
+    custom = await custom_template_service.spec_for(db, user.id, resume.template_id)
     pdf = await render_service.render_pdf(
         ResumeData(basics=resume.basics, sections=resume.sections),
         resume.template_id,
         resume.theme,
+        custom,
     )
     filename = render_service.pdf_filename(resume.basics.full_name, resume.template_id)
     return Response(

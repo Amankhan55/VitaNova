@@ -44,8 +44,13 @@ describe('AiStore', () => {
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting(), ResumeStore, AiStore],
     });
-    store = TestBed.inject(AiStore);
     http = TestBed.inject(HttpTestingController);
+    // AiStore pulls in ResumeStore, which fetches the user's own designs as soon
+    // as it exists — the editor needs their specs to render a preview. Answered
+    // here so the afterEach verify() stays a real check on this suite's own
+    // requests rather than being loosened to ignore a standing one.
+    store = TestBed.inject(AiStore);
+    http.expectOne('/api/v1/custom-templates').flush({ templates: [], metas: [] });
   });
 
   /** Puts a document in ResumeStore, as loading the editor would. */

@@ -3,6 +3,11 @@
  * `type`, so narrowing a section narrows its item type too.
  */
 
+// `import type`, and likewise in custom-template.model.ts: the two files
+// reference each other's shapes, and a type-only import leaves no cycle behind
+// once the types are erased.
+import type { CustomTemplateSpec } from './custom-template.model';
+
 export type SectionType =
   | 'summary'
   | 'experience'
@@ -154,6 +159,14 @@ export interface RenderRequest {
   theme: Theme;
   basics: Basics;
   sections: ResumeSection[];
+  /**
+   * The design itself, when the draft is set in a custom template.
+   *
+   * Sent inline rather than looked up by id because `/render` is deliberately
+   * unauthenticated and stateless — it stores nothing and reads nothing, it only
+   * echoes back what it was given.
+   */
+  custom_template?: CustomTemplateSpec | null;
 }
 
 export const SECTION_LABELS: Record<SectionType, string> = {

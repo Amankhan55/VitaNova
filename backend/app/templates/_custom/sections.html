@@ -1,0 +1,126 @@
+{# =============================================================================
+   VitaNova — section markup for user-designed templates
+
+   A near-copy of _shared/ats.html, and deliberately so. It exists for exactly
+   one difference: keywords and tech stacks are emitted as one <span class="vn-tag">
+   per keyword rather than as a single joined string.
+
+   That matters because a custom design can choose how its tags look — plain,
+   outlined pills, or bracketed mono — and none of those are reachable when the
+   whole list arrives as one text node. Changing the shared macro instead would
+   have altered the rendered output of all fifteen built-in designs, which are
+   checked against reference PDFs; a design nobody asked to change must not move
+   because a new feature needed a hook.
+
+   Everything else follows ats.html's conventions to the letter, so a
+   single-column custom design is parseable in the same way and for the same
+   reasons: one column in source order, role and employer adjacent on one line,
+   real <h2> headings, and no text anywhere in decoration.
+   ============================================================================= #}
+
+{% import '_shared/macros.html' as m %}
+
+
+{#- One element per keyword; the separator, if the design wants one, is drawn by
+    CSS on .vn-tag rather than sitting in the text. -#}
+{% macro tags(items) %}
+  {% set filled = items | select | list %}
+  {% if filled %}
+    <div class="vn-tags">
+      {%- for tag in filled %}<span class="vn-tag">{{ tag }}</span>{% endfor -%}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+
+{#- Location and dates as one right-aligned run: "San Francisco, CA | 2022 – Present". -#}
+{% macro meta_right(item) %}
+  {%- set bits = [] -%}
+  {%- if item.location %}{% set _ = bits.append(item.location) %}{% endif -%}
+  {%- set dates = item | date_range('–') -%}
+  {%- if dates %}{% set _ = bits.append(dates) %}{% endif -%}
+  {{- bits | join(' | ') -}}
+{% endmacro %}
+
+
+{% macro section(section) %}
+  <section class="vn-section vn-section--{{ section.type }}">
+    {% if section.title %}<h2 class="vn-section-title">{{ section.title }}</h2>{% endif %}
+
+    {% if section.type == 'summary' %}
+      <div class="vn-summary">{{ section.content | paragraphs }}</div>
+
+    {% elif section.type == 'experience' %}
+      {% for item in section.items %}
+        <div class="vn-entry">
+          <div class="vn-entry-row">
+            <span class="vn-entry-aside vn-entry-dates">{{ meta_right(item) }}</span>
+            <span class="vn-entry-title">
+              {{ item.role }}{% if item.role and item.organization %} — {% endif %}{{ item.organization }}
+            </span>
+          </div>
+          {% if item.summary %}<div class="vn-entry-summary">{{ item.summary }}</div>{% endif %}
+          {{ m.bullets(item.bullets) }}
+          {{ tags(item.tech) }}
+        </div>
+      {% endfor %}
+
+    {% elif section.type == 'education' %}
+      {% for item in section.items %}
+        <div class="vn-entry">
+          <div class="vn-entry-row">
+            <span class="vn-entry-aside vn-entry-dates">{{ meta_right(item) }}</span>
+            <span class="vn-entry-title">{{ item.degree }}</span>
+          </div>
+          {% if item.institution %}<div class="vn-entry-org">{{ item.institution }}</div>{% endif %}
+          {{ m.bullets(item.details) }}
+        </div>
+      {% endfor %}
+
+    {% elif section.type == 'skills' %}
+      <div class="vn-skill-table">
+        {% for item in section.items %}
+          <div class="vn-skill-row">
+            <div class="vn-skill-label">{{ item.label }}{% if item.label %}:{% endif %}</div>
+            <div class="vn-skill-values">{{ tags(item.keywords) }}</div>
+          </div>
+        {% endfor %}
+      </div>
+
+    {% elif section.type == 'projects' %}
+      {% for item in section.items %}
+        <div class="vn-entry">
+          <div class="vn-entry-row">
+            {% if item.period %}<span class="vn-entry-aside vn-entry-dates">{{ item.period }}</span>{% endif %}
+            <span class="vn-entry-title">{{ item.name }}</span>
+          </div>
+          {{ tags(item.tech) }}
+          {{ m.bullets(item.bullets) }}
+        </div>
+      {% endfor %}
+
+    {% elif section.type == 'certifications' %}
+      {% for item in section.items %}
+        <div class="vn-entry">
+          <div class="vn-entry-row">
+            {% if item.date %}<span class="vn-entry-aside vn-entry-dates">{{ item.date }}</span>{% endif %}
+            <span class="vn-entry-title">{{ item.name }}</span>
+            {% set detail = [item.issuer, item.note] | select | join(' • ') %}
+            {% if detail %}<span class="vn-entry-detail"> — {{ detail }}</span>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+    {% elif section.type == 'languages' %}
+      {% for item in section.items %}
+        <div class="vn-entry vn-entry--language">
+          <span class="vn-entry-title">{{ item.name }}</span>
+          {% if item.level %}<span class="vn-entry-org vn-entry-level">{{ item.level }}</span>{% endif %}
+        </div>
+      {% endfor %}
+
+    {% else %}
+      {{ m.section_body(section) }}
+    {% endif %}
+  </section>
+{% endmacro %}

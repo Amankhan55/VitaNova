@@ -1,0 +1,357 @@
+/* The design builder. Deliberately the same furniture as the resume editor —
+   a toolbar, a control column, and the page itself — because it is the same
+   activity seen from the other side: there, content against a fixed design;
+   here, a design against fixed content. */
+
+.builder {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: calc(100vh - var(--vn-header-height));
+}
+
+/* ---------------------------------------------------------------- toolbar */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--vn-surface);
+  border-bottom: 1px solid var(--vn-border-strong);
+  flex: none;
+}
+
+.back { padding: 7px; }
+
+.title-input {
+  flex: 1;
+  min-width: 0;
+  max-width: 380px;
+  padding: 6px 10px;
+  font: inherit;
+  font-family: var(--vn-font-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  color: var(--vn-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--vn-radius-xs);
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.title-input:hover { border-color: var(--vn-border-strong); }
+.title-input:focus {
+  outline: none;
+  background: var(--vn-surface);
+  border-color: var(--vn-accent);
+  box-shadow: 0 0 0 3px var(--vn-accent-ring);
+}
+
+/* Set in the mono face: this is a machine reporting, not the product talking. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding-right: 4px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--vn-text-subtle);
+}
+.status--saved { color: var(--vn-accent-text); }
+.status--error { color: var(--vn-danger-text); }
+
+.danger:hover { color: var(--vn-danger-text); border-color: var(--vn-danger-line); }
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 16px 0;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--vn-danger-text);
+  background: var(--vn-danger-soft);
+  border: 1px solid var(--vn-danger-line);
+  border-left: 3px solid var(--vn-danger);
+  border-radius: var(--vn-radius-xs);
+}
+
+/* ------------------------------------------------------------------ split */
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(340px, 30%) 1fr;
+  flex: 1;
+  min-height: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--vn-surface);
+  border-right: 1px solid var(--vn-border-strong);
+}
+
+.panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 16px 80px;
+  scrollbar-gutter: stable;
+}
+
+/* ----------------------------------------------------------------- groups */
+
+.group { margin-bottom: 22px; }
+.group--fold { margin-bottom: 0; }
+
+.spaced { margin-top: 18px; }
+
+/* Each group is a strip with a rule under it — the same "list of choices with
+   rules between them" language the design panel uses. */
+.fold-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 13px 2px;
+  font-family: var(--vn-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vn-text-subtle);
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--vn-border);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.fold-head:hover { color: var(--vn-text); }
+.fold-head.is-open { color: var(--vn-text); }
+
+.fold-body { padding: 4px 2px 20px; }
+
+.control { margin-bottom: 18px; }
+.control:last-child { margin-bottom: 0; }
+
+.control .vn-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.reading {
+  font-size: 10.5px;
+  color: var(--vn-text-subtle);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Chips, not a segmented control: several of these groups have six options and
+   would otherwise squeeze to four illegible characters each. */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chip {
+  padding: 5px 10px;
+  font-family: var(--vn-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--vn-text-muted);
+  background: var(--vn-surface);
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-xs);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.chip:hover:not(.is-active) { background: var(--vn-surface-2); color: var(--vn-text); }
+.chip.is-active {
+  color: var(--vn-on-ink);
+  background: var(--vn-ink);
+  border-color: var(--vn-ink);
+}
+
+.slider { width: 100%; margin-top: 10px; accent-color: var(--vn-accent); }
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13.5px;
+  color: var(--vn-text);
+  cursor: pointer;
+}
+.toggle input { accent-color: var(--vn-accent); width: 15px; height: 15px; }
+
+.colour {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 11px;
+  font-size: 13.5px;
+  color: var(--vn-text);
+  cursor: pointer;
+}
+.colour input {
+  flex: none;
+  width: 44px;
+  height: 26px;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-xs);
+  cursor: pointer;
+}
+
+.desc {
+  width: 100%;
+  margin-top: 8px;
+  padding: 9px 11px;
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--vn-text);
+  background: var(--vn-surface-inset);
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-xs);
+  resize: vertical;
+}
+.desc:focus {
+  outline: none;
+  border-color: var(--vn-accent);
+  box-shadow: 0 0 0 3px var(--vn-accent-ring);
+}
+
+.swatches { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+
+.dot {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--vn-radius-xs);
+  box-shadow: inset 0 0 0 1px var(--vn-paper-edge);
+  cursor: pointer;
+  transition: box-shadow 0.12s var(--vn-ease);
+}
+.dot:hover { box-shadow: inset 0 0 0 1px var(--vn-paper-edge), 0 0 0 2px var(--vn-border-strong); }
+.dot.is-active { box-shadow: inset 0 0 0 1px var(--vn-paper-edge), 0 0 0 2px var(--vn-text); }
+.dot--custom {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: conic-gradient(#ef4444, #f59e0b, #10b981, #3b82f6, #8b5cf6, #ef4444);
+}
+.dot--custom input { opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+
+/* A palette shows itself rather than being named alone — four bars in the
+   colours it would actually apply. */
+.palettes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.palette {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--vn-text);
+  background: var(--vn-surface);
+  border: 1px solid var(--vn-border-strong);
+  border-radius: var(--vn-radius-xs);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.palette:hover { background: var(--vn-surface-2); }
+
+.palette-chips {
+  display: flex;
+  flex: none;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--vn-paper-edge);
+}
+.palette-chips span { width: 8px; height: 18px; }
+
+/* ---------------------------------------------------------------- preview */
+
+.preview {
+  position: relative;
+  min-height: 0;
+  overflow: auto;
+  transition: opacity 0.15s;
+}
+.preview.is-stale { opacity: 0.78; }
+
+.preview-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.preview-loading {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-family: var(--vn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vn-paper-ink-muted);
+}
+
+.preview-badge {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  font-family: var(--vn-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vn-paper-ink-muted);
+  background: var(--vn-paper);
+  border: 1px solid var(--vn-paper-edge);
+  border-radius: var(--vn-radius-xs);
+  box-shadow: 0 2px 6px rgb(15 23 42 / 10%);
+  pointer-events: none;
+}
+
+@media (max-width: 940px) {
+  .builder { height: auto; }
+  .split { grid-template-columns: 1fr; }
+  .panel { border-right: 0; border-bottom: 1px solid var(--vn-border-strong); }
+  .panel-body { max-height: 58vh; }
+  .preview { height: 80vh; }
+}
+
+@media (max-width: 620px) {
+  .toolbar { flex-wrap: wrap; }
+  .title-input { max-width: none; }
+}
