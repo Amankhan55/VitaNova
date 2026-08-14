@@ -2,6 +2,7 @@ import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } fro
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { LIMITS } from '../../../core/models/limits';
 import {
   ItemSection,
   ResumeItem,
@@ -83,6 +84,7 @@ const ADDABLE: SectionType[] = [
                 <input
                   class="vn-input"
                   type="text"
+                  [attr.maxlength]="limits.short"
                   [ngModel]="section.title"
                   (ngModelChange)="renameSection(section, $event)"
                   [placeholder]="label(section.type)"
@@ -106,6 +108,7 @@ const ADDABLE: SectionType[] = [
                   <textarea
                     class="vn-textarea"
                     rows="7"
+                    [attr.maxlength]="limits.longProse"
                     [ngModel]="summaryOf(section).content"
                     (ngModelChange)="setSummary(section, $event)"
                     placeholder="Two or three sentences on who you are and the value you bring…"
@@ -165,6 +168,7 @@ export class SectionList {
   protected readonly ai = inject(AiStore);
 
   protected readonly addable = ADDABLE;
+  protected readonly limits = LIMITS;
   protected readonly sections = computed(() => this.store.resume()?.sections ?? []);
 
   /** Ids of expanded sections. The first section starts open so the editor is
@@ -279,6 +283,9 @@ export class SectionList {
   }
 
   protected addSection(type: SectionType): void {
+    // The API refuses a document past these counts, and it says so with a 422
+    // the editor has nowhere to show. Stopping here keeps the two in agreement.
+    if (this.sections().length >= LIMITS.maxSections) return;
     const created = emptySection(type);
     this.store.replaceSections([...this.sections(), created]);
     this.open.update((current) => new Set(current).add(created.id));
@@ -288,6 +295,7 @@ export class SectionList {
     if (!isItemSection(section)) return;
     this.store.updateSection(section.id, (current) => {
       const target = current as ItemSection;
+      if (target.items.length >= LIMITS.maxItemsPerSection) return current;
       return { ...target, items: [...target.items, emptyItemFor(target)] } as ResumeSection;
     });
   }

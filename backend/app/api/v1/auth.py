@@ -2,13 +2,19 @@ from datetime import UTC, datetime
 from urllib.parse import quote
 
 import jwt
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
 from pymongo import ReturnDocument
 from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import DuplicateKeyError
 
 from app.api.deps import CurrentUser, DbDep
 from app.core.config import settings
+from app.core.rate_limit import (
+    client_key,
+    email_limiter,
+    login_limiter,
+    register_limiter,
+)
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -115,8 +121,12 @@ async def providers() -> AuthProviders:
     "/register", response_model=MessageResponse, status_code=status.HTTP_201_CREATED
 )
 async def register(
-    payload: RegisterRequest, db: DbDep, background: BackgroundTasks
+    payload: RegisterRequest, request: Request, db: DbDep, background: BackgroundTasks
 ) -> MessageResponse:
+    # Keyed by client address, not by email: a sign-up flood uses a fresh
+    # address every time, so there is nothing else to count. Best-effort — see
+    # app/core/rate_limit.py on why this header cannot be fully trusted.
+    register_limiter.check(client_key(request))
     user = UserDoc(
         email=payload.email.lower(),
         full_name=payload.full_name,
@@ -141,6 +151,12 @@ async def register(
 
 @router.post("/login", response_model=AuthResponse)
 async def login(payload: LoginRequest, db: DbDep) -> AuthResponse:
+    # Before the lookup, so a locked-out attacker cannot even learn whether the
+    # address exists, and so the bcrypt comparison below -- deliberately slow --
+    # is not work anyone can ask for without limit.
+    email_key = payload.email.lower()
+    login_limiter.check(email_key)
+
     user = await _find_by_email(db, payload.email)
     # Same message either way so the endpoint does not reveal which emails
     # exist. A Google-only account has no hash and lands here too.
@@ -161,6 +177,9 @@ async def login(payload: LoginRequest, db: DbDep) -> AuthResponse:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Confirm your email address before signing in.",
         )
+    # Proving the password clears the budget, so somebody who fumbled it a few
+    # times does not spend the rest of the window one mistake from a lockout.
+    login_limiter.reset(email_key)
     return AuthResponse(user=_public(user), tokens=await _issue_tokens(db, user.id))
 
 
@@ -199,6 +218,11 @@ async def verify_email(payload: VerifyEmailRequest, db: DbDep) -> AuthResponse:
 async def resend_verification(
     payload: EmailRequest, db: DbDep, background: BackgroundTasks
 ) -> MessageResponse:
+    # Keyed by the address the mail would go to, so a flood aimed at one inbox
+    # stops regardless of where it is sent from. Applied whether or not the
+    # account exists -- skipping it for unknown addresses would make the limit
+    # itself an oracle for which addresses are registered.
+    email_limiter.check(payload.email.lower())
     user = await _find_by_email(db, payload.email)
     if user is not None and not user.email_verified:
         background.add_task(_send_verification, db, user)
@@ -216,6 +240,9 @@ async def resend_verification(
 async def forgot_password(
     payload: EmailRequest, db: DbDep, background: BackgroundTasks
 ) -> MessageResponse:
+    # Same budget as resend-verification and for the same reason: the limit is
+    # on mail arriving at an address, not on who asked for it.
+    email_limiter.check(payload.email.lower())
     user = await _find_by_email(db, payload.email)
     if user is not None:
         background.add_task(_send_reset, db, user)

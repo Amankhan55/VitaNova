@@ -64,6 +64,35 @@ class Settings(BaseSettings):
     #   VITANOVA_CORS_ORIGIN_REGEX=https://.*\.vercel\.app
     cors_origin_regex: str | None = None
 
+    # --- Request limits ----------------------------------------------------- #
+    # Largest JSON body the render and resume endpoints will accept. A complete
+    # resume with every section filled serialises to about 5 KB, so this is fifty
+    # times what the editor ever sends -- it exists to stop a hostile caller
+    # handing WeasyPrint a thousand-page document, not to constrain real use.
+    # (The PDF import endpoint is exempt; it has its own, larger cap.)
+    max_json_body_bytes: int = 256 * 1024
+    # Concurrent PDF renders. WeasyPrint is CPU- and memory-hungry and runs in a
+    # worker thread, where anyio would otherwise allow forty at once -- enough to
+    # exhaust a 512 MB instance. Past this, requests queue instead of piling up.
+    max_concurrent_pdf_renders: int = 2
+
+    # --- Rate limits -------------------------------------------------------- #
+    # Set false to switch every limiter off (the test suite does this).
+    rate_limit_enabled: bool = True
+    # Password guesses per email address. Keyed by address rather than by IP
+    # because the deployed frontend proxies /api through Vercel, so every
+    # request reaches this app from a Vercel address -- see app/core/rate_limit.py.
+    login_max_attempts: int = 10
+    login_window_seconds: int = 900
+    # Mails per address per window, for forgot-password and resend-verification.
+    # The per-token cooldown above already spaces these out; this caps the total.
+    email_send_max: int = 5
+    email_send_window_seconds: int = 3600
+    # Sign-ups per client address. Each one sends mail, and an SMTP account that
+    # emits a few thousand messages in an hour gets suspended.
+    register_max: int = 10
+    register_window_seconds: int = 3600
+
     # Maximum resumes a single account may hold, a cheap guard against runaway writes.
     max_resumes_per_user: int = 50
     # Same guard for user-designed templates. Lower, because a design is a thing

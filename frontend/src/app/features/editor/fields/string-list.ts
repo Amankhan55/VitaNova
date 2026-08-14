@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { LIMITS } from '../../../core/models/limits';
 import { Icon } from '../../../shared/ui/icon/icon';
 
 /**
@@ -22,6 +23,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
             <textarea
               class="vn-textarea"
               rows="2"
+              [attr.maxlength]="maxLength()"
               [ngModel]="value"
               (ngModelChange)="change($index, $event)"
               [placeholder]="placeholder()"
@@ -30,6 +32,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
             <input
               class="vn-input"
               type="text"
+              [attr.maxlength]="maxLength()"
               [ngModel]="value"
               (ngModelChange)="change($index, $event)"
               [placeholder]="placeholder()"
@@ -60,7 +63,12 @@ import { Icon } from '../../../shared/ui/icon/icon';
       }
     </div>
 
-    <button class="vn-btn vn-btn--sm vn-btn--ghost add" type="button" (click)="add()">
+    <button
+      class="vn-btn vn-btn--sm vn-btn--ghost add"
+      type="button"
+      [disabled]="values().length >= maxItems()"
+      (click)="add()"
+    >
       <vn-icon name="plus" [size]="14" />
       Add {{ itemNoun() }}
     </button>
@@ -93,6 +101,12 @@ export class StringList {
   readonly placeholder = input('');
   readonly multiline = input(false);
 
+  /** Character cap per row, and row cap for the list. Both mirror the API's
+   *  limits (see core/models/limits.ts): the editor must not be able to compose
+   *  a document the server will then refuse to save or render. */
+  readonly maxLength = input<number>(LIMITS.prose);
+  readonly maxItems = input<number>(LIMITS.maxBullets);
+
   /** Adds a per-row ✨ action. Off by default, so skill and tech lists — where
    *  a one-word value has nothing to rewrite — are unchanged. */
   readonly rewritable = input(false);
@@ -116,6 +130,7 @@ export class StringList {
   }
 
   protected add(): void {
+    if (this.values().length >= this.maxItems()) return;
     this.valuesChange.emit([...this.values(), '']);
   }
 }

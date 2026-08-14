@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import ai, auth, custom_templates, render, resumes, templates
 from app.core import config, db
 from app.core.config import settings
+from app.core.limits import BodySizeLimitMiddleware
 from app.services import template_registry
 
 logging.basicConfig(level=logging.INFO if settings.debug else logging.WARNING)
@@ -27,6 +28,13 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Added before CORS, which means it sits *inside* it: Starlette's add_middleware
+# inserts at the head of the list, so the last one added ends up outermost. That
+# is the order this wants -- a 413 from here still passes back out through
+# CORSMiddleware and picks up the headers a browser needs to read the error,
+# while the check itself still happens before routing or body parsing.
+app.add_middleware(BodySizeLimitMiddleware, max_bytes=settings.max_json_body_bytes)
 
 app.add_middleware(
     CORSMiddleware,

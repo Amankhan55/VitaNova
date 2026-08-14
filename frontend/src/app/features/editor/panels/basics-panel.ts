@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { LIMITS } from '../../../core/models/limits';
 import { Basics, LinkIcon, ResumeLink } from '../../../core/models/resume.model';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { ResumeStore } from '../resume-store';
@@ -18,6 +19,7 @@ const LINK_ICONS: LinkIcon[] = ['link', 'linkedin', 'github', 'globe', 'mail', '
         <input
           class="vn-input"
           type="text"
+          [attr.maxlength]="limits.short"
           [ngModel]="value.full_name"
           (ngModelChange)="patch({ full_name: $event })"
           placeholder="Alex Morgan"
@@ -29,6 +31,7 @@ const LINK_ICONS: LinkIcon[] = ['link', 'linkedin', 'github', 'globe', 'mail', '
         <input
           class="vn-input"
           type="text"
+          [attr.maxlength]="limits.line"
           [ngModel]="value.headline"
           (ngModelChange)="patch({ headline: $event })"
           placeholder="Senior Software &amp; UI Developer"
@@ -41,7 +44,8 @@ const LINK_ICONS: LinkIcon[] = ['link', 'linkedin', 'github', 'globe', 'mail', '
           <input
             class="vn-input"
             type="email"
-            [ngModel]="value.email"
+            [attr.maxlength]="limits.short"
+          [ngModel]="value.email"
             (ngModelChange)="patch({ email: $event })"
             placeholder="you@example.com"
           />
@@ -52,7 +56,8 @@ const LINK_ICONS: LinkIcon[] = ['link', 'linkedin', 'github', 'globe', 'mail', '
           <input
             class="vn-input"
             type="tel"
-            [ngModel]="value.phone"
+            [attr.maxlength]="limits.short"
+          [ngModel]="value.phone"
             (ngModelChange)="patch({ phone: $event })"
             placeholder="+1 (555) 000-0000"
           />
@@ -65,7 +70,8 @@ const LINK_ICONS: LinkIcon[] = ['link', 'linkedin', 'github', 'globe', 'mail', '
           <input
             class="vn-input"
             type="text"
-            [ngModel]="value.location"
+            [attr.maxlength]="limits.short"
+          [ngModel]="value.location"
             (ngModelChange)="patch({ location: $event })"
             placeholder="San Francisco, CA"
           />
@@ -76,7 +82,7 @@ const LINK_ICONS: LinkIcon[] = ['link', 'linkedin', 'github', 'globe', 'mail', '
           <input
             class="vn-input"
             type="text"
-            maxlength="2"
+            [attr.maxlength]="limits.initials"
             [ngModel]="value.initials"
             (ngModelChange)="patch({ initials: $event })"
             [placeholder]="derivedInitials(value.full_name)"
@@ -104,6 +110,7 @@ const LINK_ICONS: LinkIcon[] = ['link', 'linkedin', 'github', 'globe', 'mail', '
             <input
               class="vn-input"
               type="text"
+              [attr.maxlength]="limits.short"
               [ngModel]="link.label"
               (ngModelChange)="updateLink($index, { label: $event })"
               placeholder="linkedin.com/in/you"
@@ -120,7 +127,8 @@ const LINK_ICONS: LinkIcon[] = ['link', 'linkedin', 'github', 'globe', 'mail', '
           </div>
         }
 
-        <button class="vn-btn vn-btn--sm vn-btn--ghost add" type="button" (click)="addLink()">
+        <button class="vn-btn vn-btn--sm vn-btn--ghost add" type="button"
+                [disabled]="!canAddLink()" (click)="addLink()">
           <vn-icon name="plus" [size]="14" />
           Add link
         </button>
@@ -141,6 +149,7 @@ export class BasicsPanel {
   private readonly store = inject(ResumeStore);
 
   protected readonly linkIcons = LINK_ICONS;
+  protected readonly limits = LIMITS;
 
   protected basics(): Basics | null {
     return this.store.resume()?.basics ?? null;
@@ -168,7 +177,12 @@ export class BasicsPanel {
     this.patch({ links: (this.basics()?.links ?? []).filter((_, i) => i !== index) });
   }
 
+  protected canAddLink(): boolean {
+    return (this.basics()?.links ?? []).length < LIMITS.maxLinks;
+  }
+
   protected addLink(): void {
+    if (!this.canAddLink()) return;
     this.patch({ links: [...(this.basics()?.links ?? []), { label: '', url: '', icon: 'link' }] });
   }
 }

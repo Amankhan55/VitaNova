@@ -18,7 +18,7 @@ import anyio
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup, escape
 
-from app.core.config import TEMPLATES_DIR
+from app.core.config import TEMPLATES_DIR, settings
 from app.models import custom_template
 from app.models.custom_template import CustomTemplateSpec
 from app.models.resume import ResumeData, Theme
@@ -255,6 +255,13 @@ def _html_to_pdf(html: str) -> bytes:
     return HTML(string=html, base_url=str(TEMPLATES_DIR)).write_pdf()
 
 
+# How many documents WeasyPrint may lay out at once. Without this the bound is
+# anyio's default thread limiter -- forty -- and forty concurrent renders will
+# exhaust a 512 MB instance long before they exhaust its CPU. Past this limit
+# callers wait their turn, which degrades latency instead of the process.
+_pdf_slots = anyio.Semaphore(settings.max_concurrent_pdf_renders)
+
+
 async def render_pdf(
     data: ResumeData,
     template_id: str | None = None,
@@ -262,8 +269,11 @@ async def render_pdf(
     custom: CustomTemplateSpec | None = None,
 ) -> bytes:
     """Render to PDF off the event loop -- WeasyPrint is CPU-bound and blocking."""
+    # Built before the semaphore is taken: this part is cheap, and holding a slot
+    # while rendering Jinja would narrow the bottleneck for no reason.
     html = render_html(data, template_id, theme, custom)
-    return await anyio.to_thread.run_sync(_html_to_pdf, html)
+    async with _pdf_slots:
+        return await anyio.to_thread.run_sync(_html_to_pdf, html)
 
 
 def pdf_filename(full_name: str, template_id: str) -> str:

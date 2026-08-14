@@ -30,26 +30,62 @@ class VitaModel(BaseModel):
 
 
 # --------------------------------------------------------------------------- #
+# Size limits
+#
+# /render and /render/pdf are unauthenticated by design -- they store nothing and
+# read nothing -- so these bounds are what stands between a hostile caller and
+# handing WeasyPrint a thousand-page document to lay out. The request body is
+# capped separately (settings.max_render_body_bytes); this is the second lock,
+# and the one that also applies to anything already sitting in Mongo.
+#
+# Calibrated against the fully-populated demo resume in services/seed.py, whose
+# longest field is 381 characters and which serialises to about 5 KB. Every
+# limit here is far above what a real document needs -- an editor should never
+# be able to produce something the API then refuses to render.
+# --------------------------------------------------------------------------- #
+
+# Names, roles, organisations, locations, dates: one line of a form.
+Short = Annotated[str, Field(max_length=200)]
+# Headlines, links, notes: a long line.
+Line = Annotated[str, Field(max_length=500)]
+# One bullet, or one paragraph of an entry's summary.
+Prose = Annotated[str, Field(max_length=2000)]
+# The summary section, which is the only genuinely long-form field.
+LongProse = Annotated[str, Field(max_length=5000)]
+# A single skill keyword or technology tag.
+Keyword = Annotated[str, Field(max_length=100)]
+
+MAX_SECTIONS = 30
+MAX_ITEMS_PER_SECTION = 60
+MAX_BULLETS = 40
+MAX_KEYWORDS = 60
+MAX_LINKS = 15
+
+Bullets = Annotated[list[Prose], Field(default_factory=list, max_length=MAX_BULLETS)]
+Keywords = Annotated[list[Keyword], Field(default_factory=list, max_length=MAX_KEYWORDS)]
+
+
+# --------------------------------------------------------------------------- #
 # Basics
 # --------------------------------------------------------------------------- #
 
 
 class Link(VitaModel):
-    label: str = ""
-    url: str = ""
+    label: Short = ""
+    url: Line = ""
     # Maps to an icon in the frontend's icon set.
     icon: Literal["link", "github", "linkedin", "globe", "mail", "phone", "pin"] = "link"
 
 
 class Basics(VitaModel):
-    full_name: str = ""
-    headline: str = ""
-    email: str = ""
-    phone: str = ""
-    location: str = ""
-    links: list[Link] = Field(default_factory=list)
+    full_name: Short = ""
+    headline: Line = ""
+    email: Short = ""
+    phone: Short = ""
+    location: Short = ""
+    links: list[Link] = Field(default_factory=list, max_length=MAX_LINKS)
     # Monogram for the sidebar template. Derived from full_name when blank.
-    initials: str = ""
+    initials: Annotated[str, Field(max_length=8)] = ""
 
     def monogram(self) -> str:
         if self.initials:
@@ -68,61 +104,61 @@ class Basics(VitaModel):
 
 
 class ItemBase(VitaModel):
-    id: str = Field(default_factory=new_id)
+    id: Annotated[str, Field(max_length=64)] = Field(default_factory=new_id)
 
 
 class ExperienceItem(ItemBase):
-    role: str = ""
-    organization: str = ""
-    location: str = ""
-    start: str = ""
-    end: str = ""
+    role: Short = ""
+    organization: Short = ""
+    location: Short = ""
+    start: Short = ""
+    end: Short = ""
     current: bool = False
-    summary: str = ""
-    bullets: list[str] = Field(default_factory=list)
-    tech: list[str] = Field(default_factory=list)
+    summary: Prose = ""
+    bullets: Bullets
+    tech: Keywords
 
 
 class EducationItem(ItemBase):
-    degree: str = ""
-    institution: str = ""
-    location: str = ""
-    start: str = ""
-    end: str = ""
+    degree: Short = ""
+    institution: Short = ""
+    location: Short = ""
+    start: Short = ""
+    end: Short = ""
     current: bool = False
-    details: list[str] = Field(default_factory=list)
+    details: Bullets
 
 
 class SkillGroupItem(ItemBase):
-    label: str = ""
-    keywords: list[str] = Field(default_factory=list)
+    label: Short = ""
+    keywords: Keywords
 
 
 class ProjectItem(ItemBase):
-    name: str = ""
-    link: str = ""
-    period: str = ""
-    tech: list[str] = Field(default_factory=list)
-    bullets: list[str] = Field(default_factory=list)
+    name: Short = ""
+    link: Line = ""
+    period: Short = ""
+    tech: Keywords
+    bullets: Bullets
 
 
 class CertificationItem(ItemBase):
-    name: str = ""
-    issuer: str = ""
-    date: str = ""
-    note: str = ""
+    name: Short = ""
+    issuer: Short = ""
+    date: Short = ""
+    note: Line = ""
 
 
 class LanguageItem(ItemBase):
-    name: str = ""
-    level: str = ""
+    name: Short = ""
+    level: Short = ""
 
 
 class CustomItem(ItemBase):
-    title: str = ""
-    subtitle: str = ""
-    meta: str = ""
-    bullets: list[str] = Field(default_factory=list)
+    title: Short = ""
+    subtitle: Short = ""
+    meta: Line = ""
+    bullets: Bullets
 
 
 # --------------------------------------------------------------------------- #
@@ -130,9 +166,12 @@ class CustomItem(ItemBase):
 # --------------------------------------------------------------------------- #
 
 
+Items = Field(default_factory=list, max_length=MAX_ITEMS_PER_SECTION)
+
+
 class SectionBase(VitaModel):
-    id: str = Field(default_factory=new_id)
-    title: str = ""
+    id: Annotated[str, Field(max_length=64)] = Field(default_factory=new_id)
+    title: Short = ""
     visible: bool = True
 
 
@@ -142,50 +181,50 @@ class SummarySection(SectionBase):
     plain 'Summary'."""
 
     type: Literal["summary"] = "summary"
-    title: str = "Professional Summary"
-    content: str = ""
+    title: Short = "Professional Summary"
+    content: LongProse = ""
 
 
 class ExperienceSection(SectionBase):
     type: Literal["experience"] = "experience"
-    title: str = "Professional Experience"
-    items: list[ExperienceItem] = Field(default_factory=list)
+    title: Short = "Professional Experience"
+    items: list[ExperienceItem] = Items
 
 
 class EducationSection(SectionBase):
     type: Literal["education"] = "education"
-    title: str = "Education"
-    items: list[EducationItem] = Field(default_factory=list)
+    title: Short = "Education"
+    items: list[EducationItem] = Items
 
 
 class SkillsSection(SectionBase):
     type: Literal["skills"] = "skills"
-    title: str = "Skills"
-    items: list[SkillGroupItem] = Field(default_factory=list)
+    title: Short = "Skills"
+    items: list[SkillGroupItem] = Items
 
 
 class ProjectsSection(SectionBase):
     type: Literal["projects"] = "projects"
-    title: str = "Projects"
-    items: list[ProjectItem] = Field(default_factory=list)
+    title: Short = "Projects"
+    items: list[ProjectItem] = Items
 
 
 class CertificationsSection(SectionBase):
     type: Literal["certifications"] = "certifications"
-    title: str = "Certifications"
-    items: list[CertificationItem] = Field(default_factory=list)
+    title: Short = "Certifications"
+    items: list[CertificationItem] = Items
 
 
 class LanguagesSection(SectionBase):
     type: Literal["languages"] = "languages"
-    title: str = "Languages"
-    items: list[LanguageItem] = Field(default_factory=list)
+    title: Short = "Languages"
+    items: list[LanguageItem] = Items
 
 
 class CustomSection(SectionBase):
     type: Literal["custom"] = "custom"
-    title: str = "Additional"
-    items: list[CustomItem] = Field(default_factory=list)
+    title: Short = "Additional"
+    items: list[CustomItem] = Items
 
 
 Section = Annotated[
@@ -207,7 +246,9 @@ Section = Annotated[
 
 
 class Theme(VitaModel):
-    accent: str = "#2563EB"
+    # Re-validated as a hex colour in render_service._theme_css before it reaches
+    # a <style> block; the cap here just stops an unbounded string being stored.
+    accent: Annotated[str, Field(max_length=64)] = "#2563EB"
     font_scale: float = Field(default=1.0, ge=0.8, le=1.25)
     page_size: Literal["A4", "Letter"] = "A4"
     density: Literal["compact", "normal", "relaxed"] = "normal"
@@ -217,13 +258,13 @@ class ResumeData(VitaModel):
     """The renderable payload -- everything a template needs, nothing more."""
 
     basics: Basics = Field(default_factory=Basics)
-    sections: list[Section] = Field(default_factory=list)
+    sections: list[Section] = Field(default_factory=list, max_length=MAX_SECTIONS)
 
 
 class ResumeDoc(ResumeData):
     id: str = Field(default_factory=new_id)
     owner_id: str
-    title: str = "Untitled Resume"
+    title: Short = "Untitled Resume"
     template_id: str = "modern-professional"
     theme: Theme = Field(default_factory=Theme)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

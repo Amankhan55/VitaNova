@@ -26,6 +26,10 @@ os.environ["VITANOVA_EMAIL_RESEND_COOLDOWN_SECONDS"] = "0"
 # outbox, and a developer with working mail settings would otherwise watch every
 # authenticated test error out -- while sending themselves the mail.
 os.environ["VITANOVA_SMTP_HOST"] = ""
+# The suite registers and signs in far more often than any real user would, and
+# shares one client across the session. The limiters get their own tests, which
+# turn them back on deliberately.
+os.environ["VITANOVA_RATE_LIMIT_ENABLED"] = "false"
 
 from fastapi.testclient import TestClient  # noqa: E402
 

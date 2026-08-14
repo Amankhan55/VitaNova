@@ -15,6 +15,7 @@ import {
   ResumeItem,
   SkillGroupItem,
 } from '../../../core/models/resume.model';
+import { LIMITS } from '../../../core/models/limits';
 import { DateRange, DateRangeValue } from '../fields/date-range';
 import { StringList } from '../fields/string-list';
 
@@ -34,18 +35,18 @@ import { StringList } from '../fields/string-list';
       @case ('experience') {
         <label class="vn-field">
           <span class="vn-label">Role</span>
-          <input class="vn-input" type="text" [ngModel]="experience().role"
+          <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="experience().role"
                  (ngModelChange)="patch({ role: $event })" placeholder="Lead UI Developer" />
         </label>
         <div class="pair">
           <label class="vn-field">
             <span class="vn-label">Organisation</span>
-            <input class="vn-input" type="text" [ngModel]="experience().organization"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="experience().organization"
                    (ngModelChange)="patch({ organization: $event })" placeholder="Nexus Cloud Solutions" />
           </label>
           <label class="vn-field">
             <span class="vn-label">Location</span>
-            <input class="vn-input" type="text" [ngModel]="experience().location"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="experience().location"
                    (ngModelChange)="patch({ location: $event })" placeholder="San Francisco, CA" />
           </label>
         </div>
@@ -77,6 +78,8 @@ import { StringList } from '../fields/string-list';
         <span class="vn-label spaced">Technologies</span>
         <vn-string-list
           [values]="experience().tech"
+          [maxLength]="limits.keyword"
+          [maxItems]="limits.maxKeywords"
           (valuesChange)="patch({ tech: $event })"
           itemNoun="technology"
           placeholder="TypeScript"
@@ -86,18 +89,18 @@ import { StringList } from '../fields/string-list';
       @case ('education') {
         <label class="vn-field">
           <span class="vn-label">Qualification</span>
-          <input class="vn-input" type="text" [ngModel]="education().degree"
+          <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="education().degree"
                  (ngModelChange)="patch({ degree: $event })" placeholder="B.S. in Computer Science" />
         </label>
         <div class="pair">
           <label class="vn-field">
             <span class="vn-label">Institution</span>
-            <input class="vn-input" type="text" [ngModel]="education().institution"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="education().institution"
                    (ngModelChange)="patch({ institution: $event })" placeholder="University of California" />
           </label>
           <label class="vn-field">
             <span class="vn-label">Location</span>
-            <input class="vn-input" type="text" [ngModel]="education().location"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="education().location"
                    (ngModelChange)="patch({ location: $event })" placeholder="Berkeley, CA" />
           </label>
         </div>
@@ -118,12 +121,14 @@ import { StringList } from '../fields/string-list';
       @case ('skills') {
         <label class="vn-field">
           <span class="vn-label">Group</span>
-          <input class="vn-input" type="text" [ngModel]="skill().label"
+          <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="skill().label"
                  (ngModelChange)="patch({ label: $event })" placeholder="Frontend Architecture" />
         </label>
         <span class="vn-label">Skills</span>
         <vn-string-list
           [values]="skill().keywords"
+          [maxLength]="limits.keyword"
+          [maxItems]="limits.maxKeywords"
           (valuesChange)="patch({ keywords: $event })"
           itemNoun="skill"
           placeholder="TypeScript"
@@ -134,23 +139,25 @@ import { StringList } from '../fields/string-list';
         <div class="pair">
           <label class="vn-field">
             <span class="vn-label">Name</span>
-            <input class="vn-input" type="text" [ngModel]="project().name"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="project().name"
                    (ngModelChange)="patch({ name: $event })" placeholder="Pulse Design System" />
           </label>
           <label class="vn-field">
             <span class="vn-label">When</span>
-            <input class="vn-input" type="text" [ngModel]="project().period"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="project().period"
                    (ngModelChange)="patch({ period: $event })" placeholder="2023" />
           </label>
         </div>
         <label class="vn-field">
           <span class="vn-label">Link</span>
-          <input class="vn-input" type="text" [ngModel]="project().link"
+          <input class="vn-input" type="text" [attr.maxlength]="limits.line" [ngModel]="project().link"
                  (ngModelChange)="patch({ link: $event })" placeholder="github.com/you/project" />
         </label>
         <span class="vn-label">Built with</span>
         <vn-string-list
           [values]="project().tech"
+          [maxLength]="limits.keyword"
+          [maxItems]="limits.maxKeywords"
           (valuesChange)="patch({ tech: $event })"
           itemNoun="technology"
           placeholder="React"
@@ -184,24 +191,24 @@ import { StringList } from '../fields/string-list';
       @case ('certifications') {
         <label class="vn-field">
           <span class="vn-label">Certification</span>
-          <input class="vn-input" type="text" [ngModel]="certification().name"
+          <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="certification().name"
                  (ngModelChange)="patch({ name: $event })" placeholder="AWS Certified Developer" />
         </label>
         <div class="pair">
           <label class="vn-field">
             <span class="vn-label">Issuer</span>
-            <input class="vn-input" type="text" [ngModel]="certification().issuer"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="certification().issuer"
                    (ngModelChange)="patch({ issuer: $event })" placeholder="Amazon Web Services" />
           </label>
           <label class="vn-field">
             <span class="vn-label">Date</span>
-            <input class="vn-input" type="text" [ngModel]="certification().date"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="certification().date"
                    (ngModelChange)="patch({ date: $event })" placeholder="2024" />
           </label>
         </div>
         <label class="vn-field">
           <span class="vn-label">Note</span>
-          <input class="vn-input" type="text" [ngModel]="certification().note"
+          <input class="vn-input" type="text" [attr.maxlength]="limits.line" [ngModel]="certification().note"
                  (ngModelChange)="patch({ note: $event })" placeholder="Associate level" />
         </label>
       }
@@ -210,12 +217,12 @@ import { StringList } from '../fields/string-list';
         <div class="pair">
           <label class="vn-field">
             <span class="vn-label">Language</span>
-            <input class="vn-input" type="text" [ngModel]="language().name"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="language().name"
                    (ngModelChange)="patch({ name: $event })" placeholder="Spanish" />
           </label>
           <label class="vn-field">
             <span class="vn-label">Proficiency</span>
-            <input class="vn-input" type="text" [ngModel]="language().level"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="language().level"
                    (ngModelChange)="patch({ level: $event })" placeholder="Professional working" />
           </label>
         </div>
@@ -225,18 +232,18 @@ import { StringList } from '../fields/string-list';
         <div class="pair">
           <label class="vn-field">
             <span class="vn-label">Title</span>
-            <input class="vn-input" type="text" [ngModel]="custom().title"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="custom().title"
                    (ngModelChange)="patch({ title: $event })" placeholder="Volunteer lead" />
           </label>
           <label class="vn-field">
             <span class="vn-label">Meta</span>
-            <input class="vn-input" type="text" [ngModel]="custom().meta"
+            <input class="vn-input" type="text" [attr.maxlength]="limits.line" [ngModel]="custom().meta"
                    (ngModelChange)="patch({ meta: $event })" placeholder="2021 — 2023" />
           </label>
         </div>
         <label class="vn-field">
           <span class="vn-label">Subtitle</span>
-          <input class="vn-input" type="text" [ngModel]="custom().subtitle"
+          <input class="vn-input" type="text" [attr.maxlength]="limits.short" [ngModel]="custom().subtitle"
                  (ngModelChange)="patch({ subtitle: $event })" placeholder="Code for Good" />
         </label>
         <span class="vn-label">Details</span>
@@ -272,6 +279,7 @@ import { StringList } from '../fields/string-list';
 })
 export class ItemEditor {
   protected readonly ai = inject(AiStore);
+  protected readonly limits = LIMITS;
 
   readonly sectionType = input.required<ItemSection['type']>();
   readonly item = input.required<ResumeItem>();
